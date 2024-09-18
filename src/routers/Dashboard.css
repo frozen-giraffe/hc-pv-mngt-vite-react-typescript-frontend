@@ -1,0 +1,26 @@
+.nav-wrap{
+    position: absolute;
+    width: 100vw;
+    height: 70px;
+    border-bottom: 1px solid rgba(0,0,0, 0.1) ;
+}
+.main-content-section{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 70px;
+    margin-left: 256px;
+    background-color: aliceblue;
+}
+.logo-div{
+    display: flex;
+    justify-content: center;
+}
+.logo-inner-img{
+    width: 50px;
+    margin: 20px 0px 20px 0px;
+}
+.logo-inner-img:hover{
+    cursor: pointer;
+    caret-color: black;
+}

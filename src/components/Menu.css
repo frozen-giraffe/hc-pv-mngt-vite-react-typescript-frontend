@@ -1,0 +1,33 @@
+.menu-div{
+    width: 256px;
+    height: 100vh;
+    border-right: 1px solid rgba(0,0,0, 0.1) ;
+}
+.menu-inner-wrap{
+    padding: 10px 0px 10px 0px;
+
+}
+.logo-div{
+    display: flex;
+    justify-content: center;
+}
+.logo-inner-img{
+    width: 50px;
+    margin: 10px 0px 0px 10px;
+}
+.logo:hover{
+    cursor: pointer;
+    caret-color: black;
+}
+.style-div{
+    position: absolute;
+    width: 256px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.switch-button{
+    
+}

@@ -1,0 +1,15 @@
+.nav-inner-wrap{
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 30px;
+    align-items: center;
+    height: 70px;
+    padding: 0px 30px 0px 30px;
+}
+.setting-icon-wrap{
+    font-size: 25px;
+}
+.x1-icon-wrap{
+    font-size: 25px;
+
+}

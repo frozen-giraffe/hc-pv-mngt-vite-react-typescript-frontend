@@ -1,0 +1,104 @@
+import React, {useEffect, useState} from 'react'
+import { useAuth } from '../context/AuthContext';
+import { useNavigate  } from 'react-router-dom';
+import { url } from 'inspector';
+import Image from './../assets/login_image.jpg'
+import Logo from './../assets/Logo.png'
+import { Button, Input,Alert  } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import './Login.css';
+import { log } from 'console';
+import {loginPostRequest} from './../requests'
+import { LoginService, type Body_Login_login_access_token as AccessToken } from '../client';
+
+
+export const Login = () => {
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [errorMsgVisible, setErrorMsgVisible] = useState(false);
+  const { isAuthenticated,login } = useAuth();
+  const history = useNavigate();
+  
+  useEffect(()=>{
+    console.log("useEffect"+isAuthenticated)
+    if(isAuthenticated){
+      history('/dashboard');
+    }
+  },[isAuthenticated])
+  const loginFetch = async (username: string, password: string) => {
+    
+    const a = {'username': username, 'password':password} as AccessToken
+    LoginService.loginAccessToken({formData: a}).then((data)=>{
+      login(data.access_token)
+      history('/dashboard');
+    }).catch((reason)=>{
+      console.log(reason)
+    })
+    //const data = await response.json();
+  
+    // if (response.ok) {
+    //   // Handle the successful login and save the token if needed
+    //   console.log('Login successful:', data.access_token);
+    //   login(data.access_token);
+    //   history('/dashboard');
+
+    // } else {
+    //   setErrorMsg(data.detail)
+    //   setErrorMsgVisible(true)
+    //   return false;
+    // }
+  };
+
+  const handleLogin = () => {
+    // Perform login API call className='background-wrap'
+    console.log(isAuthenticated)
+    if(isAuthenticated){
+      history('/dashboard');
+    }
+    loginFetch(username, password);
+  };
+
+  
+
+  return (
+    <div className='login-page-wrap'>
+      <div className='login-page-left'>
+        {/* <img className='login-page-left-img' src={Image}></img> */}
+        <div></div>
+        <div className='text'>新疆昊辰产值管理系统</div>
+      </div>
+      
+      <div className='login-page-right'>
+        <img className='logo' src={Logo}></img>
+        <Alert
+          className='alert'
+          style={errorMsgVisible ? {display: 'block'} : {display:'none'}}
+          message="Error"
+          description={errorMsg}
+          type="error"
+
+          showIcon
+        />
+        <Input 
+          placeholder="Username" 
+          value={username}
+          size='large'
+          onChange={(e) => setUsername(e.target.value)}/>
+        <Input.Password
+          size='large'
+          placeholder="Password"
+          value={password}
+          iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        
+        <Button className='loginButton' type="primary" onClick={handleLogin} >Login</Button>
+
+        <div className='copyright'>© 2024 Hao Cheng Architecture Planning and Design Research Institute Co., Ltd. All Rights Reserved</div>
+      </div>
+      
+    </div>
+  )
+}
