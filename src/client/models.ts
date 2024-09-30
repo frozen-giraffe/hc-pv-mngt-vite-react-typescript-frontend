@@ -62,31 +62,41 @@ export type BuildingTypesPublicOut = {
 
 
 export type ContractPaymentCreateIn = {
-	project_payout_id: number;
 	payment_date: string;
 	amount: number;
 	processed_by_id: number;
 	notes?: string | null;
+	project_payout_id: number;
+};
+
+
+
+export type ContractPaymentPayout = {
+	project_payout_id: number;
+	contract_payment_id: number;
+	employee_id: number;
+	employee_payout_amount: number;
+	id?: number;
 };
 
 
 
 export type ContractPaymentPublicOut = {
-	project_payout_id: number;
 	payment_date: string;
 	amount: number;
 	processed_by_id: number;
 	notes?: string | null;
 	id: number;
-	project?: ProjectPublicOut | null;
+	contract_payment_payouts?: Array<ContractPaymentPayout> | null;
 	paid_ratio: number;
 	project_id: number;
+	project_payout_id: number;
+	payout_amount: number;
 };
 
 
 
 export type ContractPaymentUpdateIn = {
-	project_payout_id: null;
 	payment_date?: string | null;
 	amount?: number | null;
 	processed_by_id?: number | null;
@@ -97,8 +107,6 @@ export type ContractPaymentUpdateIn = {
 
 export type ContractPaymentsPublicOut = {
 	data: Array<ContractPaymentPublicOut>;
-	project_total_paid_amount?: number | null;
-	project_total_paid_ratio?: number | null;
 	count: number;
 };
 
@@ -284,6 +292,12 @@ export type EmployeeUpdateIn = {
 export type EmployeesPublicOut = {
 	data: Array<EmployeePublicOut>;
 	count: number;
+};
+
+
+
+export type ErrorResponse = {
+	detail: string;
 };
 
 
@@ -622,11 +636,11 @@ export type ProjectCreateIn = {
 	building_structure_type_id: number;
 	project_rate_adjustment_class_id: number;
 	quality_ratio_class_id: number;
-	project_area: number;
-	project_construction_cost: number;
+	project_area?: number | null;
+	project_construction_cost?: number | null;
 	calculated_employee_payout: number;
 	project_contract_value: number;
-	project_deliverable_production_value: number;
+	project_deliverable_production_value?: number | null;
 	notes?: string | null;
 };
 
@@ -979,11 +993,11 @@ export type ProjectPublicOut = {
 	building_structure_type_id: number;
 	project_rate_adjustment_class_id: number;
 	quality_ratio_class_id: number;
-	project_area: number;
-	project_construction_cost: number;
+	project_area?: number | null;
+	project_construction_cost?: number | null;
 	calculated_employee_payout: number;
 	project_contract_value: number;
-	project_deliverable_production_value: number;
+	project_deliverable_production_value?: number | null;
 	notes?: string | null;
 	id: number;
 	date_added: string;

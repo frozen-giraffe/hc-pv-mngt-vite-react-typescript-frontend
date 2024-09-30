@@ -1,11 +1,12 @@
 import React, { Key, useEffect, useState } from 'react'
 import { Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import type { TableColumnsType, TableProps } from 'antd';
 import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, WorkLocationPublicOut, WorkLocationsService } from '../client';
 import { useAuth } from '../context/AuthContext';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import pinyin from 'chinese-to-pinyin';
+import MySelectComponent from '../components/Dropdown';
 
 
 type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_location_id' | 'employee_title_id' | 'professional_title_id' | 'employ_status_id'> & {
@@ -178,15 +179,6 @@ export const Employees: React.FC = () => {
         console.log('Delete employee id:', id);
     };
 
-    const renderDropdown = (options: any[]) => (
-        <Select>
-          {options.map(option => (
-            <Select.Option key={option.id} value={option.name}>
-              {option.name}
-            </Select.Option>
-          ))}
-        </Select>
-    );
     const handleSearch = (selectedKeys: React.Key[], confirm: FilterDropdownProps['confirm'], dataIndex: string) => {
         
         
@@ -244,35 +236,38 @@ export const Employees: React.FC = () => {
     
     const columns = [
         {
-            title: 'ID', dataIndex: 'id',  editable: false, inputType: 'text',
+            title: 'ID', dataIndex: 'id',  editable: false, inputType: 'text',width: 50,
         },
         {
-            title: '姓名', dataIndex: 'name', editable: true, inputType: 'text', filterSearch: true,...getColumnSearchProps('name'),
+            title: '姓名', dataIndex: 'name', editable: true, inputType: 'text', width: 100,
+            filterSearch: true,...getColumnSearchProps('name'),
         },
         {
-            title: '性别', dataIndex: 'gender',editable: true, inputType: 'text',onCell: () => ({ style: { minWidth: 500 } }),
+            title: '性别', dataIndex: 'gender',editable: true, inputType: 'text',width: 50,
+            onCell: () => ({ style: { minWidth: 500 } }),
         },
         {
-            title: '身份证号', dataIndex: 'gov_id', editable: false, inputType: 'text',
+            title: '身份证号', dataIndex: 'gov_id', editable: false, inputType: 'text',width: 100,
         },
         {
-            title: '生日', dataIndex: 'birth_date', editable: true, inputType: 'text',render:(text:string | null) => text!==null && convertDateToYYYYMMDD(text)
+            title: '生日', dataIndex: 'birth_date', editable: true, inputType: 'text', width: 100,
+            render:(text:string | null) => text!==null && convertDateToYYYYMMDD(text)
             
         },
         {
-            title: '部门', dataIndex: ['department', 'name'], editable: true, inputType: 'dropdown', options: departments,
+            title: '部门', dataIndex: ['department', 'name'], editable: true, inputType: 'dropdown', options: departments,width: 100,
         },
         {
-            title: '工作地点',dataIndex: ['workLocation', 'name'],editable: true,inputType: 'dropdown',options: workLocations,
+            title: '工作地点',dataIndex: ['workLocation', 'name'],editable: true,inputType: 'dropdown',options: workLocations,width: 100,
         },
         {
-            title: '职位',dataIndex: ['employeeTitle', 'name'],editable: true,inputType: 'dropdown',options: employeeTitles,
+            title: '职位',dataIndex: ['employeeTitle', 'name'],editable: true,inputType: 'dropdown',options: employeeTitles,width: 100,
         },
         {
-            title: '职称', dataIndex: ['professionalTitle', 'name'],editable: true,inputType: 'dropdown',options: professionalTitles,
+            title: '职称', dataIndex: ['professionalTitle', 'name'],editable: true,inputType: 'dropdown',options: professionalTitles,width: 100,
         },
         {
-            title: '员工状态',dataIndex: ['employmentStatus', 'name'],editable: true,inputType: 'dropdown',options: employeeStatus,
+            title: '员工状态',dataIndex: ['employmentStatus', 'name'],editable: true,inputType: 'dropdown',options: employeeStatus, width: 100,
             filters: employeeStatus.map(status => ({ text: status.name, value: status.name })),
             //filteredValue: employeeStatus.map(status => status.name),//默认全部
             //filteredValue:[],
@@ -286,7 +281,7 @@ export const Employees: React.FC = () => {
         },
         user?.is_superuser ? 
         {
-            title: '操作', width: '10%',key: 'action',
+            title: '操作',key: 'action', fixed: 'right', width: 100,
             render: (_:any, record:EmployeeFullDetails) => 
             {
             const editable = isEditing(record);
@@ -345,7 +340,8 @@ export const Employees: React.FC = () => {
         
         let inputNode = <Input />;
         if (inputType === 'dropdown') {
-            inputNode = renderDropdown(options)
+        inputNode =                         <MySelectComponent options={employeeStatus}/>
+
         } else if (inputType === 'number') {
             inputNode = <InputNumber />;
         }
@@ -372,10 +368,10 @@ export const Employees: React.FC = () => {
             const responseDepartments = await DepartmentsService.readDepartments();
             const responseWorkLocations= await WorkLocationsService.readWorkLocations();
             const responseEmployeeTitles= await EmployeeTitlesService.readEmployeeTitles();
-            const responseProfessionalTitles = await ProfessionalTitlesService.readProfessionalTitles({showDisabled:true});
+            const responseProfessionalTitles = await ProfessionalTitlesService.readProfessionalTitles();
             const responseEmployeeStatuses = await EmployeeStatusesService.readEmployeeStatuses();
             
-            console.log(responseEmployees);
+            console.log(responseEmployees,'ppppppp');
             
             const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.map(employee => ({
                 ...employee,
@@ -420,7 +416,8 @@ export const Employees: React.FC = () => {
         <div>
             {contextHolder}
             {user?.is_superuser &&
-            <Button onClick={showModal} type="primary" style={{ marginBottom: 16 }}>
+            <Button onClick={showModal} type="primary" style={loading || employees.length===0 ? { marginBottom: 16} : { marginBottom: 16,position: 'absolute', zIndex:1}}>
+                <PlusOutlined />
                 添加
             </Button>
             }
@@ -438,7 +435,7 @@ export const Employees: React.FC = () => {
                     dataSource={employees}
                     onChange={onChange}
                     showSorterTooltip={{ target: 'sorter-icon' }}
-                    pagination={{pageSize:13}}
+                    pagination={{pageSize:10, position:['topRight']}}
                     scroll={{ x:500 }}
                 />
             </Form>
@@ -464,19 +461,24 @@ export const Employees: React.FC = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item name="department" label="部门" rules={[{ required: true, message: '请选择部门!' }]}>
-                        {renderDropdown(departments)}
+                    <MySelectComponent options={employeeStatus}/>
+
                     </Form.Item>
                     <Form.Item name="workLocation" label="工作地点" rules={[{ required: true, message: '请选择工作地点!' }]}>
-                        {renderDropdown(workLocations)}
+                    <MySelectComponent options={employeeStatus}/>
+
                     </Form.Item>
                     <Form.Item name="employeeTitle" label="职位" rules={[{ required: true,message: '请选择职位!' }]}>
-                        {renderDropdown(employeeTitles)}
+                    <MySelectComponent options={employeeStatus}/>
+
                     </Form.Item>
                     <Form.Item name="professionalTitle" label="职称" rules={[{ required: true,message: '请选择职称!' }]}>
-                        {renderDropdown(professionalTitles)}
+                    <MySelectComponent options={employeeStatus}/>
+
                     </Form.Item>
                     <Form.Item name="employmentStatus" label="员工状态" rules={[{ required: true,message: '请选择员工状态!' }]}>
-                        {renderDropdown(employeeStatus)}
+                        {/* {renderDropdown(employeeStatus)} */}
+                        <MySelectComponent options={employeeStatus}/>
                     </Form.Item>
                 </Form>
             </Modal>

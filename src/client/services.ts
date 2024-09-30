@@ -334,7 +334,8 @@ CreateEmployee: {
                     
                 };
 SearchEmployee: {
-                    limit?: number
+                    departmentId?: number | null
+limit?: number
 query: string
 skip?: number
                     
@@ -425,7 +426,6 @@ requestBody: EmployeeTitleUpdateIn
 export type ProfessionalTitlesData = {
         ReadProfessionalTitles: {
                     limit?: number
-showDisabled: boolean
 skip?: number
                     
                 };
@@ -496,6 +496,14 @@ CreateContractPayment: {
                     requestBody: ContractPaymentCreateIn
                     
                 };
+GetContractPaymentByProjectPayoutId: {
+                    id: number
+                    
+                };
+GetContractPaymentByProjectId: {
+                    id: number
+                    
+                };
 ReadContractPayment: {
                     id: number
                     
@@ -507,6 +515,63 @@ requestBody: ContractPaymentUpdateIn
                 };
 DeleteContractPayment: {
                     id: number
+                    
+                };
+    }
+
+export type ReportsData = {
+        GetProjectListReport: {
+                    projectYear?: number | null
+                    
+                };
+GetContractPaymentListReport: {
+                    projectId?: number | null
+timeEnd?: string | null
+timeStart?: string | null
+                    
+                };
+GetEmployeeProjectPayoutListByPaymentYearReport: {
+                    employeeId: number
+paymentYear: number
+                    
+                };
+GetEmployeeProjectPayoutListByProjectYearReport: {
+                    employeeId: number
+projectYear: number
+                    
+                };
+GetEmployeeProjectProductionValueByProjectYearReport: {
+                    employeeId: number
+projectYear: number
+                    
+                };
+GetCompanyProjectPayoutListByPaymentYearReport: {
+                    paymentYear: number
+                    
+                };
+GetCompanyProjectPayoutListByProjectYearReport: {
+                    projectYear: number
+                    
+                };
+GetCompanyProjectProductionValueByProjectYearReport: {
+                    projectYear: number
+                    
+                };
+GetProjectPayoutListByPaymentYearReport: {
+                    paymentYear: number
+projectId: number
+                    
+                };
+GetProjectPayoutListByProjectYearReport: {
+                    projectId: number
+                    
+                };
+GetProjectProductionValueReport: {
+                    projectId: number
+                    
+                };
+GetContractPaymentPayoutListReport: {
+                    contractPaymentId: number
                     
                 };
     }
@@ -576,6 +641,19 @@ formData,
 				return __request(OpenAPI, {
 			method: 'POST',
 			url: '/api/v1/login/test-token',
+		});
+	}
+
+	/**
+	 * Refresh Token
+	 * Refresh access token
+	 * @returns Token Successful Response
+	 * @throws ApiError
+	 */
+	public static refreshToken(): CancelablePromise<Token> {
+				return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/login/refresh-token',
 		});
 	}
 
@@ -894,6 +972,7 @@ projectDeliverableProductionValueMax,
 				skip, limit, id, project_code: projectCode, name, project_type_id: projectTypeId, building_type_id: buildingTypeId, project_task_type_id: projectTaskTypeId, project_class_id: projectClassId, building_structure_type_id: buildingStructureTypeId, project_rate_adjustment_class_id: projectRateAdjustmentClassId, quality_ratio_class_id: qualityRatioClassId, date_added_from: dateAddedFrom, date_added_to: dateAddedTo, project_area_min: projectAreaMin, project_area_max: projectAreaMax, project_construction_cost_min: projectConstructionCostMin, project_construction_cost_max: projectConstructionCostMax, calculated_employee_payout_min: calculatedEmployeePayoutMin, calculated_employee_payout_max: calculatedEmployeePayoutMax, project_contract_value_min: projectContractValueMin, project_contract_value_max: projectContractValueMax, project_deliverable_production_value_min: projectDeliverableProductionValueMin, project_deliverable_production_value_max: projectDeliverableProductionValueMax
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -915,6 +994,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -937,6 +1017,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `项目ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -963,6 +1045,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -985,6 +1068,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1012,6 +1096,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1033,6 +1118,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建工程类型`,
 				422: `Validation Error`,
 			},
 		});
@@ -1055,6 +1142,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `工程类型ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1080,6 +1169,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新工程类型`,
+				404: `工程类型ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1107,6 +1199,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1128,6 +1221,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1150,6 +1244,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1175,6 +1270,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1202,6 +1298,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1223,6 +1320,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建工程项目类别`,
 				422: `Validation Error`,
 			},
 		});
@@ -1245,6 +1344,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `工程项目类别ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1270,6 +1371,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新工程项目类别`,
+				404: `工程项目类别ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1297,6 +1401,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1318,6 +1423,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建工程等级`,
 				422: `Validation Error`,
 			},
 		});
@@ -1340,6 +1447,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `工程等级ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1365,6 +1474,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新工程等级`,
+				404: `工程等级ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1392,6 +1504,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1413,6 +1526,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1435,6 +1549,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1460,6 +1575,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1487,6 +1603,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1508,6 +1625,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建系数调整级别`,
 				422: `Validation Error`,
 			},
 		});
@@ -1530,6 +1649,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `系数调整级别ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1555,6 +1676,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新系数调整级别`,
+				404: `系数调整级别ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1582,6 +1706,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1603,6 +1728,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建设计质量系数`,
 				422: `Validation Error`,
 			},
 		});
@@ -1625,6 +1752,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `设计质量系数ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1650,6 +1779,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新设计质量系数`,
+				404: `设计质量系数ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1669,6 +1801,10 @@ export class ProdValueCalcRatiosService {
 				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/prod-value-calc-ratios/default',
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `未找到默认的施工图产值到下发产值比。`,
+			},
 		});
 	}
 
@@ -1690,6 +1826,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1711,6 +1848,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建施工图产值到下发产值比`,
 				422: `Validation Error`,
 			},
 		});
@@ -1733,6 +1872,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `施工图产值到下发产值比ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1758,6 +1899,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法修改施工图产值到下发产值比信息`,
+				404: `施工图产值到下发产值比ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1784,6 +1928,7 @@ hidden = false,
 				hidden
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1805,6 +1950,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建设计阶段产值系数配置`,
 				422: `Validation Error`,
 			},
 		});
@@ -1827,6 +1974,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `设计阶段产值系数配置ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1852,6 +2001,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新设计阶段产值系数配置`,
+				404: `设计阶段产值系数配置ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1871,6 +2023,9 @@ export class DepartmentPayoutRatiosService {
 				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/department-payout-ratios/',
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+			},
 		});
 	}
 
@@ -1891,6 +2046,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1916,6 +2072,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1938,6 +2095,7 @@ projectClassId,
 				project_class_id: projectClassId
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1961,6 +2119,7 @@ projectRateAdjustmentClassId,
 				project_class_id: projectClassId, project_rate_adjustment_class_id: projectRateAdjustmentClassId
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -1987,6 +2146,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2015,6 +2175,7 @@ limit = 100,
 				show_disabled: showDisabled, skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2036,6 +2197,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2046,6 +2208,15 @@ requestBody,
 	 * 通过query搜索员工。
  * 
  * 搜索的字段包括：initial, pinyin, name
+ * 如果提供department_id，则该部门的员工优先级最高。
+ * 
+ * 排序规则：
+ * 1. 在指定部门（如果提供）
+ * 2. 匹配拼音开头
+ * 3. 匹配首字母开头
+ * 4. 拼音全文匹配
+ * 5. 首字母全文匹配
+ * 6. 名字全文匹配
  * 
  * 不搜索id.
 	 * @returns EmployeesPublicOut Successful Response
@@ -2054,6 +2225,7 @@ requestBody,
 	public static searchEmployee(data: EmployeeData['SearchEmployee']): CancelablePromise<EmployeesPublicOut> {
 		const {
 query,
+departmentId,
 skip = 0,
 limit = 100,
 } = data;
@@ -2064,9 +2236,10 @@ limit = 100,
 				query
 			},
 			query: {
-				skip, limit
+				department_id: departmentId, skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2090,6 +2263,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2112,6 +2286,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2137,6 +2312,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2145,10 +2321,10 @@ requestBody,
 	/**
 	 * Get Employee Report By Id
 	 * Get Report by Employee ID.
-	 * @returns EmployeePublicOut Successful Response
+	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
-	public static getEmployeeReportById(data: EmployeeData['GetEmployeeReportById']): CancelablePromise<EmployeePublicOut> {
+	public static getEmployeeReportById(data: EmployeeData['GetEmployeeReportById']): CancelablePromise<unknown> {
 		const {
 id,
 } = data;
@@ -2159,7 +2335,24 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * Generate Pinyin
+	 * Generate pinyin for a given name.
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static generatePinyin(): CancelablePromise<unknown> {
+				return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/employee/generate-pinyin',
+			errors: {
+				401: `未登录、登录状态过期或无效`,
 			},
 		});
 	}
@@ -2186,6 +2379,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2207,6 +2401,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2229,6 +2424,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2254,6 +2450,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2281,6 +2478,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2302,6 +2500,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建工作地点`,
 				422: `Validation Error`,
 			},
 		});
@@ -2324,6 +2524,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `工作地点ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2349,6 +2551,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新工作地点`,
+				404: `工作地点ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2376,6 +2581,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2397,6 +2603,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2419,6 +2626,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2444,6 +2652,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2459,9 +2668,8 @@ export class ProfessionalTitlesService {
 	 * @returns ProfessionalTitlesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProfessionalTitles(data: ProfessionalTitlesData['ReadProfessionalTitles']): CancelablePromise<ProfessionalTitlesPublicOut> {
+	public static readProfessionalTitles(data: ProfessionalTitlesData['ReadProfessionalTitles'] = {}): CancelablePromise<ProfessionalTitlesPublicOut> {
 		const {
-showDisabled,
 skip = 0,
 limit = 100,
 } = data;
@@ -2469,9 +2677,10 @@ limit = 100,
 			method: 'GET',
 			url: '/api/v1/professional-titles/',
 			query: {
-				show_disabled: showDisabled, skip, limit
+				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2493,6 +2702,8 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建职称`,
 				422: `Validation Error`,
 			},
 		});
@@ -2515,6 +2726,8 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				404: `职称ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2540,6 +2753,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新职称`,
+				404: `职称ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2567,6 +2783,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2588,6 +2805,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2610,6 +2828,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2635,6 +2854,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2662,6 +2882,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2683,6 +2904,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2698,6 +2920,9 @@ requestBody,
 				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-payouts/by-project-id/{id}',
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+			},
 		});
 	}
 
@@ -2718,6 +2943,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2747,6 +2973,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2774,6 +3001,7 @@ limit = 100,
 				skip, limit
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2795,6 +3023,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2803,13 +3032,23 @@ requestBody,
 	/**
 	 * Get Contract Payment By Project Payout Id
 	 * Get contract_payment payout *by project payout ID*.
-	 * @returns ContractPaymentPublicOut Successful Response
+	 * @returns ContractPaymentsPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static getContractPaymentByProjectPayoutId(): CancelablePromise<ContractPaymentPublicOut> {
-				return __request(OpenAPI, {
+	public static getContractPaymentByProjectPayoutId(data: ContractPaymentsData['GetContractPaymentByProjectPayoutId']): CancelablePromise<ContractPaymentsPublicOut> {
+		const {
+id,
+} = data;
+		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/contract-payments/by-project-payout-id/{id}',
+			path: {
+				id
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				422: `Validation Error`,
+			},
 		});
 	}
 
@@ -2819,10 +3058,20 @@ requestBody,
 	 * @returns ContractPaymentPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static getContractPaymentByProjectId(): CancelablePromise<ContractPaymentPublicOut> {
-				return __request(OpenAPI, {
+	public static getContractPaymentByProjectId(data: ContractPaymentsData['GetContractPaymentByProjectId']): CancelablePromise<ContractPaymentPublicOut> {
+		const {
+id,
+} = data;
+		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/contract-payments/by-project-id/{id}',
+			path: {
+				id
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				422: `Validation Error`,
+			},
 		});
 	}
 
@@ -2843,6 +3092,7 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2868,6 +3118,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				401: `未登录、登录状态过期或无效`,
 				422: `Validation Error`,
 			},
 		});
@@ -2890,6 +3141,322 @@ id,
 				id
 			},
 			errors: {
+				401: `未登录、登录状态过期或无效`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+}
+
+export class ReportsService {
+
+	/**
+	 * 生成项目列表报告
+	 * 生成项目列表报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getProjectListReport(data: ReportsData['GetProjectListReport'] = {}): CancelablePromise<unknown> {
+		const {
+projectYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/project-list',
+			query: {
+				project_year: projectYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成员工列表报告
+	 * 生成员工列表报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getEmployeeListReport(): CancelablePromise<unknown> {
+				return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/employee-list',
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+			},
+		});
+	}
+
+	/**
+	 * 生成回款报告
+	 * 生成回款报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getContractPaymentListReport(data: ReportsData['GetContractPaymentListReport'] = {}): CancelablePromise<unknown> {
+		const {
+projectId,
+timeStart,
+timeEnd,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/contract-payments',
+			query: {
+				project_id: projectId, time_start: timeStart, time_end: timeEnd
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成员工报告
+	 * 生成员工报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getEmployeeProjectPayoutListByPaymentYearReport(data: ReportsData['GetEmployeeProjectPayoutListByPaymentYearReport']): CancelablePromise<unknown> {
+		const {
+employeeId,
+paymentYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/employee/project-payout-list-by-payment-year',
+			query: {
+				employee_id: employeeId, payment_year: paymentYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成员工报告
+	 * 生成员工报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getEmployeeProjectPayoutListByProjectYearReport(data: ReportsData['GetEmployeeProjectPayoutListByProjectYearReport']): CancelablePromise<unknown> {
+		const {
+employeeId,
+projectYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/employee/project-payout-list-by-project-year',
+			query: {
+				employee_id: employeeId, project_year: projectYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成员工报告
+	 * 生成员工报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getEmployeeProjectProductionValueByProjectYearReport(data: ReportsData['GetEmployeeProjectProductionValueByProjectYearReport']): CancelablePromise<unknown> {
+		const {
+employeeId,
+projectYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/employee/project-production-value-by-project-year',
+			query: {
+				employee_id: employeeId, project_year: projectYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成公司报告
+	 * 生成公司报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getCompanyProjectPayoutListByPaymentYearReport(data: ReportsData['GetCompanyProjectPayoutListByPaymentYearReport']): CancelablePromise<unknown> {
+		const {
+paymentYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/company/project-payout-list-by-payment-year',
+			query: {
+				payment_year: paymentYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成公司报告
+	 * 生成公司报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getCompanyProjectPayoutListByProjectYearReport(data: ReportsData['GetCompanyProjectPayoutListByProjectYearReport']): CancelablePromise<unknown> {
+		const {
+projectYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/company/project-payout-list-by-project-year',
+			query: {
+				project_year: projectYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成公司报告
+	 * 生成公司报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getCompanyProjectProductionValueByProjectYearReport(data: ReportsData['GetCompanyProjectProductionValueByProjectYearReport']): CancelablePromise<unknown> {
+		const {
+projectYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/company/project-production-value-by-project-year',
+			query: {
+				project_year: projectYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成项目产值报告
+	 * 生成项目产值报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getProjectPayoutListByPaymentYearReport(data: ReportsData['GetProjectPayoutListByPaymentYearReport']): CancelablePromise<unknown> {
+		const {
+projectId,
+paymentYear,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/project/payout-list-by-payment-year',
+			query: {
+				project_id: projectId, payment_year: paymentYear
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成项目产值报告
+	 * 生成项目产值报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getProjectPayoutListByProjectYearReport(data: ReportsData['GetProjectPayoutListByProjectYearReport']): CancelablePromise<unknown> {
+		const {
+projectId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/project/payout-list-by-project-year',
+			query: {
+				project_id: projectId
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成项目产值报告
+	 * 生成项目产值报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getProjectProductionValueReport(data: ReportsData['GetProjectProductionValueReport']): CancelablePromise<unknown> {
+		const {
+projectId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/project/production-value',
+			query: {
+				project_id: projectId
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * 生成回款报告
+	 * 生成回款报告。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static getContractPaymentPayoutListReport(data: ReportsData['GetContractPaymentPayoutListReport']): CancelablePromise<unknown> {
+		const {
+contractPaymentId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/reports/contract-payment/payout-list',
+			query: {
+				contract_payment_id: contractPaymentId
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法生成报告`,
 				422: `Validation Error`,
 			},
 		});
@@ -2918,6 +3485,18 @@ emailTo,
 			errors: {
 				422: `Validation Error`,
 			},
+		});
+	}
+
+	/**
+	 * Health Check
+	 * @returns boolean Successful Response
+	 * @throws ApiError
+	 */
+	public static healthCheck(): CancelablePromise<boolean> {
+				return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/utils/health-check/',
 		});
 	}
 

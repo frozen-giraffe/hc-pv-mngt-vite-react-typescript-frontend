@@ -90,8 +90,6 @@ const items: MenuItem[] = [
 
 
 export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) => {
-  //const [user, setUser] = useState<UserPublic>();
-  const { setUser} = useAuth();
   const navigate = useNavigate();
   const auth = useAuth()
   const [collapsed, setCollapsed] = useState(false);
@@ -99,13 +97,8 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   useEffect(()=>{
-    UsersService.readUserMe().then((user:UserPublic)=>{
-      console.log(user);
-      setUser(user)
-      //setUser(user)
-    }).catch((reason)=>{
-      console.log(reason);
-    })
+    console.log(auth.user);
+    
   },[])
   const toggle = () => {
     setCollapsed(!collapsed);
@@ -128,13 +121,13 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
           '1st menu item'
       ),
       onClick: async()=>{
-        const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/1"
+        const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
         try {
           const response = await fetch(url, {
             method:'GET',
             
             headers: {
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjYxMDU5MTYsInN1YiI6IjEifQ.0y7x9s1GIIXQ5kIVr15JU01L6BD-ExPFfFeeW5IZTiA',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjc5OTc2NzIsInN1YiI6IjEifQ.OPf3hUKNY8l9aC92qBl5-QQ2aqzpCqKKn6vyD44i5N4',
             }
           });
           if (!response.ok) {

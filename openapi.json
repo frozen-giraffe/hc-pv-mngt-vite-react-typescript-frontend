@@ -69,7 +69,34 @@
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/login/refresh-token": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "summary": "Refresh Token",
+        "description": "Refresh access token",
+        "operationId": "refresh_token",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
           }
         ]
       }
@@ -169,7 +196,7 @@
         "operationId": "recover_password_html_content",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -217,7 +244,7 @@
         "operationId": "read_users",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -274,7 +301,7 @@
         "operationId": "create_user",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -333,7 +360,7 @@
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       },
@@ -358,7 +385,7 @@
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       },
@@ -403,7 +430,7 @@
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       }
@@ -450,7 +477,7 @@
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       }
@@ -507,7 +534,7 @@
         "operationId": "read_user_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -553,7 +580,7 @@
         "operationId": "update_user",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -609,7 +636,7 @@
         "operationId": "delete_user",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -657,7 +684,7 @@
         "operationId": "get_and_filter_projects",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1047,6 +1074,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1068,7 +1105,7 @@
         "operationId": "create_project",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -1088,6 +1125,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1115,7 +1162,7 @@
         "operationId": "read_project",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1136,6 +1183,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1161,7 +1228,7 @@
         "operationId": "update_project",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1196,6 +1263,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1217,7 +1294,7 @@
         "operationId": "delete_project",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1238,6 +1315,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1265,7 +1352,7 @@
         "operationId": "read_project_types",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1301,6 +1388,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1322,7 +1419,7 @@
         "operationId": "create_project_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -1342,6 +1439,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建工程类型",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1369,7 +1486,7 @@
         "operationId": "get_project_type_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1390,6 +1507,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程类型ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1415,7 +1552,7 @@
         "operationId": "update_project_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1450,6 +1587,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新工程类型",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程类型ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1473,7 +1640,7 @@
         "operationId": "read_building_types",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1509,6 +1676,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1530,7 +1707,7 @@
         "operationId": "create_building_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -1550,6 +1727,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BuildingTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1577,7 +1764,7 @@
         "operationId": "get_building_type_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1598,6 +1785,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BuildingTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1623,7 +1820,7 @@
         "operationId": "update_building_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1658,6 +1855,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1681,7 +1888,7 @@
         "operationId": "read_project_task_types",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1717,6 +1924,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1738,7 +1955,7 @@
         "operationId": "create_project_task_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -1758,6 +1975,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectTaskTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建工程项目类别",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1785,7 +2022,7 @@
         "operationId": "get_project_task_type_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1806,6 +2043,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectTaskTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程项目类别ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1831,7 +2088,7 @@
         "operationId": "update_project_task_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1866,6 +2123,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新工程项目类别",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程项目类别ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1889,7 +2176,7 @@
         "operationId": "read_project_classes",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -1925,6 +2212,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1946,7 +2243,7 @@
         "operationId": "create_project_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -1966,6 +2263,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建工程等级",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -1993,7 +2310,7 @@
         "operationId": "get_project_class_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2014,6 +2331,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程等级ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2039,7 +2376,7 @@
         "operationId": "update_project_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2074,6 +2411,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新工程等级",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工程等级ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2097,7 +2464,7 @@
         "operationId": "read_building_structure_types",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2133,6 +2500,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2154,7 +2531,7 @@
         "operationId": "create_building_structure_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -2174,6 +2551,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BuildingStructureTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2201,7 +2588,7 @@
         "operationId": "get_building_structure_type_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2222,6 +2609,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BuildingStructureTypePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2247,7 +2644,7 @@
         "operationId": "update_building_structure_type",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2282,6 +2679,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2305,7 +2712,7 @@
         "operationId": "read_project_rate_adjustment_classes",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2341,6 +2748,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2362,7 +2779,7 @@
         "operationId": "create_project_rate_adjustment_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -2382,6 +2799,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectRateAdjustmentClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建系数调整级别",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2409,7 +2846,7 @@
         "operationId": "get_project_rate_adjustment_class_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2430,6 +2867,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectRateAdjustmentClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "系数调整级别ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2455,7 +2912,7 @@
         "operationId": "update_project_rate_adjustment_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2490,6 +2947,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新系数调整级别",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "系数调整级别ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2513,7 +3000,7 @@
         "operationId": "read_quality_ratio_classes",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2549,6 +3036,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2570,7 +3067,7 @@
         "operationId": "create_quality_raitio_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -2590,6 +3087,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QualityRatioClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建设计质量系数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2617,7 +3134,7 @@
         "operationId": "get_quality_raitio_class_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2638,6 +3155,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QualityRatioClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "设计质量系数ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2663,7 +3200,7 @@
         "operationId": "update_quality_raitio_class",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2694,6 +3231,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/QualityRatioClassPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新设计质量系数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "设计质量系数ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2729,8 +3296,33 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到默认的施工图产值到下发产值比。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/prod-value-calc-ratios/": {
@@ -2741,6 +3333,11 @@
         "summary": "Read Prod Value Calc Ratios",
         "description": "获取施工图产值到下发产值比。",
         "operationId": "read_prod_value_calc_ratios",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
         "parameters": [
           {
             "name": "skip",
@@ -2774,6 +3371,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2795,7 +3402,7 @@
         "operationId": "create_prod_value_calc_ratio",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -2815,6 +3422,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProdValueCalcRatioPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建施工图产值到下发产值比",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2842,7 +3469,7 @@
         "operationId": "get_prod_value_calc_ratio_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2863,6 +3490,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProdValueCalcRatioPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "施工图产值到下发产值比ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -2888,7 +3535,7 @@
         "operationId": "update_prod_value_calc_ratio",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2923,6 +3570,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法修改施工图产值到下发产值比信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "施工图产值到下发产值比ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2946,7 +3623,7 @@
         "operationId": "read_job_payout_ratio_profiles",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -2972,6 +3649,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2993,7 +3680,7 @@
         "operationId": "create_job_payout_ratio_profile",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -3013,6 +3700,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/JobPayoutRatioProfilePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建设计阶段产值系数配置",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3040,7 +3747,7 @@
         "operationId": "get_job_payout_ratio_profile_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3061,6 +3768,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/JobPayoutRatioProfilePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "设计阶段产值系数配置ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3086,7 +3813,7 @@
         "operationId": "update_job_payout_ratio_profile",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3117,6 +3844,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/JobPayoutRatioProfilePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新设计阶段产值系数配置",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "设计阶段产值系数配置ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3152,11 +3909,21 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       }
@@ -3171,7 +3938,7 @@
         "operationId": "get_department_payout_ratio_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3192,6 +3959,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentPayoutRatioPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3217,7 +3994,7 @@
         "operationId": "update_department_payout_ratio_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3248,6 +4025,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentPayoutRatioPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3275,7 +4062,7 @@
         "operationId": "read_department_payout_ratios_by_project_class_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3296,6 +4083,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentPayoutRatiosPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3323,7 +4120,7 @@
         "operationId": "get_department_payout_ratio",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3357,6 +4154,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3378,7 +4185,7 @@
         "operationId": "update_department_payout_ratio_by_combo",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3422,6 +4229,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3445,7 +4262,7 @@
         "operationId": "read_employees",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3490,6 +4307,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3511,7 +4338,7 @@
         "operationId": "create_employee",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -3535,6 +4362,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3554,11 +4391,11 @@
           " - /employee"
         ],
         "summary": "Search Employee",
-        "description": "通过query搜索员工。\n\n搜索的字段包括：initial, pinyin, name\n\n不搜索id.",
+        "description": "通过query搜索员工。\n\n搜索的字段包括：initial, pinyin, name\n如果提供department_id，则该部门的员工优先级最高。\n\n排序规则：\n1. 在指定部门（如果提供）\n2. 匹配拼音开头\n3. 匹配首字母开头\n4. 拼音全文匹配\n5. 首字母全文匹配\n6. 名字全文匹配\n\n不搜索id.",
         "operationId": "search_employee",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3569,6 +4406,22 @@
             "schema": {
               "type": "string",
               "title": "Query"
+            }
+          },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Department Id"
             }
           },
           {
@@ -3599,6 +4452,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployeesPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3626,7 +4489,7 @@
         "operationId": "read_employees_by_department",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3662,6 +4525,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3685,7 +4558,7 @@
         "operationId": "get_employee_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3706,6 +4579,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployeePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3731,7 +4614,7 @@
         "operationId": "update_employee",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3766,6 +4649,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3787,6 +4680,11 @@
         "summary": "Get Employee Report By Id",
         "description": "Get Report by Employee ID.",
         "operationId": "get_employee_report_by_id",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -3804,7 +4702,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmployeePublicOut"
+                  "title": "Response 员工 - /Employee-Get Employee Report By Id"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3822,6 +4730,41 @@
         }
       }
     },
+    "/api/v1/employee/generate-pinyin": {
+      "post": {
+        "tags": [
+          " - /employee"
+        ],
+        "summary": "Generate Pinyin",
+        "description": "Generate pinyin for a given name.",
+        "operationId": "generate_pinyin",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/v1/departments/": {
       "get": {
         "tags": [
@@ -3832,7 +4775,7 @@
         "operationId": "read_departments",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3868,6 +4811,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -3889,7 +4842,7 @@
         "operationId": "create_department",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -3909,6 +4862,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3936,7 +4899,7 @@
         "operationId": "get_department_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -3957,6 +4920,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartmentPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -3982,7 +4955,7 @@
         "operationId": "update_department",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4017,6 +4990,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4040,7 +5023,7 @@
         "operationId": "read_WorkLocations",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4076,6 +5059,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4097,7 +5090,7 @@
         "operationId": "create_WorkLocation",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -4117,6 +5110,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkLocationPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建工作地点",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4144,7 +5157,7 @@
         "operationId": "get_WorkLocation_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4165,6 +5178,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WorkLocationPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作地点ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4190,7 +5223,7 @@
         "operationId": "update_WorkLocation",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4225,6 +5258,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新工作地点",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "工作地点ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4248,7 +5311,7 @@
         "operationId": "read_employee_titles",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4284,6 +5347,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4305,7 +5378,7 @@
         "operationId": "create_employee_title",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -4325,6 +5398,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployeeTitlePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4352,7 +5435,7 @@
         "operationId": "get_employee_title_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4373,6 +5456,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployeeTitlePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4398,7 +5491,7 @@
         "operationId": "update_employee_title",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4433,6 +5526,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4456,19 +5559,10 @@
         "operationId": "read_professional_titles",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
-          {
-            "name": "show_disabled",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "boolean",
-              "title": "Show Disabled"
-            }
-          },
           {
             "name": "skip",
             "in": "query",
@@ -4501,6 +5595,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4522,7 +5626,7 @@
         "operationId": "create_professional_title",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -4542,6 +5646,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProfessionalTitlePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建职称",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4569,7 +5693,7 @@
         "operationId": "get_professional_title_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4590,6 +5714,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProfessionalTitlePublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "职称ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4615,7 +5759,7 @@
         "operationId": "update_professional_title",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4650,6 +5794,36 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新职称",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "职称ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4673,7 +5847,7 @@
         "operationId": "read_employee_statuses",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4709,6 +5883,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4730,7 +5914,7 @@
         "operationId": "create_employee_status",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -4750,6 +5934,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployStatusPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4777,7 +5971,7 @@
         "operationId": "get_employee_status_by_id",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4798,6 +5992,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EmployStatusPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4823,7 +6027,7 @@
         "operationId": "update_employee_status",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4858,6 +6062,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4881,7 +6095,7 @@
         "operationId": "get_project_payout",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -4917,6 +6131,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4938,7 +6162,7 @@
         "operationId": "create_project_payout",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -4958,6 +6182,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectPayoutPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4993,11 +6227,21 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ]
       }
@@ -5012,7 +6256,7 @@
         "operationId": "read_project_payout",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5033,6 +6277,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectPayoutPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5058,7 +6312,7 @@
         "operationId": "update_project_payout",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5093,6 +6347,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5116,7 +6380,7 @@
         "operationId": "get_contract_payment",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5152,6 +6416,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5173,7 +6447,7 @@
         "operationId": "create_contract_payment",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -5193,6 +6467,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContractPaymentPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5218,23 +6502,54 @@
         "summary": "Get Contract Payment By Project Payout Id",
         "description": "Get contract_payment payout *by project payout ID*.",
         "operationId": "get_contract_payment_by_project_payout_id",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContractPaymentPublicOut"
+                  "$ref": "#/components/schemas/ContractPaymentsPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/contract-payments/by-project-id/{id}": {
@@ -5245,36 +6560,9 @@
         "summary": "Get Contract Payment By Project Id",
         "description": "Get contract_payment payout *by project ID*.",
         "operationId": "get_contract_payment_by_project_id",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContractPaymentPublicOut"
-                }
-              }
-            }
-          }
-        },
         "security": [
           {
-            "OAuth2PasswordBearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/contract-payments/{id}": {
-      "get": {
-        "tags": [
-          " - /contract-payments"
-        ],
-        "summary": "Read Contract Payment",
-        "description": "Get contract_payment payout by ID.",
-        "operationId": "read_contract_payment",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5295,6 +6583,74 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ContractPaymentPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contract-payments/{id}": {
+      "get": {
+        "tags": [
+          " - /contract-payments"
+        ],
+        "summary": "Read Contract Payment",
+        "description": "Get contract_payment payout by ID.",
+        "operationId": "read_contract_payment",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContractPaymentPublicOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5320,7 +6676,7 @@
         "operationId": "update_contract_payment",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5355,6 +6711,16 @@
               }
             }
           },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5376,7 +6742,7 @@
         "operationId": "delete_contract_payment",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5397,6 +6763,963 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/project-list": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成项目列表报告",
+        "description": "生成项目列表报告。",
+        "operationId": "get_project_list_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Project List Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/employee-list": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成员工列表报告",
+        "description": "生成员工列表报告。",
+        "operationId": "get_employee_list_report",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Employee List Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/reports/contract-payments": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成回款报告",
+        "description": "生成回款报告。",
+        "operationId": "get_contract_payment_list_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "time_start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Time Start"
+            }
+          },
+          {
+            "name": "time_end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Time End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Contract Payment List Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/employee/project-payout-list-by-payment-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成员工报告",
+        "description": "生成员工报告。",
+        "operationId": "get_employee_project_payout_list_by_payment_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          },
+          {
+            "name": "payment_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Employee Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/employee/project-payout-list-by-project-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成员工报告",
+        "description": "生成员工报告。",
+        "operationId": "get_employee_project_payout_list_by_project_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          },
+          {
+            "name": "project_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Employee Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/employee/project-production-value-by-project-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成员工报告",
+        "description": "生成员工报告。",
+        "operationId": "get_employee_project_production_value_by_project_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          },
+          {
+            "name": "project_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Employee Project Production Value By Project Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/company/project-payout-list-by-payment-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成公司报告",
+        "description": "生成公司报告。",
+        "operationId": "get_company_project_payout_list_by_payment_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "payment_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Company Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/company/project-payout-list-by-project-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成公司报告",
+        "description": "生成公司报告。",
+        "operationId": "get_company_project_payout_list_by_project_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Company Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/company/project-production-value-by-project-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成公司报告",
+        "description": "生成公司报告。",
+        "operationId": "get_company_project_production_value_by_project_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Company Project Production Value By Project Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/project/payout-list-by-payment-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成项目产值报告",
+        "description": "生成项目产值报告。",
+        "operationId": "get_project_payout_list_by_payment_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "payment_year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payment Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/project/payout-list-by-project-year": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成项目产值报告",
+        "description": "生成项目产值报告。",
+        "operationId": "get_project_payout_list_by_project_year_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/project/production-value": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成项目产值报告",
+        "description": "生成项目产值报告。",
+        "operationId": "get_project_production_value_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Project Production Value Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/contract-payment/payout-list": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成回款报告",
+        "description": "生成回款报告。",
+        "operationId": "get_contract_payment_payout_list_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "contract_payment_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Contract Payment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 报告 - /Reports-Get Contract Payment Payout List Report"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -5424,7 +7747,7 @@
         "operationId": "test_email",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5463,6 +7786,28 @@
         }
       }
     },
+    "/api/v1/utils/health-check/": {
+      "get": {
+        "tags": [
+          "utils"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "title": "Response Utils-Health Check"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/items/": {
       "get": {
         "tags": [
@@ -5473,7 +7818,7 @@
         "operationId": "read_items",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5530,7 +7875,7 @@
         "operationId": "create_item",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "requestBody": {
@@ -5577,7 +7922,7 @@
         "operationId": "read_item",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5623,7 +7968,7 @@
         "operationId": "update_item",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5679,7 +8024,7 @@
         "operationId": "delete_item",
         "security": [
           {
-            "OAuth2PasswordBearer": []
+            "JWT": []
           }
         ],
         "parameters": [
@@ -5917,10 +8262,6 @@
       },
       "ContractPaymentCreateIn": {
         "properties": {
-          "project_payout_id": {
-            "type": "integer",
-            "title": "Project Payout Id"
-          },
           "payment_date": {
             "type": "string",
             "format": "date-time",
@@ -5944,23 +8285,55 @@
               }
             ],
             "title": "Notes"
+          },
+          "project_payout_id": {
+            "type": "integer",
+            "title": "Project Payout Id"
           }
         },
         "type": "object",
         "required": [
-          "project_payout_id",
           "payment_date",
           "amount",
-          "processed_by_id"
+          "processed_by_id",
+          "project_payout_id"
         ],
         "title": "ContractPaymentCreateIn"
       },
-      "ContractPaymentPublicOut": {
+      "ContractPaymentPayout": {
         "properties": {
           "project_payout_id": {
             "type": "integer",
             "title": "Project Payout Id"
           },
+          "contract_payment_id": {
+            "type": "integer",
+            "title": "Contract Payment Id"
+          },
+          "employee_id": {
+            "type": "integer",
+            "title": "Employee Id"
+          },
+          "employee_payout_amount": {
+            "type": "number",
+            "title": "Employee Payout Amount"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_payout_id",
+          "contract_payment_id",
+          "employee_id",
+          "employee_payout_amount"
+        ],
+        "title": "ContractPaymentPayout"
+      },
+      "ContractPaymentPublicOut": {
+        "properties": {
           "payment_date": {
             "type": "string",
             "format": "date-time",
@@ -5989,15 +8362,19 @@
             "type": "integer",
             "title": "Id"
           },
-          "project": {
+          "contract_payment_payouts": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ProjectPublicOut"
+                "items": {
+                  "$ref": "#/components/schemas/ContractPaymentPayout"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Contract Payment Payouts"
           },
           "paid_ratio": {
             "type": "number",
@@ -6006,26 +8383,31 @@
           "project_id": {
             "type": "integer",
             "title": "Project Id"
+          },
+          "project_payout_id": {
+            "type": "integer",
+            "title": "Project Payout Id"
+          },
+          "payout_amount": {
+            "type": "number",
+            "title": "Payout Amount"
           }
         },
         "type": "object",
         "required": [
-          "project_payout_id",
           "payment_date",
           "amount",
           "processed_by_id",
           "id",
           "paid_ratio",
-          "project_id"
+          "project_id",
+          "project_payout_id",
+          "payout_amount"
         ],
         "title": "ContractPaymentPublicOut"
       },
       "ContractPaymentUpdateIn": {
         "properties": {
-          "project_payout_id": {
-            "type": "null",
-            "title": "Project Payout Id"
-          },
           "payment_date": {
             "anyOf": [
               {
@@ -6073,9 +8455,6 @@
           }
         },
         "type": "object",
-        "required": [
-          "project_payout_id"
-        ],
         "title": "ContractPaymentUpdateIn"
       },
       "ContractPaymentsPublicOut": {
@@ -6086,28 +8465,6 @@
             },
             "type": "array",
             "title": "Data"
-          },
-          "project_total_paid_amount": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Project Total Paid Amount"
-          },
-          "project_total_paid_ratio": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Project Total Paid Ratio"
           },
           "count": {
             "type": "integer",
@@ -6300,7 +8657,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-09-14T01:34:42.738225"
+            "default": "2024-09-29T20:58:51.010755"
           }
         },
         "type": "object",
@@ -6991,6 +9348,19 @@
           "count"
         ],
         "title": "EmployeesPublicOut"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse"
       },
       "HTTPValidationError": {
         "properties": {
@@ -7895,7 +10265,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At",
-            "default": "2024-09-14T01:34:42.705180"
+            "default": "2024-09-29T20:58:50.991186"
           }
         },
         "type": "object",
@@ -7996,6 +10366,8 @@
           },
           "new_password": {
             "type": "string",
+            "maxLength": 40,
+            "minLength": 8,
             "title": "New Password"
           }
         },
@@ -8331,11 +10703,25 @@
             "title": "Quality Ratio Class Id"
           },
           "project_area": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Area"
           },
           "project_construction_cost": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Construction Cost"
           },
           "calculated_employee_payout": {
@@ -8347,7 +10733,14 @@
             "title": "Project Contract Value"
           },
           "project_deliverable_production_value": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Deliverable Production Value"
           },
           "notes": {
@@ -8374,11 +10767,8 @@
           "building_structure_type_id",
           "project_rate_adjustment_class_id",
           "quality_ratio_class_id",
-          "project_area",
-          "project_construction_cost",
           "calculated_employee_payout",
-          "project_contract_value",
-          "project_deliverable_production_value"
+          "project_contract_value"
         ],
         "title": "ProjectCreateIn"
       },
@@ -11849,11 +14239,25 @@
             "title": "Quality Ratio Class Id"
           },
           "project_area": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Area"
           },
           "project_construction_cost": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Construction Cost"
           },
           "calculated_employee_payout": {
@@ -11865,7 +14269,14 @@
             "title": "Project Contract Value"
           },
           "project_deliverable_production_value": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Project Deliverable Production Value"
           },
           "notes": {
@@ -11916,11 +14327,8 @@
           "building_structure_type_id",
           "project_rate_adjustment_class_id",
           "quality_ratio_class_id",
-          "project_area",
-          "project_construction_cost",
           "calculated_employee_payout",
           "project_contract_value",
-          "project_deliverable_production_value",
           "id",
           "date_added",
           "date_modified"
@@ -12524,10 +14932,14 @@
         "properties": {
           "current_password": {
             "type": "string",
+            "maxLength": 40,
+            "minLength": 8,
             "title": "Current Password"
           },
           "new_password": {
             "type": "string",
+            "maxLength": 40,
+            "minLength": 8,
             "title": "New Password"
           }
         },
@@ -12542,6 +14954,8 @@
         "properties": {
           "email": {
             "type": "string",
+            "maxLength": 255,
+            "format": "email",
             "title": "Email"
           },
           "is_active": {
@@ -12557,7 +14971,8 @@
           "full_name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
               },
               {
                 "type": "null"
@@ -12567,6 +14982,8 @@
           },
           "password": {
             "type": "string",
+            "maxLength": 40,
+            "minLength": 8,
             "title": "Password"
           }
         },
@@ -12581,6 +14998,8 @@
         "properties": {
           "email": {
             "type": "string",
+            "maxLength": 255,
+            "format": "email",
             "title": "Email"
           },
           "is_active": {
@@ -12596,7 +15015,8 @@
           "full_name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
               },
               {
                 "type": "null"
@@ -12620,16 +15040,21 @@
         "properties": {
           "email": {
             "type": "string",
+            "maxLength": 255,
+            "format": "email",
             "title": "Email"
           },
           "password": {
             "type": "string",
+            "maxLength": 40,
+            "minLength": 8,
             "title": "Password"
           },
           "full_name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
               },
               {
                 "type": "null"
@@ -12650,7 +15075,9 @@
           "email": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255,
+                "format": "email"
               },
               {
                 "type": "null"
@@ -12671,7 +15098,8 @@
           "full_name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
               },
               {
                 "type": "null"
@@ -12682,7 +15110,9 @@
           "password": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 40,
+                "minLength": 8
               },
               {
                 "type": "null"
@@ -12699,7 +15129,8 @@
           "full_name": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255
               },
               {
                 "type": "null"
@@ -12710,7 +15141,9 @@
           "email": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "maxLength": 255,
+                "format": "email"
               },
               {
                 "type": "null"
@@ -12880,7 +15313,7 @@
       }
     },
     "securitySchemes": {
-      "OAuth2PasswordBearer": {
+      "JWT": {
         "type": "oauth2",
         "flows": {
           "password": {

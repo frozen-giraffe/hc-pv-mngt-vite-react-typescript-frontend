@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { UserCreate, UserPublic, UsersService } from '../client';
+import { LoginService, UserCreate, UserPublic, UsersService } from '../client';
+import { useNavigate } from 'react-router-dom';
 
 const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
 interface AuthContextType {
@@ -17,19 +18,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<UserPublic>();
   useEffect(() => {
+     getUser()
     const token = localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
     if (token) {
       setIsAuthenticated(true);
     }
+    // setInterval(()=>{
+    //   console.log("ppp");
+      
+    // },10)
+    console.log("AuthProvider useEffect");
+    
   }, []);
-  // const getUser = () =>{
-  //   UsersService.readUserMe().then((user:UserPublic)=>{
-     
-  //   }).catch((reason)=>{
-  //     console.log(reason);
-  //   })
-  // }
+  const getUser = async() =>{
+    const res:UserPublic = await UsersService.readUserMe()
+    setUser(res)
+  }
+  // const checkTOkenValidation=async()=>{
+  //   const res:UserPublic = await LoginService.testToken()
+  //   if(!res.is_active){
+  //     navigate('/login')
+  //   }
 
+  // }
   const login = (token: string) => {
     localStorage.setItem(LOCALSTORAGE_ACCESS_TOKEN_NAME, token);
     setIsAuthenticated(true);

@@ -144,10 +144,6 @@ export const $BuildingTypesPublicOut = {
 
 export const $ContractPaymentCreateIn = {
 	properties: {
-		project_payout_id: {
-	type: 'number',
-	isRequired: true,
-},
 		payment_date: {
 	type: 'string',
 	isRequired: true,
@@ -169,15 +165,39 @@ export const $ContractPaymentCreateIn = {
 	type: 'null',
 }],
 },
+		project_payout_id: {
+	type: 'number',
+	isRequired: true,
+},
 	},
 } as const;
 
-export const $ContractPaymentPublicOut = {
+export const $ContractPaymentPayout = {
 	properties: {
 		project_payout_id: {
 	type: 'number',
 	isRequired: true,
 },
+		contract_payment_id: {
+	type: 'number',
+	isRequired: true,
+},
+		employee_id: {
+	type: 'number',
+	isRequired: true,
+},
+		employee_payout_amount: {
+	type: 'number',
+	isRequired: true,
+},
+		id: {
+	type: 'number',
+},
+	},
+} as const;
+
+export const $ContractPaymentPublicOut = {
+	properties: {
 		payment_date: {
 	type: 'string',
 	isRequired: true,
@@ -203,10 +223,13 @@ export const $ContractPaymentPublicOut = {
 	type: 'number',
 	isRequired: true,
 },
-		project: {
+		contract_payment_payouts: {
 	type: 'any-of',
 	contains: [{
-	type: 'ProjectPublicOut',
+	type: 'array',
+	contains: {
+		type: 'ContractPaymentPayout',
+	},
 }, {
 	type: 'null',
 }],
@@ -219,15 +242,19 @@ export const $ContractPaymentPublicOut = {
 	type: 'number',
 	isRequired: true,
 },
+		project_payout_id: {
+	type: 'number',
+	isRequired: true,
+},
+		payout_amount: {
+	type: 'number',
+	isRequired: true,
+},
 	},
 } as const;
 
 export const $ContractPaymentUpdateIn = {
 	properties: {
-		project_payout_id: {
-	type: 'null',
-	isRequired: true,
-},
 		payment_date: {
 	type: 'any-of',
 	contains: [{
@@ -272,22 +299,6 @@ export const $ContractPaymentsPublicOut = {
 		type: 'ContractPaymentPublicOut',
 	},
 	isRequired: true,
-},
-		project_total_paid_amount: {
-	type: 'any-of',
-	contains: [{
-	type: 'number',
-}, {
-	type: 'null',
-}],
-},
-		project_total_paid_ratio: {
-	type: 'any-of',
-	contains: [{
-	type: 'number',
-}, {
-	type: 'null',
-}],
 },
 		count: {
 	type: 'number',
@@ -432,7 +443,7 @@ export const $DepartmentPayoutRatioUpdateIn = {
 },
 		modified_at: {
 	type: 'string',
-	default: '2024-09-14T01:34:42.738225',
+	default: '2024-09-29T20:58:51.010755',
 	format: 'date-time',
 },
 	},
@@ -935,6 +946,15 @@ export const $EmployeesPublicOut = {
 },
 		count: {
 	type: 'number',
+	isRequired: true,
+},
+	},
+} as const;
+
+export const $ErrorResponse = {
+	properties: {
+		detail: {
+	type: 'string',
 	isRequired: true,
 },
 	},
@@ -1691,7 +1711,7 @@ export const $JobPayoutRatioProfileUpdateIn = {
 },
 		updated_at: {
 	type: 'string',
-	default: '2024-09-14T01:34:42.705180',
+	default: '2024-09-29T20:58:50.991186',
 	format: 'date-time',
 },
 	},
@@ -1731,6 +1751,8 @@ export const $NewPassword = {
 		new_password: {
 	type: 'string',
 	isRequired: true,
+	maxLength: 40,
+	minLength: 8,
 },
 	},
 } as const;
@@ -1987,12 +2009,20 @@ export const $ProjectCreateIn = {
 	isRequired: true,
 },
 		project_area: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		project_construction_cost: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		calculated_employee_payout: {
 	type: 'number',
@@ -2003,8 +2033,12 @@ export const $ProjectCreateIn = {
 	isRequired: true,
 },
 		project_deliverable_production_value: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		notes: {
 	type: 'any-of',
@@ -4554,12 +4588,20 @@ export const $ProjectPublicOut = {
 	isRequired: true,
 },
 		project_area: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		project_construction_cost: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		calculated_employee_payout: {
 	type: 'number',
@@ -4570,8 +4612,12 @@ export const $ProjectPublicOut = {
 	isRequired: true,
 },
 		project_deliverable_production_value: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		notes: {
 	type: 'any-of',
@@ -5049,10 +5095,14 @@ export const $UpdatePassword = {
 		current_password: {
 	type: 'string',
 	isRequired: true,
+	maxLength: 40,
+	minLength: 8,
 },
 		new_password: {
 	type: 'string',
 	isRequired: true,
+	maxLength: 40,
+	minLength: 8,
 },
 	},
 } as const;
@@ -5062,6 +5112,8 @@ export const $UserCreate = {
 		email: {
 	type: 'string',
 	isRequired: true,
+	format: 'email',
+	maxLength: 255,
 },
 		is_active: {
 	type: 'boolean',
@@ -5075,6 +5127,7 @@ export const $UserCreate = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5082,6 +5135,8 @@ export const $UserCreate = {
 		password: {
 	type: 'string',
 	isRequired: true,
+	maxLength: 40,
+	minLength: 8,
 },
 	},
 } as const;
@@ -5091,6 +5146,8 @@ export const $UserPublic = {
 		email: {
 	type: 'string',
 	isRequired: true,
+	format: 'email',
+	maxLength: 255,
 },
 		is_active: {
 	type: 'boolean',
@@ -5104,6 +5161,7 @@ export const $UserPublic = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5120,15 +5178,20 @@ export const $UserRegister = {
 		email: {
 	type: 'string',
 	isRequired: true,
+	format: 'email',
+	maxLength: 255,
 },
 		password: {
 	type: 'string',
 	isRequired: true,
+	maxLength: 40,
+	minLength: 8,
 },
 		full_name: {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5142,6 +5205,8 @@ export const $UserUpdate = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	format: 'email',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5158,6 +5223,7 @@ export const $UserUpdate = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5166,6 +5232,8 @@ export const $UserUpdate = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 40,
+	minLength: 8,
 }, {
 	type: 'null',
 }],
@@ -5179,6 +5247,7 @@ export const $UserUpdateMe = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
@@ -5187,6 +5256,8 @@ export const $UserUpdateMe = {
 	type: 'any-of',
 	contains: [{
 	type: 'string',
+	format: 'email',
+	maxLength: 255,
 }, {
 	type: 'null',
 }],
