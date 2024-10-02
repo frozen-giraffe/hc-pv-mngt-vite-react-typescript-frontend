@@ -14,9 +14,11 @@ import { Projects } from './routers/Projects.tsx';
 import { ProjectDetail } from './routers/ProjectDetail.tsx';
 import { Interceptors } from './client/core/OpenAPI.ts';
 import { AxiosRequestConfig } from 'axios';
+import './main.css'
 //console.log('aa '+localStorage.getItem("access_token"));
 
-OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
+//OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
+OpenAPI.BASE = "http://api.aaronyou.photos"
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }

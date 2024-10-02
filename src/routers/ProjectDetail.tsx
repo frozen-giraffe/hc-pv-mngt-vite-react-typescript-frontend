@@ -22,6 +22,9 @@ import {
   Affix,
   DatePicker,
   DatePickerProps,
+  FormInstance,
+  message,
+  TableProps,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
@@ -90,6 +93,186 @@ const DecimalInput: React.FC<any> = ({
   );
 };
 
+//下发产值表相关数据
+interface DataType {
+    key: string;
+    name: string;
+    age: number;
+    tel: string;
+    phone: number;
+    address: string;
+    leftCell?: string;
+    rightTopCell?: string;
+rightBottomCell?:string;
+  }
+  
+  // In the fifth row, other columns are merged into first column
+  // by setting it's colSpan to be 0
+  const sharedOnCell = (_: DataType, index?: number) => {
+    if (index === 1) {
+      return { colSpan: 0 };
+    }
+  
+    return {};
+  };
+  
+  const columnsTable: TableProps<DataType>['columns'] = [
+    {
+      title: '专业分类',
+      dataIndex: 'key',
+      rowScope: 'row',
+      width:100,
+      render: (text: string, record: any, index:number) => {
+        const obj = {
+          children: (
+                  <div style={{ display: "flex" }}>
+                    {/* Left cell (建筑) */}
+                    <div style={{ width: "50px", display:'flex',justifyContent:'center', alignItems:'center',borderRight: "1px solid #f0f0f0" }}>
+                    {record.leftCell}
+                    </div>
+                    {/* Right cell (split into top and bottom) */}
+                    <div style={{ width: "100px", paddingLeft: "10px" }}>
+                      <div style={{ borderBottom: "1px solid #f0f0f0", display:'flex',justifyContent:'center', alignItems:'center' }}>
+                      {record.rightTopCell}
+                      </div>
+                      <div style={{display:'flex',justifyContent:'center', alignItems:'center'}}>{record.rightBottomCell}</div>
+                    </div>
+                  </div>
+                ),
+          props: {} as any,
+        };
+
+        // Merge the cells for every two rows
+        if (index % 2 === 0) {
+          obj.props.rowSpan = 2; // Merge two rows
+        } else {
+          obj.props.rowSpan = 0; // Hide the second row
+        }
+
+        return obj;
+      },
+      
+    },
+    {
+      title:'施工图设计',
+      dataIndex:'施工图设计',
+      children:[
+        {
+          title:'专业负责人'
+        },
+        {
+          title:'专业负责人助理'
+        },
+        {
+          title:'设计',
+        },
+        {
+          title:'施工图',
+        },
+        {
+          title:'后期服务',
+        },
+        {
+          title:'校对',
+        },
+        {
+          title:'审核',
+        },
+        {
+          title:'审定',
+        },
+        {
+          title:'小计',
+          render: (text: string, record: any, index:number) => {
+            const obj = {
+              children: text,
+              props: {} as any,
+            };
+    
+            // Merge the cells for every two rows
+            if (index % 2 === 0) {
+              obj.props.rowSpan = 2; // Merge two rows
+            } else {
+              obj.props.rowSpan = 0; // Hide the second row
+            }
+    
+            return obj;
+          },
+        },
+      ]
+    },
+  ];
+  
+  const tableData: DataType[] = [
+    {
+      key: '1',
+      name: 'John Brown',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      age: 32,
+      tel: '0571-22098909',
+      phone: 18889898989,
+      address: 'New York No. 1 Lake Park',
+    },
+    {
+      key: '2',
+      name: 'Jim Green',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      tel: '0571-22098333',
+      phone: 18889898888,
+      age: 42,
+      address: 'London No. 1 Lake Park',
+    },
+    {
+      key: '3',
+      name: 'Joe Black',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      age: 32,
+      tel: '0575-22098909',
+      phone: 18900010002,
+      address: 'Sydney No. 1 Lake Park',
+    },
+    {
+      key: '4',
+      name: 'Jim Red',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      age: 18,
+      tel: '0575-22098909',
+      phone: 18900010002,
+      address: 'London No. 2 Lake Park',
+    },
+    {
+      key: '5',
+      name: 'Jake White',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      age: 18,
+      tel: '0575-22098909',
+      phone: 18900010002,
+      address: 'Dublin No. 2 Lake Park',
+    },
+    {
+      key: '6',
+      name: 'Jake White',
+      leftCell: "建筑", // Left side of the first cell
+      rightTopCell: "设计人", // Right side (top)
+      rightBottomCell: "产值", // Right side (bottom)
+      age: 18,
+      tel: '0575-22098909',
+      phone: 18900010002,
+      address: 'Dublin No. 2 Lake Park',
+    },
+  ];
+  
+
 export const ProjectDetail = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<any>({});
@@ -114,13 +297,18 @@ export const ProjectDetail = () => {
   const [qualityRatioClasses, setQualityRatioClasses] = useState<
     QualityRatioClassPublicOut[]
   >([]);
-  const [defaultQualityRatioClasses, setDefaultQualityRatioClasses] =
-    useState<QualityRatioClassPublicOut>();
+  const [prodValCalcRatios, setProdValCalcRatios] = useState<
+    ProdValueCalcRatioPublicOut[]
+  >([]);
+  const [defaultProdValCalcRatio, setDefaultProdValCalcRatio] =
+    useState<ProdValueCalcRatioPublicOut>();
   const [
     departmentPayoutRatioRelatedToProjectClassId,
     setDepartmentPayoutRatioRelatedToProjectClassId,
   ] = useState<DepartmentPayoutRatioPublicOut[]>([]); //this one is based on which projectClass picked and project-class is based on which projectType picked
 
+
+  
   useEffect(() => {
     fetchData();
   }, []);
@@ -167,8 +355,13 @@ export const ProjectDetail = () => {
       setBuildingStructureTypes(resBuildingStructureType.data);
       setProjectRateAdjustmentClasses(resProjectRateAdjustmentClass.data);
       setQualityRatioClasses(resQualityRatioClass.data);
-      setDefaultQualityRatioClasses(redDefaultProdValCalcRatios);
+      setProdValCalcRatios(resProdValCalcRatios.data);
+      setDefaultProdValCalcRatio(redDefaultProdValCalcRatios);
 
+      //set default option highlighted
+      setSegmentedValue(redDefaultProdValCalcRatios.ratio.toString())
+      //set default silder position
+      setSilderValue(redDefaultProdValCalcRatios.ratio*100)
       console.log(resProdValCalcRatios.data);
       const res =
         await ProdValueCalcRatiosService.readProdValueCalcRatiosDefault();
@@ -187,7 +380,7 @@ export const ProjectDetail = () => {
     { title: "状态", dataIndex: "status", key: "status" },
   ];
 
-  const tableData = [
+  const tableData1 = [
     { key: 1, name: "商品 A", quantity: 12, status: "正常" },
     { key: 2, name: "商品 B", quantity: 5, status: "缺货" },
   ];
@@ -219,19 +412,69 @@ export const ProjectDetail = () => {
   };
   const calculateIssuedValue = () => {
     console.log("计算下发产值...");
-
+    const preValue=form.getFieldValue('calculatedEmployeePayout')
     const value = form.getFieldValue("projectContractValue") || 0;
-    const ratio = defaultQualityRatioClasses?.ratio || 1;
+    const ratio = defaultProdValCalcRatio?.ratio || 1;
     const issuedValue = value * ratio; // 例如：下发产值为项目值的 80%
-    form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
+    if(preValue!==issuedValue.toFixed(2)){
+        form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
+    }
+    if(segmentedValue || silderValue){
+
+    }else{
+        
+        form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
+    }
+    
   };
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [segmentedValue, setSegmentedValue] = useState("Option 1");
+  const [segmentedValue, setSegmentedValue] = useState("");
+  const [messageApi, contextHolder] = message.useMessage();
+  const successMessage = (msg:string) => {
+    messageApi.open({
+    type: 'success',
+    content: msg,
+    });
+};
+const errorMessage = (msg:string) => {
+    messageApi.open({
+      type: 'error',
+      content: msg,
+    });
+};
+  const handleFormFinish = async(fieldsValue: any) => {
+    console.log("表单提交时的值:", fieldsValue);
+    console.log(fieldsValue['projectYear'].format('YYYY'));
+    
+    try{
+        const res = await ProjectsService.createProject({requestBody:{
+            project_code: fieldsValue['projectCode'],
+            name: fieldsValue['projectName'],
+            project_year: fieldsValue['projectYear'].format('YYYY'),
+            project_type_id: fieldsValue['projectType'],
+            building_type_id: fieldsValue['buildingType'],
+            project_task_type_id: fieldsValue['projectTaskType'],
+            project_class_id: fieldsValue['projectClass'],
+            building_structure_type_id: fieldsValue['buildingStructureType'],
+            project_rate_adjustment_class_id: fieldsValue['projectRateAdjustmentClass'],
+            quality_ratio_class_id: fieldsValue['qualityRatioClass'],
+            project_area: fieldsValue['projectArea'],
+            project_construction_cost: fieldsValue['projectConstructionCost'],
+            calculated_employee_payout: fieldsValue['calculatedEmployeePayout'],
+            project_contract_value: fieldsValue['projectContractValue'],
+        }})
+        if(res){
+            successMessage('创建成功')
+        }else{
+            errorMessage('创建失败')
+        }
+    }catch(e){
+        errorMessage('创建失败')
 
-  const handleFormFinish = (values: any) => {
-    console.log("表单提交时的值:", values);
+    }
+    
   };
   // 展开面板时更新状态
   const handleFocus = () => {
@@ -253,22 +496,28 @@ export const ProjectDetail = () => {
   };
 
   const handleSegmentedChange = (value: string) => {
+    console.log(value);
+    setSilderValue(parseFloat(value)*100);
+    
     setSegmentedValue(value);
-    const projectContractValue =
-      form.getFieldValue("projectContractValue") || 0;
-    form.setFieldsValue({ calculatedEmployeePayout: projectContractValue });
+    const projectContractValue = form.getFieldValue("projectContractValue") || 0;
+    form.setFieldsValue({ calculatedEmployeePayout: (projectContractValue*parseFloat(value)).toFixed(2) });
   };
   const handleSlideronChange: InputNumberProps["onChange"] = (newValue) => {
     const value = newValue as number;
     setSilderValue(value);
-    const projectContractValue =
-    form.getFieldValue("projectContractValue") || 0;
+    setSegmentedValue('')//unselect options in Segmented
+    const projectContractValue = form.getFieldValue("projectContractValue") || 0;
     form.setFieldsValue({
-      calculatedEmployeePayout: (projectContractValue * (value / 100)).toFixed(2),
+      calculatedEmployeePayout: (projectContractValue * (value / 100)).toFixed(
+        2
+      ),
     });
   };
-  const onChange: DatePickerProps['onChange'] = (date, dateString) => {
+  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log(form.getFieldValue("projectYear"));
+    console.log(dateString);
+    form.setFieldValue('projectCode', dateString+'-')
     
   };
 
@@ -282,37 +531,54 @@ export const ProjectDetail = () => {
     setOpen(false);
   };
   return (
-    <div ref={containerRef} id="my-drawer-container" style={{overflow:"hidden", position:'relative'}}>
+    <div
+      ref={containerRef}
+      id="my-drawer-container"
+      style={{ overflow: "hidden", position: "relative" }}
+    >
       <h2 style={{ marginTop: 0 }}>新建工程</h2>
       <Button type="primary" onClick={showDrawer}>
         Open
       </Button>
       <Affix offsetTop={0}>
-<Drawer title="Basic Drawer" onClose={onClose} open={open} mask={false} maskClosable={false} autoFocus={false} placement="top"
-       getContainer={false}>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Drawer>
+        <Drawer
+          title="Basic Drawer"
+          onClose={onClose}
+          open={open}
+          mask={false}
+          maskClosable={false}
+          autoFocus={false}
+          placement="top"
+          getContainer={false}
+        >
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+        </Drawer>
       </Affix>
-      
+
       <Divider />
-    
-      <Form form={form} onFinish={handleFormFinish} >
+
+      <Form form={form} onFinish={handleFormFinish}>
         <Typography.Title level={5}>项目基本信息</Typography.Title>
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="项目名称" name="1">
+            <Form.Item label="项目名称" name="projectName" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="项目年度" name="projectYear">
-            <DatePicker onChange={onChange} picker="year" style={{width:'100%'}}/>
+            <Form.Item label="项目年度" name="projectYear" rules={[{ required: true }]}>
+              <DatePicker
+                onChange={onChange}
+                picker="year"
+                style={{ width: "100%" }}
+                placeholder=""
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="项目工号" name="password">
+            <Form.Item label="项目工号" name="projectCode" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
           </Col>
@@ -323,7 +589,7 @@ export const ProjectDetail = () => {
         <Typography.Title level={5}>施工细节</Typography.Title>
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="工程类型" name="projectType">
+            <Form.Item label="工程类型" name="projectType" rules={[{ required: true }]}>
               {/* {renderDropdown(projectTypes)} */}
               {/* <MySelectComponent options={projectTypes} handleChange={handleProjectTypeSelectChange}/> */}
               <Select onChange={handleProjectTypeSelectChange}>
@@ -336,7 +602,7 @@ export const ProjectDetail = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="工程等级" name="projectClass">
+            <Form.Item label="工程等级" name="projectClass" rules={[{ required: true }]}>
               <Select disabled={true}>
                 {projectClasses.map((option) => (
                   <Select.Option key={option.id} value={option.id}>
@@ -347,7 +613,7 @@ export const ProjectDetail = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="民用建筑类别" name="buildingType">
+            <Form.Item label="民用建筑类别" name="buildingType" rules={[{ required: true }]}>
               <Select disabled={true}>
                 {buildingTypes.map((option) => (
                   <Select.Option key={option.id} value={option.id}>
@@ -360,7 +626,7 @@ export const ProjectDetail = () => {
         </Row>
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="工程项目类别" name="projectTaskType">
+            <Form.Item label="工程项目类别" name="projectTaskType" rules={[{ required: true }]}>
               <Select>
                 {projectTaskTypes.map((option) => (
                   <Select.Option key={option.id} value={option.id}>
@@ -371,13 +637,8 @@ export const ProjectDetail = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="系数调整类别" name="projectRateAdjustmentClass">
+            <Form.Item label="系数调整类别" name="projectRateAdjustmentClass" rules={[{ required: true }]}>
               <Select>
-                {/* {projectRateAdjustmentClasses.map(option => (
-                        <Select.Option key={option.id} value={option.id}>
-                            {option.name}
-                        </Select.Option>
-                        ))} */}
                 {departmentPayoutRatioRelatedToProjectClassId.map((option) => {
                   const pra: ProjectRateAdjustmentClassPublicOut | undefined =
                     projectRateAdjustmentClasses.find(
@@ -394,7 +655,7 @@ export const ProjectDetail = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="设计质量系数" name="qualityRatioClass">
+            <Form.Item label="设计质量系数" name="qualityRatioClass" rules={[{ required: true }]}>
               <Select>
                 {qualityRatioClasses.map((option) => (
                   <Select.Option key={option.id} value={option.id}>
@@ -407,7 +668,7 @@ export const ProjectDetail = () => {
         </Row>
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item label="结构形式" name="buildingStructureType">
+            <Form.Item label="结构形式" name="buildingStructureType" rules={[{ required: true }]}>
               <Select>
                 {buildingStructureTypes.map((option) => (
                   <Select.Option key={option.id} value={option.id}>
@@ -418,41 +679,38 @@ export const ProjectDetail = () => {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="工程面积（平方米）" name="projectArea">
+            <Form.Item label="工程面积(平方米)" name="projectArea" rules={[{ required: true }]}>
               <DecimalInput />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="工程总造价（元）" name="projectConstructionCost">
+            <Form.Item label="工程总造价(元)" name="projectConstructionCost" rules={[{ required: true }]}>
               <DecimalInput />
             </Form.Item>
           </Col>
         </Row>
+
         
-        <Form.Item label="施工图合同额" name="projectContractValue">
-          <DecimalInput onBlur={calculateIssuedValue} />
-        </Form.Item>
 
         <Divider />
 
         <Typography.Title level={5}>产值详情</Typography.Title>
 
-        <Form.Item label="产值录入状态" name="project_code">
-          <Input />
+        <Form.Item label="施工图合同额(元)" name="projectContractValue" rules={[{ required: true }]}>
+          <DecimalInput onBlur={calculateIssuedValue} />
         </Form.Item>
 
-        <Form.Item label="下发产值(元)">
+        <Form.Item label="下发产值(元)" required>
           <Collapse activeKey={isPanelOpen ? ["1"] : []}>
             <Panel
               header={
-                <Form.Item name="calculatedEmployeePayout" noStyle>
+                <Form.Item label="下发产值(元)" name="calculatedEmployeePayout" noStyle rules={[{ required: true }]}>
                   <Input
                     className="panel-header-input"
                     value={inputValue}
                     onChange={handleInputChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
-                    placeholder="请输入标题"
                   />
                 </Form.Item>
               }
@@ -470,7 +728,7 @@ export const ProjectDetail = () => {
                   </Col>
                   <Col>
                     <Segmented
-                      options={["33%", "Option 2", "Option 3"]}
+                      options={prodValCalcRatios.map((value) => `${value.ratio}`)}
                       value={segmentedValue}
                       onChange={handleSegmentedChange}
                     />
@@ -503,15 +761,20 @@ export const ProjectDetail = () => {
             </Panel>
           </Collapse>
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            提交
-          </Button>
-        </Form.Item>
+        <Row justify='end'>
+            <Form.Item>
+            <Button type="primary" htmlType="submit">
+                提交
+            </Button>
+            </Form.Item>
+        </Row>
       </Form>
 
       <Divider />
-
+      {/* 下发产值表 */}
+      <Form>
+        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered />
+      </Form>
       {/* 顶部统计数据展示 */}
       <Row gutter={16}>
         <Col span={6}>
@@ -587,6 +850,7 @@ export const ProjectDetail = () => {
           <Button type="primary" htmlType="submit">
             提交
           </Button>
+          
         </Form.Item>
         <Button type="default" style={{ marginLeft: "10px" }}>
           返回
