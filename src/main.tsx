@@ -12,6 +12,7 @@ import { MainPage } from './routers/MainPage.tsx';
 import { Employees } from './routers/Employees.tsx';
 import { Projects } from './routers/Projects.tsx';
 import { ProjectDetail } from './routers/ProjectDetail.tsx';
+import { Settings, SystemConfig } from './routers/SystemConfig.tsx';
 import { Interceptors } from './client/core/OpenAPI.ts';
 import { AxiosRequestConfig } from 'axios';
 import './main.css'
@@ -19,6 +20,7 @@ import './main.css'
 
 //OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
 OpenAPI.BASE = "http://api.aaronyou.photos"
+OpenAPI.BASE = "http://localhost:8001"
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
@@ -118,6 +120,16 @@ const router = createBrowserRouter([
         </Dashboard>
       </AuthenticatedRoute>),
     
+  },
+  {
+    path: "/settings",
+    element: (
+      <AuthenticatedRoute>
+        <Dashboard>
+          <SystemConfig />
+        </Dashboard>
+      </AuthenticatedRoute>
+    ),
   },
 ]);
 
