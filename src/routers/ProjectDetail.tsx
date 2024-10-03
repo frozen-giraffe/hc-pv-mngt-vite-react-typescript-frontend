@@ -773,7 +773,7 @@ const errorMessage = (msg:string) => {
       <Divider />
       {/* 下发产值表 */}
       <Form>
-        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered />
+        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered  rowClassName={() => 'editable-row'}/>
       </Form>
       {/* 顶部统计数据展示 */}
       <Row gutter={16}>
