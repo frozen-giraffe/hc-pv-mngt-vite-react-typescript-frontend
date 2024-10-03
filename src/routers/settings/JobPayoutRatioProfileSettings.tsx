@@ -163,7 +163,6 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
           approver_ratio: selectedProfileData.low_voltage_approver_ratio,
         },
       };
-      console.log("Form Values:", formValues);
       form.setFieldsValue(formValues);
     }
   };
@@ -207,7 +206,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   }) => {
     const inputNode = (
       <InputDirectPercent
-        step={0.01}
+        step={0.5}
         min={0}
         max={100}
         style={{ width: "100%" }}
@@ -215,20 +214,9 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     );
 
     let fieldName = dataIndex;
-    if (record && record.department) {
-      const deptMap: { [key: string]: string } = {
-        项目管理: "pm",
-        建筑: "arch",
-        结构: "struct",
-        给排水: "plumbing",
-        电气: "electrical",
-        暖通: "hvac",
-        弱电: "low_voltage",
-      };
-      const deptKey = deptMap[record.department] || record.department;
-      fieldName = [deptKey, dataIndex];
+    if (record && record.key) {
+      fieldName = [record.key, dataIndex];
     }
-    console.log("EditableCell fieldName:", fieldName, "record:", record);
 
     return (
       <td {...restProps}>
@@ -251,123 +239,213 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
       </td>
     );
   };
+
   const pmColumns = [
     {
       title: "项目负责人",
       dataIndex: "pm_ratio",
       key: "pm_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "项目负责人助理",
       dataIndex: "pm_assistant_ratio",
       key: "pm_assistant_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
   ];
 
   const departmentColumns = [
-    { title: "专业", dataIndex: "department", key: "department" },
+    {
+      title: "专业",
+      dataIndex: "department",
+      key: "department",
+      fixed: 'left' as const,
+      width: 70,
+    },
     {
       title: "专业负责人",
       dataIndex: "pm_ratio",
       key: "pm_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "专业负责人助理",
       dataIndex: "pm_assistant_ratio",
       key: "pm_assistant_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "设计人",
       dataIndex: "designer_ratio",
       key: "designer_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "制图人",
       dataIndex: "drafter_ratio",
       key: "drafter_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "设计后服务",
       dataIndex: "design_post_service_ratio",
       key: "design_post_service_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "校对人",
       dataIndex: "proofreader_ratio",
       key: "proofreader_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "审核人",
       dataIndex: "reviewer_ratio",
       key: "reviewer_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
     {
       title: "批准人",
       dataIndex: "approver_ratio",
       key: "approver_ratio",
       editable: true,
+      render: (value: number | null) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return `${Number(value).toFixed(2)}%`;
+      },
     },
   ];
+
+  const departmentNameMap: { [key: string]: string } = {
+    pm: "项目管理",
+    arch: "建筑",
+    struct: "结构",
+    plumbing: "给排水",
+    electrical: "电气",
+    hvac: "暖通",
+    low_voltage: "弱电",
+  };
+
+  const getDepartmentName = (key: string) => departmentNameMap[key] || key;
 
   const getDepartmentTableData = useCallback(() => {
     if (!selectedProfileData) return [];
 
     const departments = [
-      { key: "arch", name: "建筑" },
-      { key: "struct", name: "结构" },
-      { key: "plumbing", name: "给排水" },
-      { key: "electrical", name: "电气" },
-      { key: "hvac", name: "暖通" },
-      { key: "low_voltage", name: "弱电" },
+      "arch",
+      "struct",
+      "plumbing",
+      "electrical",
+      "hvac",
+      "low_voltage",
     ];
 
     return departments.map((dept) => ({
-      key: dept.key,
-      department: dept.name,
+      key: dept,
+      department: getDepartmentName(dept),
       pm_ratio:
         selectedProfileData[
-          `${dept.key}_pm_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_pm_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       pm_assistant_ratio:
         selectedProfileData[
-          `${dept.key}_pm_assistant_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_pm_assistant_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       designer_ratio:
         selectedProfileData[
-          `${dept.key}_designer_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_designer_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       drafter_ratio:
         selectedProfileData[
-          `${dept.key}_drafter_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_drafter_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       design_post_service_ratio:
         selectedProfileData[
-          `${dept.key}_design_post_service_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_design_post_service_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       proofreader_ratio:
         selectedProfileData[
-          `${dept.key}_proofreader_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_proofreader_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       reviewer_ratio:
         selectedProfileData[
-          `${dept.key}_reviewer_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_reviewer_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
       approver_ratio:
         selectedProfileData[
-          `${dept.key}_approver_ratio` as keyof JobPayoutRatioProfilePublicOut
+          `${dept}_approver_ratio` as keyof JobPayoutRatioProfilePublicOut
         ],
     }));
-  }, [selectedProfileData]);
+  }, [getDepartmentName, selectedProfileData]);
 
+  const validatePMSum = () => {
+    const fields = [
+      'pm_ratio',
+      'pm_assistant_ratio',
+    ];
+    const sum = fields.reduce(
+      (acc, field) => acc + (form.getFieldValue(field) || 0),
+      0
+    );
+    return Math.abs(sum - 100) <= 0.01;
+  };
 
   const validateDepartmentSum = (department: string) => {
     const fields = [
@@ -448,6 +526,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
 
         {selectedProfileData && (
           <Form form={form} component={false}>
+            <Title level={4}>{getDepartmentName("pm")}</Title>
             <Table
               components={{
                 body: {
@@ -458,7 +537,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
               dataSource={[
                 {
                   key: "pm",
-                  department: "pm",
+                  department: getDepartmentName("pm"),
                   pm_ratio: selectedProfileData?.pm_ratio,
                   pm_assistant_ratio: selectedProfileData?.pm_assistant_ratio,
                 },
@@ -480,6 +559,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
               dataSource={getDepartmentTableData()}
               pagination={false}
               size="small"
+              scroll={{ x: 1000 }}
             />
             <Space style={{ marginTop: 16 }}>
               {isEditing ? (
