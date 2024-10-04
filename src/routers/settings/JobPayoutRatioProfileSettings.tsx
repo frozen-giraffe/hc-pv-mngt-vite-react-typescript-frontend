@@ -78,6 +78,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
       }
     }
   };
+
   const handleProfileSelect = (profileId: number) => {
     setSelectedProfileId(profileId);
     const selectedProfile = profiles.find(
@@ -246,17 +247,35 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   };
 
   const handleHide = () => {
-    // TODO: Implement profile deletion
     console.log("Toggle profile visibility:", selectedProfileId);
-    JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
-      id: selectedProfileId!,
-      requestBody: {
-        hidden: !selectedProfileData?.hidden,
-      },
-    });
-    message.success("Profile visibility toggled successfully");
-    fetchProfiles();
+    try {
+      JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
+        id: selectedProfileId!,
+        requestBody: {
+          hidden: !selectedProfileData?.hidden,
+        },
+      });
+      message.success("模板已" + (selectedProfileData?.hidden ? "显示" : "隐藏"));
+      
+      setProfiles(prevProfiles =>
+        prevProfiles.map(profile =>
+          profile.id === selectedProfileId
+            ? { ...profile, hidden: !profile.hidden }
+            : profile
+        )
+      );
+      setSelectedProfileData(prevData =>
+        prevData ? { ...prevData, hidden: !prevData.hidden } : null
+      );
+    } catch (error) {
+      if (error instanceof ApiError) {
+        message.error("更改模板可见性失败: " + error.message);
+      } else {
+        message.error("更改模板可见性失败: 未知错误");
+      }
+    }
   };
+
   const handleEdit = () => {
     setIsEditing(true);
     if (selectedProfileData) {
@@ -839,7 +858,14 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
                         .filter((profile) => profile.hidden)
                         .map((profile) => ({
                           value: profile.id,
-                          label: <span>{profile.name}</span>,
+                          label: (
+                            <span>
+                              {profile.name}
+                              {!profile.is_in_use && (
+                                <Tag style={{ marginLeft: "8px" }}>无项目</Tag>
+                              )}
+                            </span>
+                          ),
                           disabled: false,
                         })),
                     },
@@ -913,7 +939,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
               danger
               disabled={!selectedProfileId || isEditing}
             >
-              {selectedProfileData?.hidden ? "显示配置" : "隐藏配置"}
+              {selectedProfileData?.hidden ? "显示模板" : "隐藏模板"}
             </Button>
           </Tooltip>
         </Space>
