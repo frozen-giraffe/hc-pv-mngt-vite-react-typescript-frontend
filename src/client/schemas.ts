@@ -307,23 +307,6 @@ export const $ContractPaymentsPublicOut = {
 	},
 } as const;
 
-export const $DepartmentCreateIn = {
-	properties: {
-		name: {
-	type: 'string',
-	isRequired: true,
-},
-		description: {
-	type: 'any-of',
-	contains: [{
-	type: 'string',
-}, {
-	type: 'null',
-}],
-},
-	},
-} as const;
-
 export const $DepartmentPayoutRatioPublicOut = {
 	properties: {
 		project_class_id: {
@@ -443,7 +426,7 @@ export const $DepartmentPayoutRatioUpdateIn = {
 },
 		modified_at: {
 	type: 'string',
-	default: '2024-09-29T20:58:51.010755',
+	default: '2024-10-04T13:30:07.046502',
 	format: 'date-time',
 },
 	},
@@ -482,27 +465,6 @@ export const $DepartmentPublicOut = {
 		id: {
 	type: 'number',
 	isRequired: true,
-},
-	},
-} as const;
-
-export const $DepartmentUpdateIn = {
-	properties: {
-		name: {
-	type: 'any-of',
-	contains: [{
-	type: 'string',
-}, {
-	type: 'null',
-}],
-},
-		description: {
-	type: 'any-of',
-	contains: [{
-	type: 'string',
-}, {
-	type: 'null',
-}],
 },
 	},
 } as const;
@@ -1237,7 +1199,7 @@ export const $JobPayoutRatioProfileCreateIn = {
 	type: 'number',
 	isRequired: true,
 },
-		low_voltage_assistant_ratio: {
+		low_voltage_pm_assistant_ratio: {
 	type: 'number',
 	isRequired: true,
 },
@@ -1450,7 +1412,7 @@ export const $JobPayoutRatioProfilePublicOut = {
 	type: 'number',
 	isRequired: true,
 },
-		low_voltage_assistant_ratio: {
+		low_voltage_pm_assistant_ratio: {
 	type: 'number',
 	isRequired: true,
 },
@@ -1487,6 +1449,10 @@ export const $JobPayoutRatioProfilePublicOut = {
 	isRequired: true,
 	format: 'date-time',
 },
+		is_in_use: {
+	type: 'boolean',
+	isRequired: true,
+},
 	},
 } as const;
 
@@ -1510,209 +1476,404 @@ export const $JobPayoutRatioProfileUpdateIn = {
 }],
 },
 		pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		arch_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		struct_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		plumbing_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		electrical_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		hvac_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_pm_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
-		low_voltage_assistant_ratio: {
+		low_voltage_pm_assistant_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_designer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_drafter_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_design_post_service_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_proofreader_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_reviewer_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
+}],
 },
 		low_voltage_approver_ratio: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
 	type: 'null',
-	isRequired: true,
-},
-		updated_at: {
-	type: 'string',
-	default: '2024-09-29T20:58:50.991186',
-	format: 'date-time',
+}],
 },
 	},
 } as const;
@@ -2031,14 +2192,6 @@ export const $ProjectCreateIn = {
 		project_contract_value: {
 	type: 'number',
 	isRequired: true,
-},
-		project_deliverable_production_value: {
-	type: 'any-of',
-	contains: [{
-	type: 'number',
-}, {
-	type: 'null',
-}],
 },
 		notes: {
 	type: 'any-of',
@@ -4611,14 +4764,6 @@ export const $ProjectPublicOut = {
 	type: 'number',
 	isRequired: true,
 },
-		project_deliverable_production_value: {
-	type: 'any-of',
-	contains: [{
-	type: 'number',
-}, {
-	type: 'null',
-}],
-},
 		notes: {
 	type: 'any-of',
 	contains: [{
@@ -4968,20 +5113,8 @@ export const $ProjectUpdateIn = {
 }],
 },
 		project_contract_value: {
-	type: 'any-of',
-	contains: [{
 	type: 'number',
-}, {
-	type: 'null',
-}],
-},
-		project_deliverable_production_value: {
-	type: 'any-of',
-	contains: [{
-	type: 'number',
-}, {
-	type: 'null',
-}],
+	isRequired: true,
 },
 		notes: {
 	type: 'any-of',

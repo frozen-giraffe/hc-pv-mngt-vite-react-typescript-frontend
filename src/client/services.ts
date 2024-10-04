@@ -2,7 +2,7 @@ import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
 
-import type { Body_Login_login_access_token,Message,NewPassword,Token,UserPublic,UpdatePassword,UserCreate,UserRegister,UsersPublic,UserUpdate,UserUpdateMe,ProjectCreateIn,ProjectPublicOut,ProjectsPublicOut,ProjectUpdateIn,ProjectTypeCreateIn,ProjectTypePublicOut,ProjectTypesPublicOut,ProjectTypeUpdateIn,BuildingTypeCreateIn,BuildingTypePublicOut,BuildingTypesPublicOut,BuildingTypeUpdateIn,ProjectTaskTypeCreateIn,ProjectTaskTypePublicOut,ProjectTaskTypesPublicOut,ProjectTaskTypeUpdateIn,ProjectClassCreateIn,ProjectClassesPublicOut,ProjectClassPublicOut,ProjectClassUpdateIn,BuildingStructureTypeCreateIn,BuildingStructureTypePublicOut,BuildingStructureTypesPublicOut,BuildingStructureTypeUpdateIn,ProjectRateAdjustmentClassCreateIn,ProjectRateAdjustmentClassesPublicOut,ProjectRateAdjustmentClassPublicOut,ProjectRateAdjustmentClassUpdateIn,QualityRatioClassCreateIn,QualityRatioClassesPublicOut,QualityRatioClassPublicOut,QualityRatioClassUpdateIn,ProdValueCalcRatioCreateIn,ProdValueCalcRatioPublicOut,ProdValueCalcRatiosPublicOut,ProdValueCalcRatioUpdateIn,JobPayoutRatioProfileCreateIn,JobPayoutRatioProfilePublicOut,JobPayoutRatioProfilesPublicOut,JobPayoutRatioProfileUpdateIn,DepartmentPayoutRatioPublicOut,DepartmentPayoutRatiosPublicOut,DepartmentPayoutRatioUpdateIn,EmployeeCreateIn,EmployeePublicOut,EmployeesPublicOut,EmployeeUpdateIn,DepartmentCreateIn,DepartmentPublicOut,DepartmentsPublicOut,DepartmentUpdateIn,WorkLocationCreateIn,WorkLocationPublicOut,WorkLocationsPublicOut,WorkLocationUpdateIn,EmployeeTitleCreateIn,EmployeeTitlePublicOut,EmployeeTitlesPublicOut,EmployeeTitleUpdateIn,ProfessionalTitleCreateIn,ProfessionalTitlePublicOut,ProfessionalTitlesPublicOut,ProfessionalTitleUpdateIn,EmployStatusCreateIn,EmployStatusesPublicOut,EmployStatusPublicOut,EmployStatusUpdateIn,ProjectPayoutCreateIn,ProjectPayoutPublicOut,ProjectPayoutsPublicOut,ProjectPayoutUpdateIn,ContractPaymentCreateIn,ContractPaymentPublicOut,ContractPaymentsPublicOut,ContractPaymentUpdateIn,ItemCreateIn,ItemPublicOut,ItemsPublicOut,ItemUpdateIn } from './models';
+import type { Body_Login_login_access_token,Message,NewPassword,Token,UserPublic,UpdatePassword,UserCreate,UserRegister,UsersPublic,UserUpdate,UserUpdateMe,ProjectCreateIn,ProjectPublicOut,ProjectsPublicOut,ProjectUpdateIn,ProjectTypeCreateIn,ProjectTypePublicOut,ProjectTypesPublicOut,ProjectTypeUpdateIn,BuildingTypeCreateIn,BuildingTypePublicOut,BuildingTypesPublicOut,BuildingTypeUpdateIn,ProjectTaskTypeCreateIn,ProjectTaskTypePublicOut,ProjectTaskTypesPublicOut,ProjectTaskTypeUpdateIn,ProjectClassCreateIn,ProjectClassesPublicOut,ProjectClassPublicOut,ProjectClassUpdateIn,BuildingStructureTypeCreateIn,BuildingStructureTypePublicOut,BuildingStructureTypesPublicOut,BuildingStructureTypeUpdateIn,ProjectRateAdjustmentClassCreateIn,ProjectRateAdjustmentClassesPublicOut,ProjectRateAdjustmentClassPublicOut,ProjectRateAdjustmentClassUpdateIn,QualityRatioClassCreateIn,QualityRatioClassesPublicOut,QualityRatioClassPublicOut,QualityRatioClassUpdateIn,ProdValueCalcRatioCreateIn,ProdValueCalcRatioPublicOut,ProdValueCalcRatiosPublicOut,ProdValueCalcRatioUpdateIn,JobPayoutRatioProfileCreateIn,JobPayoutRatioProfilePublicOut,JobPayoutRatioProfilesPublicOut,JobPayoutRatioProfileUpdateIn,DepartmentPayoutRatioPublicOut,DepartmentPayoutRatiosPublicOut,DepartmentPayoutRatioUpdateIn,EmployeeCreateIn,EmployeePublicOut,EmployeesPublicOut,EmployeeUpdateIn,DepartmentPublicOut,DepartmentsPublicOut,WorkLocationCreateIn,WorkLocationPublicOut,WorkLocationsPublicOut,WorkLocationUpdateIn,EmployeeTitleCreateIn,EmployeeTitlePublicOut,EmployeeTitlesPublicOut,EmployeeTitleUpdateIn,ProfessionalTitleCreateIn,ProfessionalTitlePublicOut,ProfessionalTitlesPublicOut,ProfessionalTitleUpdateIn,EmployStatusCreateIn,EmployStatusesPublicOut,EmployStatusPublicOut,EmployStatusUpdateIn,ProjectPayoutCreateIn,ProjectPayoutPublicOut,ProjectPayoutsPublicOut,ProjectPayoutUpdateIn,ContractPaymentCreateIn,ContractPaymentPublicOut,ContractPaymentsPublicOut,ContractPaymentUpdateIn,ItemCreateIn,ItemPublicOut,ItemsPublicOut,ItemUpdateIn } from './models';
 
 export type LoginData = {
         LoginAccessToken: {
@@ -79,8 +79,6 @@ projectConstructionCostMax?: number | null
 projectConstructionCostMin?: number | null
 projectContractValueMax?: number | null
 projectContractValueMin?: number | null
-projectDeliverableProductionValueMax?: number | null
-projectDeliverableProductionValueMin?: number | null
 projectRateAdjustmentClassId?: number | null
 projectTaskTypeId?: number | null
 projectTypeId?: number | null
@@ -108,12 +106,7 @@ DeleteProject: {
     }
 
 export type ProjectTypesData = {
-        ReadProjectTypes: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProjectType: {
+        CreateProjectType: {
                     requestBody: ProjectTypeCreateIn
                     
                 };
@@ -129,12 +122,7 @@ requestBody: ProjectTypeUpdateIn
     }
 
 export type BuildingTypesData = {
-        ReadBuildingTypes: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateBuildingType: {
+        CreateBuildingType: {
                     requestBody: BuildingTypeCreateIn
                     
                 };
@@ -150,12 +138,7 @@ requestBody: BuildingTypeUpdateIn
     }
 
 export type ProjectTaskTypesData = {
-        ReadProjectTaskTypes: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProjectTaskType: {
+        CreateProjectTaskType: {
                     requestBody: ProjectTaskTypeCreateIn
                     
                 };
@@ -171,12 +154,7 @@ requestBody: ProjectTaskTypeUpdateIn
     }
 
 export type ProjectClassesData = {
-        ReadProjectClasses: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProjectClass: {
+        CreateProjectClass: {
                     requestBody: ProjectClassCreateIn
                     
                 };
@@ -192,12 +170,7 @@ requestBody: ProjectClassUpdateIn
     }
 
 export type BuildingStructureTypesData = {
-        ReadBuildingStructureTypes: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateBuildingStructureType: {
+        CreateBuildingStructureType: {
                     requestBody: BuildingStructureTypeCreateIn
                     
                 };
@@ -213,12 +186,7 @@ requestBody: BuildingStructureTypeUpdateIn
     }
 
 export type ProjectRateAdjustmentClassesData = {
-        ReadProjectRateAdjustmentClasses: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProjectRateAdjustmentClass: {
+        CreateProjectRateAdjustmentClass: {
                     requestBody: ProjectRateAdjustmentClassCreateIn
                     
                 };
@@ -234,12 +202,7 @@ requestBody: ProjectRateAdjustmentClassUpdateIn
     }
 
 export type QualityRatioClassesData = {
-        ReadQualityRatioClasses: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateQualityRaitioClass: {
+        CreateQualityRaitioClass: {
                     requestBody: QualityRatioClassCreateIn
                     
                 };
@@ -255,12 +218,7 @@ requestBody: QualityRatioClassUpdateIn
     }
 
 export type ProdValueCalcRatiosData = {
-        ReadProdValueCalcRatios: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProdValueCalcRatio: {
+        CreateProdValueCalcRatio: {
                     requestBody: ProdValueCalcRatioCreateIn
                     
                 };
@@ -271,6 +229,10 @@ GetProdValueCalcRatioById: {
 UpdateProdValueCalcRatio: {
                     id: number
 requestBody: ProdValueCalcRatioUpdateIn
+                    
+                };
+DeleteProdValueCalcRatio: {
+                    id: number
                     
                 };
     }
@@ -325,7 +287,7 @@ requestBody: DepartmentPayoutRatioUpdateIn
 export type EmployeeData = {
         ReadEmployees: {
                     limit?: number
-showDisabled: boolean
+showDisabled?: boolean | null
 skip?: number
                     
                 };
@@ -361,33 +323,14 @@ GetEmployeeReportById: {
     }
 
 export type DepartmentsData = {
-        ReadDepartments: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateDepartment: {
-                    requestBody: DepartmentCreateIn
-                    
-                };
-GetDepartmentById: {
+        GetDepartmentById: {
                     id: number
-                    
-                };
-UpdateDepartment: {
-                    id: number
-requestBody: DepartmentUpdateIn
                     
                 };
     }
 
 export type WorkLocationsData = {
-        ReadWorkLocations: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateWorkLocation: {
+        CreateWorkLocation: {
                     requestBody: WorkLocationCreateIn
                     
                 };
@@ -403,12 +346,7 @@ requestBody: WorkLocationUpdateIn
     }
 
 export type EmployeeTitlesData = {
-        ReadEmployeeTitles: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateEmployeeTitle: {
+        CreateEmployeeTitle: {
                     requestBody: EmployeeTitleCreateIn
                     
                 };
@@ -424,12 +362,7 @@ requestBody: EmployeeTitleUpdateIn
     }
 
 export type ProfessionalTitlesData = {
-        ReadProfessionalTitles: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateProfessionalTitle: {
+        CreateProfessionalTitle: {
                     requestBody: ProfessionalTitleCreateIn
                     
                 };
@@ -445,12 +378,7 @@ requestBody: ProfessionalTitleUpdateIn
     }
 
 export type EmployeeStatusesData = {
-        ReadEmployeeStatuses: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateEmployeeStatus: {
+        CreateEmployeeStatus: {
                     requestBody: EmployStatusCreateIn
                     
                 };
@@ -475,6 +403,10 @@ CreateProjectPayout: {
                     requestBody: ProjectPayoutCreateIn
                     
                 };
+GetProjectPayoutByProjectId: {
+                    id: number
+                    
+                };
 ReadProjectPayout: {
                     id: number
                     
@@ -487,12 +419,7 @@ requestBody: ProjectPayoutUpdateIn
     }
 
 export type ContractPaymentsData = {
-        GetContractPayment: {
-                    limit?: number
-skip?: number
-                    
-                };
-CreateContractPayment: {
+        CreateContractPayment: {
                     requestBody: ContractPaymentCreateIn
                     
                 };
@@ -962,14 +889,12 @@ calculatedEmployeePayoutMin,
 calculatedEmployeePayoutMax,
 projectContractValueMin,
 projectContractValueMax,
-projectDeliverableProductionValueMin,
-projectDeliverableProductionValueMax,
 } = data;
 		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/projects/',
 			query: {
-				skip, limit, id, project_code: projectCode, name, project_type_id: projectTypeId, building_type_id: buildingTypeId, project_task_type_id: projectTaskTypeId, project_class_id: projectClassId, building_structure_type_id: buildingStructureTypeId, project_rate_adjustment_class_id: projectRateAdjustmentClassId, quality_ratio_class_id: qualityRatioClassId, date_added_from: dateAddedFrom, date_added_to: dateAddedTo, project_area_min: projectAreaMin, project_area_max: projectAreaMax, project_construction_cost_min: projectConstructionCostMin, project_construction_cost_max: projectConstructionCostMax, calculated_employee_payout_min: calculatedEmployeePayoutMin, calculated_employee_payout_max: calculatedEmployeePayoutMax, project_contract_value_min: projectContractValueMin, project_contract_value_max: projectContractValueMax, project_deliverable_production_value_min: projectDeliverableProductionValueMin, project_deliverable_production_value_max: projectDeliverableProductionValueMax
+				skip, limit, id, project_code: projectCode, name, project_type_id: projectTypeId, building_type_id: buildingTypeId, project_task_type_id: projectTaskTypeId, project_class_id: projectClassId, building_structure_type_id: buildingStructureTypeId, project_rate_adjustment_class_id: projectRateAdjustmentClassId, quality_ratio_class_id: qualityRatioClassId, date_added_from: dateAddedFrom, date_added_to: dateAddedTo, project_area_min: projectAreaMin, project_area_max: projectAreaMax, project_construction_cost_min: projectConstructionCostMin, project_construction_cost_max: projectConstructionCostMax, calculated_employee_payout_min: calculatedEmployeePayoutMin, calculated_employee_payout_max: calculatedEmployeePayoutMax, project_contract_value_min: projectContractValueMin, project_contract_value_max: projectContractValueMax
 			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
@@ -1028,10 +953,10 @@ id,
 	 * Update Project
 	 * Update a project.
  * 当产值已经计算过并有入账时，个别字段不允许修改。
-	 * @returns Message Successful Response
+	 * @returns ProjectPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static updateProject(data: ProjectsData['UpdateProject']): CancelablePromise<Message> {
+	public static updateProject(data: ProjectsData['UpdateProject']): CancelablePromise<ProjectPublicOut> {
 		const {
 id,
 requestBody,
@@ -1084,20 +1009,12 @@ export class ProjectTypesService {
 	 * @returns ProjectTypesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProjectTypes(data: ProjectTypesData['ReadProjectTypes'] = {}): CancelablePromise<ProjectTypesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProjectTypes(): CancelablePromise<ProjectTypesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-types/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1187,20 +1104,12 @@ export class BuildingTypesService {
 	 * @returns BuildingTypesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readBuildingTypes(data: BuildingTypesData['ReadBuildingTypes'] = {}): CancelablePromise<BuildingTypesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readBuildingTypes(): CancelablePromise<BuildingTypesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/building-types/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1222,6 +1131,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建民用建筑类别`,
 				422: `Validation Error`,
 			},
 		});
@@ -1271,6 +1181,8 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法修改民用建筑类别信息`,
+				404: `民用建筑类别ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1286,20 +1198,12 @@ export class ProjectTaskTypesService {
 	 * @returns ProjectTaskTypesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProjectTaskTypes(data: ProjectTaskTypesData['ReadProjectTaskTypes'] = {}): CancelablePromise<ProjectTaskTypesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProjectTaskTypes(): CancelablePromise<ProjectTaskTypesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-task-types/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1389,20 +1293,12 @@ export class ProjectClassesService {
 	 * @returns ProjectClassesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProjectClasses(data: ProjectClassesData['ReadProjectClasses'] = {}): CancelablePromise<ProjectClassesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProjectClasses(): CancelablePromise<ProjectClassesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-classes/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1492,20 +1388,12 @@ export class BuildingStructureTypesService {
 	 * @returns BuildingStructureTypesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readBuildingStructureTypes(data: BuildingStructureTypesData['ReadBuildingStructureTypes'] = {}): CancelablePromise<BuildingStructureTypesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readBuildingStructureTypes(): CancelablePromise<BuildingStructureTypesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/building-structure-types/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1527,6 +1415,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建结构形式`,
 				422: `Validation Error`,
 			},
 		});
@@ -1576,6 +1465,8 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法修改结构形式信息`,
+				404: `结构形式ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -1591,20 +1482,12 @@ export class ProjectRateAdjustmentClassesService {
 	 * @returns ProjectRateAdjustmentClassesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProjectRateAdjustmentClasses(data: ProjectRateAdjustmentClassesData['ReadProjectRateAdjustmentClasses'] = {}): CancelablePromise<ProjectRateAdjustmentClassesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProjectRateAdjustmentClasses(): CancelablePromise<ProjectRateAdjustmentClassesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-rate-adjustment-classes/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1694,20 +1577,12 @@ export class QualityRatioClassesService {
 	 * @returns QualityRatioClassesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readQualityRatioClasses(data: QualityRatioClassesData['ReadQualityRatioClasses'] = {}): CancelablePromise<QualityRatioClassesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readQualityRatioClasses(): CancelablePromise<QualityRatioClassesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/quality-ratio-classes/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1814,20 +1689,12 @@ export class ProdValueCalcRatiosService {
 	 * @returns ProdValueCalcRatiosPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProdValueCalcRatios(data: ProdValueCalcRatiosData['ReadProdValueCalcRatios'] = {}): CancelablePromise<ProdValueCalcRatiosPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProdValueCalcRatios(): CancelablePromise<ProdValueCalcRatiosPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/prod-value-calc-ratios/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -1901,6 +1768,31 @@ requestBody,
 			errors: {
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法修改施工图产值到下发产值比信息`,
+				404: `施工图产值到下发产值比ID不存在`,
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * Delete Prod Value Calc Ratio
+	 * 删除施工图产值到下发产值比。
+	 * @returns unknown Successful Response
+	 * @throws ApiError
+	 */
+	public static deleteProdValueCalcRatio(data: ProdValueCalcRatiosData['DeleteProdValueCalcRatio']): CancelablePromise<unknown> {
+		const {
+id,
+} = data;
+		return __request(OpenAPI, {
+			method: 'DELETE',
+			url: '/api/v1/prod-value-calc-ratios/{id}',
+			path: {
+				id
+			},
+			errors: {
+				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法删除施工图产值到下发产值比`,
 				404: `施工图产值到下发产值比ID不存在`,
 				422: `Validation Error`,
 			},
@@ -2001,6 +1893,7 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				400: `无法更新已被项目使用的设计阶段产值系数配置中的比例。`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法更新设计阶段产值系数配置`,
 				404: `设计阶段产值系数配置ID不存在`,
@@ -2073,6 +1966,8 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新专业产值系数`,
+				404: `专业产值系数配置 ID 不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2147,6 +2042,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新专业产值系数`,
 				422: `Validation Error`,
 			},
 		});
@@ -2162,7 +2058,7 @@ export class EmployeeService {
 	 * @returns EmployeesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readEmployees(data: EmployeeData['ReadEmployees']): CancelablePromise<EmployeesPublicOut> {
+	public static readEmployees(data: EmployeeData['ReadEmployees'] = {}): CancelablePromise<EmployeesPublicOut> {
 		const {
 showDisabled,
 skip = 0,
@@ -2198,6 +2094,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建员工信息`,
 				422: `Validation Error`,
 			},
 		});
@@ -2264,6 +2161,7 @@ limit = 100,
 			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				404: `部门ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2287,6 +2185,7 @@ id,
 			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				404: `员工ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2313,7 +2212,9 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
+				403: `非超管无法更新员工信息`,
+				404: `员工ID不存在`,
+				422: `更新提供的数据不合法`,
 			},
 		});
 	}
@@ -2344,15 +2245,16 @@ id,
 	/**
 	 * Generate Pinyin
 	 * Generate pinyin for a given name.
-	 * @returns unknown Successful Response
+	 * @returns Message Successful Response
 	 * @throws ApiError
 	 */
-	public static generatePinyin(): CancelablePromise<unknown> {
+	public static generatePinyin(): CancelablePromise<Message> {
 				return __request(OpenAPI, {
 			method: 'POST',
 			url: '/api/v1/employee/generate-pinyin',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法使用该接口`,
 			},
 		});
 	}
@@ -2367,42 +2269,12 @@ export class DepartmentsService {
 	 * @returns DepartmentsPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readDepartments(data: DepartmentsData['ReadDepartments'] = {}): CancelablePromise<DepartmentsPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readDepartments(): CancelablePromise<DepartmentsPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/departments/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
-			},
-		});
-	}
-
-	/**
-	 * Create Department
-	 * Create new Department.
-	 * @returns DepartmentPublicOut Successful Response
-	 * @throws ApiError
-	 */
-	public static createDepartment(data: DepartmentsData['CreateDepartment']): CancelablePromise<DepartmentPublicOut> {
-		const {
-requestBody,
-} = data;
-		return __request(OpenAPI, {
-			method: 'POST',
-			url: '/api/v1/departments/',
-			body: requestBody,
-			mediaType: 'application/json',
-			errors: {
-				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -2430,32 +2302,6 @@ id,
 		});
 	}
 
-	/**
-	 * Update Department
-	 * Update an Department.
-	 * @returns DepartmentPublicOut Successful Response
-	 * @throws ApiError
-	 */
-	public static updateDepartment(data: DepartmentsData['UpdateDepartment']): CancelablePromise<DepartmentPublicOut> {
-		const {
-id,
-requestBody,
-} = data;
-		return __request(OpenAPI, {
-			method: 'PUT',
-			url: '/api/v1/departments/{id}',
-			path: {
-				id
-			},
-			body: requestBody,
-			mediaType: 'application/json',
-			errors: {
-				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
-			},
-		});
-	}
-
 }
 
 export class WorkLocationsService {
@@ -2466,20 +2312,12 @@ export class WorkLocationsService {
 	 * @returns WorkLocationsPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readWorkLocations(data: WorkLocationsData['ReadWorkLocations'] = {}): CancelablePromise<WorkLocationsPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readWorkLocations(): CancelablePromise<WorkLocationsPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/work-locations/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -2569,20 +2407,12 @@ export class EmployeeTitlesService {
 	 * @returns EmployeeTitlesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readEmployeeTitles(data: EmployeeTitlesData['ReadEmployeeTitles'] = {}): CancelablePromise<EmployeeTitlesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readEmployeeTitles(): CancelablePromise<EmployeeTitlesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/employee-titles/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -2604,6 +2434,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建职位`,
 				422: `Validation Error`,
 			},
 		});
@@ -2653,6 +2484,8 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新职位`,
+				404: `职位ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2668,20 +2501,12 @@ export class ProfessionalTitlesService {
 	 * @returns ProfessionalTitlesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readProfessionalTitles(data: ProfessionalTitlesData['ReadProfessionalTitles'] = {}): CancelablePromise<ProfessionalTitlesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readProfessionalTitles(): CancelablePromise<ProfessionalTitlesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/professional-titles/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -2771,20 +2596,12 @@ export class EmployeeStatusesService {
 	 * @returns EmployStatusesPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static readEmployeeStatuses(data: EmployeeStatusesData['ReadEmployeeStatuses'] = {}): CancelablePromise<EmployStatusesPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static readEmployeeStatuses(): CancelablePromise<EmployStatusesPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/employee-statuses/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -2806,6 +2623,7 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法创建员工状态`,
 				422: `Validation Error`,
 			},
 		});
@@ -2855,6 +2673,8 @@ requestBody,
 			mediaType: 'application/json',
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				403: `非超管无法更新员工状态`,
+				404: `员工状态ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2904,7 +2724,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				400: `项目已有产值`,
 				401: `未登录、登录状态过期或无效`,
+				404: `项目ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2916,12 +2738,20 @@ requestBody,
 	 * @returns ProjectPayoutPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static getProjectPayoutByProjectId(): CancelablePromise<ProjectPayoutPublicOut> {
-				return __request(OpenAPI, {
+	public static getProjectPayoutByProjectId(data: ProjectPayoutsData['GetProjectPayoutByProjectId']): CancelablePromise<ProjectPayoutPublicOut> {
+		const {
+id,
+} = data;
+		return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/project-payouts/by-project-id/{id}',
+			path: {
+				id
+			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				404: `项目产值ID不存在`,
+				422: `Validation Error`,
 			},
 		});
 	}
@@ -2944,6 +2774,7 @@ id,
 			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
+				404: `项目产值ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2973,7 +2804,9 @@ requestBody,
 			body: requestBody,
 			mediaType: 'application/json',
 			errors: {
+				400: `项目已有回款记录，不允许修改`,
 				401: `未登录、登录状态过期或无效`,
+				404: `项目产值ID不存在`,
 				422: `Validation Error`,
 			},
 		});
@@ -2989,20 +2822,12 @@ export class ContractPaymentsService {
 	 * @returns ContractPaymentsPublicOut Successful Response
 	 * @throws ApiError
 	 */
-	public static getContractPayment(data: ContractPaymentsData['GetContractPayment'] = {}): CancelablePromise<ContractPaymentsPublicOut> {
-		const {
-skip = 0,
-limit = 100,
-} = data;
-		return __request(OpenAPI, {
+	public static getContractPayment(): CancelablePromise<ContractPaymentsPublicOut> {
+				return __request(OpenAPI, {
 			method: 'GET',
 			url: '/api/v1/contract-payments/',
-			query: {
-				skip, limit
-			},
 			errors: {
 				401: `未登录、登录状态过期或无效`,
-				422: `Validation Error`,
 			},
 		});
 	}
@@ -3154,6 +2979,8 @@ export class ReportsService {
 	/**
 	 * 生成项目列表报告
 	 * 生成项目列表报告。
+ * 如果提供项目年份，则生成指定年份的项目列表报告。
+ * 否则生成所有年份的项目列表报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3168,6 +2995,7 @@ projectYear,
 				project_year: projectYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3186,6 +3014,7 @@ projectYear,
 			method: 'GET',
 			url: '/api/v1/reports/employee-list',
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 			},
@@ -3195,6 +3024,9 @@ projectYear,
 	/**
 	 * 生成回款报告
 	 * 生成回款报告。
+ * 如果提供项目id，则生成指定项目的回款报告。
+ * 如果提供时间范围，则生成指定时间范围内的回款报告。
+ * 否则生成所有回款报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3211,6 +3043,7 @@ timeEnd,
 				project_id: projectId, time_start: timeStart, time_end: timeEnd
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3220,7 +3053,7 @@ timeEnd,
 
 	/**
 	 * 生成员工报告
-	 * 生成员工报告。
+	 * 生成按回款年度汇总个人累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3236,6 +3069,7 @@ paymentYear,
 				employee_id: employeeId, payment_year: paymentYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3245,7 +3079,7 @@ paymentYear,
 
 	/**
 	 * 生成员工报告
-	 * 生成员工报告。
+	 * 生成按工程年度汇总个人累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3261,6 +3095,7 @@ projectYear,
 				employee_id: employeeId, project_year: projectYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3270,7 +3105,7 @@ projectYear,
 
 	/**
 	 * 生成员工报告
-	 * 生成员工报告。
+	 * 生成按工程年度汇总个人产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3286,6 +3121,7 @@ projectYear,
 				employee_id: employeeId, project_year: projectYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3295,7 +3131,7 @@ projectYear,
 
 	/**
 	 * 生成公司报告
-	 * 生成公司报告。
+	 * 生成按回款年度汇总公司累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3310,6 +3146,7 @@ paymentYear,
 				payment_year: paymentYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3318,8 +3155,8 @@ paymentYear,
 	}
 
 	/**
-	 * 生成公司报告
-	 * 生成公司报告。
+	 * 生成按工程年度汇总公司累计兑付产值报告
+	 * 生成按工程年度汇总公司累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3334,6 +3171,7 @@ projectYear,
 				project_year: projectYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3342,8 +3180,8 @@ projectYear,
 	}
 
 	/**
-	 * 生成公司报告
-	 * 生成公司报告。
+	 * 生成按工程年度汇总公司产值报告
+	 * 生成按工程年度汇总公司产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3358,6 +3196,7 @@ projectYear,
 				project_year: projectYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3366,8 +3205,8 @@ projectYear,
 	}
 
 	/**
-	 * 生成项目产值报告
-	 * 生成项目产值报告。
+	 * 生成项目按回款年度汇总员工累计兑付产值报告
+	 * 生成项目按回款年度汇总员工累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3383,6 +3222,7 @@ paymentYear,
 				project_id: projectId, payment_year: paymentYear
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3391,8 +3231,8 @@ paymentYear,
 	}
 
 	/**
-	 * 生成项目产值报告
-	 * 生成项目产值报告。
+	 * 生成项目按工程年度汇总员工累计兑付产值报告
+	 * 生成项目按工程年度汇总员工累计兑付产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3407,6 +3247,7 @@ projectId,
 				project_id: projectId
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3415,8 +3256,8 @@ projectId,
 	}
 
 	/**
-	 * 生成项目产值报告
-	 * 生成项目产值报告。
+	 * 生成项目按工程年度汇总员工产值报告
+	 * 生成项目按工程年度汇总员工产值报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3431,6 +3272,7 @@ projectId,
 				project_id: projectId
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,
@@ -3439,8 +3281,8 @@ projectId,
 	}
 
 	/**
-	 * 生成回款报告
-	 * 生成回款报告。
+	 * 生成回款下发报告
+	 * 生成回款下发报告。
 	 * @returns unknown Successful Response
 	 * @throws ApiError
 	 */
@@ -3455,6 +3297,7 @@ contractPaymentId,
 				contract_payment_id: contractPaymentId
 			},
 			errors: {
+				400: `生成报告时发生错误`,
 				401: `未登录、登录状态过期或无效`,
 				403: `非超管无法生成报告`,
 				422: `Validation Error`,

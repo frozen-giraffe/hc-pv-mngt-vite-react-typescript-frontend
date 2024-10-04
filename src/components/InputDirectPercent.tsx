@@ -15,7 +15,7 @@ const InputDirectPercent: React.FC<InputDirectPercentProps> = ({ step = 0.005, m
       min={min}
       max={max}
       addonAfter="%"
-      formatter={(value) => (value ? `${(Number(value)).toFixed(2)}` : '')}
+      formatter={(value) => (value ? `${(Number(value)).toFixed(2)}` : '0')}
       parser={(value) => (value ? parseFloat(value as string) : 0)}
     />
   );

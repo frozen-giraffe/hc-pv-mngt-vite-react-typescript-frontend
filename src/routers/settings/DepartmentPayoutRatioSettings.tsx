@@ -8,6 +8,8 @@ import {
   Tooltip,
   Collapse,
   Divider,
+  Alert,
+  Space,
 } from "antd";
 import {
   ApiError,
@@ -342,6 +344,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
           <InfoCircleOutlined style={{ marginLeft: "8px", cursor: "pointer" }} />
         </Tooltip>
       </h2>
+      <Alert message="修改此处的预设不会影响已计算的产值数据。" type="info" showIcon/>
       <Collapse
         bordered={false}
         items={[
