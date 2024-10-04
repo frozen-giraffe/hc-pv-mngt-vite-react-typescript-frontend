@@ -620,7 +620,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
       },
     },
     {
-      title: "设计后服务",
+      title: "后期服务",
       dataIndex: "design_post_service_ratio",
       key: "design_post_service_ratio",
       editable: true,
@@ -656,7 +656,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
       },
     },
     {
-      title: "批准人",
+      title: "审定人",
       dataIndex: "approver_ratio",
       key: "approver_ratio",
       editable: true,
@@ -783,7 +783,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: "1300px" }}>
       <Modal
         title={selectedProfileId === -1 ? "输入新分配模板名称" : "重命名模板"}
         open={isRenameModalVisible}
@@ -964,9 +964,11 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
               ]}
               pagination={false}
               size="small"
+              scroll={{ x: 300 }}
+              style={{ maxWidth: "300px" }}
             />
             <Title level={4} style={{ marginTop: "20px" }}>
-              专业部门
+              部门
             </Title>
             <Table
               components={{
@@ -978,7 +980,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
               dataSource={getDepartmentTableData()}
               pagination={false}
               size="small"
-              scroll={{ x: 1000 }}
+              scroll={{ x: 930 }}
             />
             <Space style={{ marginTop: 16 }}>
               {isEditing ? (

@@ -40,7 +40,7 @@ const ProdValueRatioSettings: React.FC = () => {
           (res) => res.data
         );
       data.sort((a, b) => a.id - b.id);
-      
+
       // // Add 20 fake data entries for testing
       // const fakeData = Array.from({ length: 20 }, (_, index) => ({
       //   id: data.length + index + 1,
@@ -57,7 +57,10 @@ const ProdValueRatioSettings: React.FC = () => {
       // setRatios(combinedData);
       setRatios(data);
     } catch (error) {
-      message.error("Failed to fetch ratios:" + (error instanceof Error ? error.message : String(error)));
+      message.error(
+        "Failed to fetch ratios:" +
+          (error instanceof Error ? error.message : String(error))
+      );
     }
   };
 
@@ -126,7 +129,25 @@ const ProdValueRatioSettings: React.FC = () => {
       addForm.resetFields();
       fetchRatios();
     } catch (error) {
-      message.error("添加失败:" + error);
+      message.error(
+        "添加失败:" + (error instanceof Error ? error.message : String(error))
+      );
+    }
+  };
+
+  const handleDelete = async (record: ProdValueCalcRatioPublicOut) => {
+    try {
+      await ProdValueCalcRatiosService.deleteProdValueCalcRatio({
+        id: record.id,
+      });
+      message.success("删除成功");
+      fetchRatios();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        message.error("删除失败: " + error.message);
+      } else {
+        message.error("删除失败: 未知错误");
+      }
     }
   };
 
@@ -135,7 +156,6 @@ const ProdValueRatioSettings: React.FC = () => {
       title: "合同产值名称",
       dataIndex: "name",
       key: "name",
-      width: '30%',
       editable: true,
       render: (text: string, record: ProdValueCalcRatioPublicOut) => (
         <span>
@@ -152,19 +172,16 @@ const ProdValueRatioSettings: React.FC = () => {
       title: "合同产值比",
       dataIndex: "ratio",
       key: "ratio",
-      width: '40%',
       editable: true,
-      render: (value: number) => (
-        <span>
-          {(value * 100).toFixed(2)}%
-        </span>
-      ),
+      fixed: "right" as const,
+      width: 140,
+      render: (value: number) => <span>{(value * 100).toFixed(2)}%</span>,
     },
     {
       title: "操作",
       key: "action",
-      fixed: 'right' as const,
-      width: 140,
+      fixed: "right" as const,
+      width: 180,
       render: (_: React.ReactNode, record: ProdValueCalcRatioPublicOut) => {
         const editable = isEditing(record);
         return editable ? (
@@ -188,6 +205,16 @@ const ProdValueRatioSettings: React.FC = () => {
             >
               编辑
             </Typography.Link>
+
+            <Tooltip title={record.default ? "默认系数不可删除" : ""}>
+              <Typography.Link
+                onClick={() => handleDelete(record)}
+                style={{ marginRight: 8 }}
+                disabled={editingKey !== "" || record.default}
+              >
+                删除
+              </Typography.Link>
+            </Tooltip>
             {!record.default && (
               <Typography.Link
                 onClick={() => handleSetDefault(record)}
@@ -235,12 +262,13 @@ const ProdValueRatioSettings: React.FC = () => {
     children,
     ...restProps
   }) => {
-    const inputNode = inputType === "number" ? (
-      <InputFloatPercent step={0.005} min={0} max={1} />
-    ) : (
-      <Input />
-    );
-  
+    const inputNode =
+      inputType === "number" ? (
+        <InputFloatPercent step={0.005} min={0} max={1} />
+      ) : (
+        <Input />
+      );
+
     return (
       <td {...restProps}>
         {editing ? (
@@ -263,9 +291,8 @@ const ProdValueRatioSettings: React.FC = () => {
     );
   };
 
-  
   return (
-    <div>
+    <div style={{ maxWidth: "1300px" }}>
       <h2>
         合同/下发产值系数
         <Tooltip title="合同产值与下发产值的预设，展示在下发产值栏下方供快速计算。">
@@ -274,7 +301,11 @@ const ProdValueRatioSettings: React.FC = () => {
           />
         </Tooltip>
       </h2>
-      <Alert message="修改此处的预设不会影响已计算的产值数据。" type="info" showIcon/>
+      <Alert
+        message="修改此处的预设不会影响已计算的产值数据。"
+        type="info"
+        showIcon
+      />
       <Divider />
       <Form form={editForm} component={false}>
         <Table
@@ -289,7 +320,8 @@ const ProdValueRatioSettings: React.FC = () => {
           rowClassName="editable-row"
           pagination={false}
           rowKey="id"
-          scroll={{ x: 'max-content', y: 'calc(100vh - 600px)' }}
+          scroll={{ x: 400, y: "max(calc(100vh - 600px), 300px)" }}
+          size="large"
         />
       </Form>
       <h3>添加新系数</h3>
