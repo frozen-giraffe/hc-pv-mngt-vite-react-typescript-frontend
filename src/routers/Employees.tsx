@@ -95,7 +95,7 @@ export const Employees: React.FC = () => {
             console.log(requestBody);
             
             const repsonseCreateEmployee = await EmployeeService.createEmployee(requestBody)
-            if(repsonseCreateEmployee){
+            if(repsonseCreateEmployee.data){
                 fetchEmployees()
                 successMessage('创建成功')
                 handleModalCancel()
@@ -146,7 +146,7 @@ export const Employees: React.FC = () => {
             console.log(pinyin(updatedData.name, {removeTone: true}));
             
             const repsonseUpdateEmployee = await EmployeeService.updateEmployee(requestBody)
-            if(repsonseUpdateEmployee){
+            if(repsonseUpdateEmployee.data){
                 successMessage('创建成功')
                 setEmployees(prevEmployees => 
                     prevEmployees.map(emp => 

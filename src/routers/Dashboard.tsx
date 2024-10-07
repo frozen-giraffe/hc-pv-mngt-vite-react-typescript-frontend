@@ -130,8 +130,10 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
         // const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
         try {
           const { data, error, request, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
-            projectYear: 2024,
-            employeeId: 21
+            query: {
+              project_year: 2024,
+              employee_id: 21
+            }
           })
           console.log("report res")
           console.log(data);

@@ -261,16 +261,6 @@ export const ProjectDetail = () => {
         resQualityRatioClass,
         resProdValCalcRatios,
         redDefaultProdValCalcRatios,
-      ]: [
-        ProjectTypesPublicOut,
-        BuildingStructureTypesPublicOut,
-        ProjectClassesPublicOut,
-        BuildingTypesPublicOut,
-        ProjectTaskTypesPublicOut,
-        ProjectRateAdjustmentClassesPublicOut,
-        QualityRatioClassesPublicOut,
-        ProdValueCalcRatiosPublicOut,
-        ProdValueCalcRatioPublicOut
       ] = await Promise.all([
         ProjectTypesService.readProjectTypes(),
         ProjectClassesService.readProjectClasses(),
@@ -282,25 +272,23 @@ export const ProjectDetail = () => {
         ProdValueCalcRatiosService.readProdValueCalcRatios(),
         ProdValueCalcRatiosService.readProdValueCalcRatiosDefault(),
       ]);
-
-      setProjectTypes(resProjectType.data);
-      setProjectClasses(resProjectClass.data);
-      setBuildingTypes(resBuildingType.data);
-      setPProjectTaskTypes(resProjectTaskType.data);
-      setBuildingStructureTypes(resBuildingStructureType.data);
-      setProjectRateAdjustmentClasses(resProjectRateAdjustmentClass.data);
-      setQualityRatioClasses(resQualityRatioClass.data);
-      setProdValCalcRatios(resProdValCalcRatios.data);
-      setDefaultProdValCalcRatio(redDefaultProdValCalcRatios);
-
-      //set default option highlighted
-      setSegmentedValue(redDefaultProdValCalcRatios.ratio.toString())
-      //set default silder position
-      setSilderValue(redDefaultProdValCalcRatios.ratio*100)
-      console.log(resProdValCalcRatios.data);
-      const res =
-        await ProdValueCalcRatiosService.readProdValueCalcRatiosDefault();
-      console.log(res);
+      if (resProjectType.error || resProjectClass.error || resBuildingType.error || resProjectTaskType.error || resBuildingStructureType.error || resProjectRateAdjustmentClass.error || resQualityRatioClass.error || resProdValCalcRatios.error || redDefaultProdValCalcRatios.error) {
+        message.error("项目基本信息类获取失败: "+resProjectType.error?.detail || resProjectClass.error?.detail || resBuildingType.error?.detail || resProjectTaskType.error?.detail || resBuildingStructureType.error?.detail || resProjectRateAdjustmentClass.error?.detail || resQualityRatioClass.error?.detail || resProdValCalcRatios.error?.detail || redDefaultProdValCalcRatios.error?.detail)
+      } else {
+        setProjectTypes(resProjectType.data.data);
+        setProjectClasses(resProjectClass.data.data);
+        setBuildingTypes(resBuildingType.data.data);
+        setPProjectTaskTypes(resProjectTaskType.data.data);
+        setBuildingStructureTypes(resBuildingStructureType.data.data);
+        setProjectRateAdjustmentClasses(resProjectRateAdjustmentClass.data.data);
+        setQualityRatioClasses(resQualityRatioClass.data.data);
+        setProdValCalcRatios(resProdValCalcRatios.data.data);
+        setDefaultProdValCalcRatio(redDefaultProdValCalcRatios.data);
+        //set default option highlighted
+        setSegmentedValue(redDefaultProdValCalcRatios.data.ratio.toString())
+        //set default silder position
+        setSilderValue(redDefaultProdValCalcRatios.data.ratio*100)
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -335,11 +323,15 @@ export const ProjectDetail = () => {
     //get departmentPayoutRatio related to projectClassId, and projectClassId based on which projectType picked
     const res =
       await DepartmentPayoutRatiosService.readDepartmentPayoutRatiosByProjectClassId(
-        { projectClassId: relatedProjectClassName!!.id }
+        { path: { project_class_id: relatedProjectClassName!!.id } }
       );
-    setDepartmentPayoutRatioRelatedToProjectClassId(res.data);
+    if(res.data){
+      setDepartmentPayoutRatioRelatedToProjectClassId(res.data.data);
+    } else {
+      setDepartmentPayoutRatioRelatedToProjectClassId([]);
+    }
     console.log(
-      new Set(res.data.map((value) => value.project_rate_adjustment_class_id))
+      new Set(res.data?.data.map((value) => value.project_rate_adjustment_class_id) || [])
     );
     //console.log(res.data.map((value)=>value.project_rate_adjustment_class_id));
     // console.log(res);
@@ -384,7 +376,7 @@ const errorMessage = (msg:string) => {
     console.log(fieldsValue['projectYear'].format('YYYY'));
     
     try{
-        const res = await ProjectsService.createProject({requestBody:{
+        const res = await ProjectsService.createProject({body:{
             project_code: fieldsValue['projectCode'],
             name: fieldsValue['projectName'],
             project_year: fieldsValue['projectYear'].format('YYYY'),
@@ -400,10 +392,10 @@ const errorMessage = (msg:string) => {
             calculated_employee_payout: fieldsValue['calculatedEmployeePayout'],
             project_contract_value: fieldsValue['projectContractValue'],
         }})
-        if(res){
+        if(res.data){
             successMessage('创建成功')
         }else{
-            errorMessage('创建失败')
+            errorMessage('创建失败: '+res.error.detail)
         }
     }catch(e){
         errorMessage('创建失败')

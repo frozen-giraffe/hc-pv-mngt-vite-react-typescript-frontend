@@ -96,14 +96,18 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     console.log(person);
     
   };
-  const onSearch = async(searchText:string)=>{
+  const onSearch = async(searchText:string, department_id:number | null)=>{
     try {
       const repsonse = await EmployeeService.searchEmployee({
-        query: searchText,
-
+        path: {
+          query: searchText
+        },
+        query: {
+          department_id: department_id
+        }
       })
-      if(repsonse){
-        const formattedOptions = repsonse.data.map((employee: EmployeePublicOut) => ({
+      if(repsonse.data){
+        const formattedOptions = repsonse.data.data.map((employee: EmployeePublicOut) => ({
           ...employee,                // Spread the existing EmployeePublicOut fields
           label: employee.name,       // Label is set to employee's name
           value: employee.id.toString(), // Value is set to employee's id as a string
