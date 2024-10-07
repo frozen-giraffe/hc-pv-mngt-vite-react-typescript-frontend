@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { LoginService, UserCreate, UserPublic, UsersService } from '../client';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
 const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
 interface AuthContextType {
@@ -31,8 +32,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
   }, []);
   const getUser = async() =>{
-    const res:UserPublic = await UsersService.readUserMe()
-    setUser(res)
+    const {data, error} = await UsersService.readUserMe()
+    if(error){
+      message.error("获取用户信息失败: " + error);
+    }
+    setUser(data)
   }
   // const checkTOkenValidation=async()=>{
   //   const res:UserPublic = await LoginService.testToken()
