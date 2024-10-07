@@ -14,11 +14,11 @@ import {
   Divider,
 } from "antd";
 import {
-  ApiError,
   ProdValueCalcRatioCreateIn,
   ProdValueCalcRatioPublicOut,
   ProdValueCalcRatiosService,
   ProdValueCalcRatioUpdateIn,
+  UpdateProdValueCalcRatioError,
 } from "../../client";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import InputFloatPercent from "../../components/InputFloatPercent";
@@ -35,11 +35,14 @@ const ProdValueRatioSettings: React.FC = () => {
 
   const fetchRatios = async () => {
     try {
-      const data =
-        await ProdValueCalcRatiosService.readProdValueCalcRatios().then(
-          (res) => res.data
-        );
-      data.sort((a, b) => a.id - b.id);
+      const {data, error} =
+        await ProdValueCalcRatiosService.readProdValueCalcRatios();
+      if (error) {
+        message.error("获取合同产值系数失败:" + error.detail);
+      } else {
+        data.data.sort((a, b) => a.id - b.id);
+        setRatios(data.data);
+      }
 
       // // Add 20 fake data entries for testing
       // const fakeData = Array.from({ length: 20 }, (_, index) => ({
@@ -55,7 +58,6 @@ const ProdValueRatioSettings: React.FC = () => {
       //   ratio: parseFloat(item.ratio)
       // }))];
       // setRatios(combinedData);
-      setRatios(data);
     } catch (error) {
       message.error(
         "Failed to fetch ratios:" +
@@ -98,29 +100,46 @@ const ProdValueRatioSettings: React.FC = () => {
         ratio: record.ratio,
         default: record.default,
       };
-      await ProdValueCalcRatiosService.updateProdValueCalcRatio({
-        id: record.id,
-        requestBody: updateData,
+      const {error} = await ProdValueCalcRatiosService.updateProdValueCalcRatio({
+        path: {
+          id: record.id,
+        },
+        body: updateData,
       });
-      message.success("更新成功");
-      fetchRatios();
-    } catch (error) {
-      if (error instanceof ApiError) {
-        message.error("更新失败: " + error.message);
+      if (error) {
+        message.error("更新失败: " + error.detail);
       } else {
-        message.error("更新失败: 未知错误");
+        message.success("更新成功");
+        fetchRatios();
       }
+    } catch (error) {
+      message.error("更新失败，未知错误: " + error);
+      console.log(error);
     }
   };
 
   const handleSetDefault = async (record: ProdValueCalcRatioPublicOut) => {
-    await handleUpdate({ ...record, default: true });
+    try {
+      const {error} = await ProdValueCalcRatiosService.updateProdValueCalcRatio({
+        path: { id: record.id },
+        body: { ...record, default: true }
+      });
+      if (error) {
+        message.error("设置默认失败: " + error.detail);
+      } else {
+        message.success("设置默认成功");
+        fetchRatios();
+      }
+    } catch (error) {
+      message.error("设置默认失败，未知错误：" + error);
+      console.log(error)
+    }
   };
 
   const handleAdd = async (values: ProdValueCalcRatioCreateIn) => {
     try {
       await ProdValueCalcRatiosService.createProdValueCalcRatio({
-        requestBody: {
+        body: {
           ...values,
           ratio: values.ratio,
         },
@@ -136,19 +155,15 @@ const ProdValueRatioSettings: React.FC = () => {
   };
 
   const handleDelete = async (record: ProdValueCalcRatioPublicOut) => {
-    try {
-      await ProdValueCalcRatiosService.deleteProdValueCalcRatio({
-        id: record.id,
-      });
-      message.success("删除成功");
-      fetchRatios();
-    } catch (error) {
-      if (error instanceof ApiError) {
+    const res = await ProdValueCalcRatiosService.deleteProdValueCalcRatio({
+      id: record.id,
+    });
+      if (error) {
         message.error("删除失败: " + error.message);
       } else {
-        message.error("删除失败: 未知错误");
+        message.success("删除成功");
+        fetchRatios();
       }
-    }
   };
 
   const columns = [

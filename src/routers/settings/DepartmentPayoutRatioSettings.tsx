@@ -13,7 +13,6 @@ import {
   Tag,
 } from "antd";
 import {
-  ApiError,
   DepartmentPayoutRatioPublicOut,
   DepartmentPayoutRatiosService,
   ProjectClassesService,
@@ -60,19 +59,32 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
         ProjectRateAdjustmentClassesService.readProjectRateAdjustmentClasses(),
       ]);
 
-      setProjectClasses(projectClassesResponse.data);
+      if (ratiosResponse.error) {
+        message.error("获取部门产值系数失败: " + ratiosResponse.error.detail);
+        return;
+      }
+      if (projectClassesResponse.error) {
+        message.error("获取工程等级失败: " + projectClassesResponse.error.detail);
+        return;
+      }
+      if (projectRateAdjustmentClassesResponse.error) {
+        message.error("获取系数调整级别失败: " + projectRateAdjustmentClassesResponse.error.detail);
+        return;
+      }
+
+      setProjectClasses(projectClassesResponse.data.data);
       setProjectRateAdjustmentClasses(
-        projectRateAdjustmentClassesResponse.data
+        projectRateAdjustmentClassesResponse.data.data
       );
 
-      const ratiosWithNames = ratiosResponse.data.map((ratio) => ({
+      const ratiosWithNames = ratiosResponse.data.data.map((ratio: DepartmentPayoutRatioPublicOut) => ({
         ...ratio,
         project_class_name:
-          projectClassesResponse.data.find(
+          projectClassesResponse.data.data.find(
             (pc) => pc.id === ratio.project_class_id
           )?.name || "",
         project_rate_adjustment_class_name:
-          projectRateAdjustmentClassesResponse.data.find(
+          projectRateAdjustmentClassesResponse.data.data.find(
             (prac) => prac.id === ratio.project_rate_adjustment_class_id
           )?.name || "",
       }));
@@ -136,9 +148,11 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
   const handleUpdate = useCallback(
     async (record: DepartmentPayoutRatioWithNames) => {
       try {
-        await DepartmentPayoutRatiosService.updateDepartmentPayoutRatioById({
-          id: record.id,
-          requestBody: {
+        const { error } = await DepartmentPayoutRatiosService.updateDepartmentPayoutRatioById({
+          path: {
+            id: record.id,
+          },
+          body: {
             project_class_id: record.project_class_id,
             project_rate_adjustment_class_id:
               record.project_rate_adjustment_class_id,
@@ -151,14 +165,14 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
             low_voltage_ratio: record.low_voltage_ratio,
           },
         });
-        message.success("更新成功");
+        if (error) {
+          message.error("更新失败: " + error.detail);
+        } else {
+          message.success("更新成功");
+        }
         fetchData();
       } catch (error) {
-        if (error instanceof ApiError) {
-          message.error("更新失败: " + error.message);
-        } else {
-          message.error("更新失败: 未知错误");
-        }
+        message.error("更新失败，未知错误: " + error);
       }
     },
     [fetchData]

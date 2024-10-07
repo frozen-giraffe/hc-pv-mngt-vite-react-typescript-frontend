@@ -95,7 +95,7 @@ export const Employees: React.FC = () => {
             console.log(requestBody);
             
             const repsonseCreateEmployee = await EmployeeService.createEmployee(requestBody)
-            if(repsonseCreateEmployee){
+            if(repsonseCreateEmployee.data){
                 fetchEmployees()
                 successMessage('创建成功')
                 handleModalCancel()
@@ -146,7 +146,7 @@ export const Employees: React.FC = () => {
             console.log(pinyin(updatedData.name, {removeTone: true}));
             
             const repsonseUpdateEmployee = await EmployeeService.updateEmployee(requestBody)
-            if(repsonseUpdateEmployee){
+            if(repsonseUpdateEmployee.data){
                 successMessage('创建成功')
                 setEmployees(prevEmployees => 
                     prevEmployees.map(emp => 
@@ -340,7 +340,7 @@ export const Employees: React.FC = () => {
         
         let inputNode = <Input />;
         if (inputType === 'dropdown') {
-        inputNode =                         <MySelectComponent options={employeeStatus}/>
+        inputNode = <MySelectComponent options={employeeStatus}/>
 
         } else if (inputType === 'number') {
             inputNode = <InputNumber />;
@@ -370,25 +370,60 @@ export const Employees: React.FC = () => {
             const responseEmployeeTitles= await EmployeeTitlesService.readEmployeeTitles();
             const responseProfessionalTitles = await ProfessionalTitlesService.readProfessionalTitles();
             const responseEmployeeStatuses = await EmployeeStatusesService.readEmployeeStatuses();
+            let loadError = false;
+            if (responseEmployees.error) {
+                message.error("获取员工失败: " + responseEmployees.error.detail);
+                loadError = true;
+                return;
+            }
+            if (responseDepartments.error) {
+                message.error("获取部门失败: " + responseDepartments.error.detail);
+                loadError = true;
+                return;
+            }
+            if (responseWorkLocations.error) {
+                message.error("获取工作地点失败: " + responseWorkLocations.error.detail);
+                loadError = true;
+                return;
+            }
+            if (responseEmployeeTitles.error) {
+                message.error("获取职位失败: " + responseEmployeeTitles.error.detail);
+                loadError = true;
+                return;
+            }
+            if (responseProfessionalTitles.error) {
+                message.error("获取职称失败: " + responseProfessionalTitles.error.detail);
+                loadError = true;
+                return;
+            }
+            if (responseEmployeeStatuses.error) {
+                message.error("获取员工状态失败: " + responseEmployeeStatuses.error.detail);
+                loadError = true;
+                return;
+            }
+            if (loadError) {
+                handleLoadingChange(false); 
+                return;
+            }
             
             console.log(responseEmployees,'ppppppp');
             
-            const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.map(employee => ({
+            const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
                 ...employee,
                 key: employee.id.toString(),
-                department: responseDepartments.data.find(dept => dept.id === employee.department_id)!,
-                workLocation: responseWorkLocations.data.find(location => location.id === employee.work_location_id)!,
-                employeeTitle: responseEmployeeTitles.data.find(title => title.id === employee.employee_title_id)!,
-                professionalTitle: responseProfessionalTitles.data.find(profTitle => profTitle.id === employee.professional_title_id)!,
-                employmentStatus: responseEmployeeStatuses.data.find(status => status.id === employee.employ_status_id)!,
+                department: responseDepartments.data.data.find(dept => dept.id === employee.department_id),
+                workLocation: responseWorkLocations.data.data.find(location => location.id === employee.work_location_id),
+                employeeTitle: responseEmployeeTitles.data.data.find(title => title.id === employee.employee_title_id),
+                professionalTitle: responseProfessionalTitles.data.data.find(profTitle => profTitle.id === employee.professional_title_id),
+                employmentStatus: responseEmployeeStatuses.data.data.find(status => status.id === employee.employ_status_id),
             }));
             
             setEmployees(employeeFullDetails)
-            setDepartments(responseDepartments.data)
-            setWorkLocations(responseWorkLocations.data)
-            setEmployeeTitles(responseEmployeeTitles.data)
-            setProfessionalTitles(responseProfessionalTitles.data)
-            setEmloyeeStatus(responseEmployeeStatuses.data)
+            setDepartments(responseDepartments.data.data)
+            setWorkLocations(responseWorkLocations.data.data)
+            setEmployeeTitles(responseEmployeeTitles.data.data)
+            setProfessionalTitles(responseProfessionalTitles.data.data)
+            setEmloyeeStatus(responseEmployeeStatuses.data.data)
             //.log(employeeFullDetails);
             
         } catch (error) {

@@ -16,38 +16,52 @@ import {  SystemConfig } from './routers/SystemConfig.tsx';
 import { Interceptors } from './client/core/OpenAPI.ts';
 import { AxiosRequestConfig } from 'axios';
 import './main.css'
+import { client } from './client/services.gen.ts';
+
+client.setConfig({
+  baseUrl: "http://localhost:8001",
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+client.interceptors.request.use((request, options) => {
+  request.headers.set('Authorization', 'Bearer ' + localStorage.getItem("access_token"));
+  return request;
+});
+
 //console.log('aa '+localStorage.getItem("access_token"));
 
-//OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
-OpenAPI.BASE = "http://api.aaronyou.photos"
-//OpenAPI.BASE = "http://localhost:8001"
-OpenAPI.TOKEN = async () => {
-  return localStorage.getItem("access_token") || ""
-}
-OpenAPI.interceptors.request.use(async(request) => {
-   console.log("laal");
+////OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
+// OpenAPI.BASE = "http://api.aaronyou.photos"
+// OpenAPI.BASE = "http://localhost:8001"
+// OpenAPI.TOKEN = async () => {
+//   return localStorage.getItem("access_token") || ""
+// }
+// OpenAPI.interceptors.request.use(async(request) => {
+//    console.log("laal");
   
-   console.log(request);
-   console.log("laal");
-  //const token = localStorage.getItem('token');
-  // const res = await LoginService.testToken()
-  // if(res.is_active){
-  //   console.log("yes");
+//    console.log(request);
+//    console.log("laal");
+//   //const token = localStorage.getItem('token');
+//   // const res = await LoginService.testToken()
+//   // if(res.is_active){
+//   //   console.log("yes");
     
-  // }
+//   // }
   
-  return request; // <-- must return request
-});
-OpenAPI.interceptors.response.use((response)=>{
-  console.log("1111");
+//   return request; // <-- must return request
+// });
+// OpenAPI.interceptors.response.use((response)=>{
+//   console.log("1111");
   
-   console.log(response);
-   if(response.status === 401){
+//    console.log(response);
+//    if(response.status === 401){
 
-   }
-   console.log("1111");
-   return response
-})
+//    }
+//    console.log("1111");
+//    return response
+// })
 
 const AuthenticatedRoute: React.FC<{ children: React.ReactNode}> = ({ children }) => {
   const { isAuthenticated } = useAuth();
