@@ -9,8 +9,10 @@
 // }
 
 import React, { useContext, useEffect, useRef, useState } from "react";
-import type { GetRef, InputRef, TableProps } from "antd";
-import { Button, Form, Input, Popconfirm, Table } from "antd";
+import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
+import {EditOutlined } from '@ant-design/icons'
+import { AutoComplete, Button, Form, Input, Popconfirm, Space, Table } from "antd";
+import { EmployeePublicOut, EmployeeService } from "../client";
 
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -21,6 +23,7 @@ interface Item {
   name: string;
   age: string;
   address: string;
+  text: string;
 }
 
 interface EditableRowProps {
@@ -43,6 +46,7 @@ interface EditableCellProps {
   editable: boolean;
   dataIndex: keyof Item;
   record: Item;
+  rowIndex: Boolean;
   handleSave: (record: Item) => void;
 }
 
@@ -52,10 +56,12 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   children,
   dataIndex,
   record,
+  rowIndex,
   handleSave,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
+  const [options, setOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
 
@@ -63,6 +69,8 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     if (editing) {
       inputRef.current?.focus();
     }
+    console.log("rowIndex1",rowIndex, title, record?.text==='设计人',editable);
+    
   }, [editing]);
 
   const toggleEdit = () => {
@@ -83,7 +91,31 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       console.log("Save failed:", errInfo);
     }
   };
+  const onSelect = (data: string) => {
+    const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
+    console.log(person);
+    
+  };
+  const onSearch = async(searchText:string)=>{
+    try {
+      const repsonse = await EmployeeService.searchEmployee({
+        query: searchText,
 
+      })
+      if(repsonse){
+        const formattedOptions = repsonse.data.map((employee: EmployeePublicOut) => ({
+          ...employee,                // Spread the existing EmployeePublicOut fields
+          label: employee.name,       // Label is set to employee's name
+          value: employee.id.toString(), // Value is set to employee's id as a string
+        }));
+        setOptions(formattedOptions)
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
+  }
   let childNode = children;
 
   if (editable) {
@@ -93,16 +125,38 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         name={dataIndex}
         rules={[{ required: true, message: `${title} is required.` }]}
       >
+        {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
+        {record?.text==='设计人' ? 
+          <AutoComplete
+          onBlur={save}
+          options={options}
+          style={{ width: 200 }}
+          onSelect={onSelect}
+          onSearch={onSearch}
+          placeholder="input here"
+          allowClear={true}
+          onKeyDown={}
+        />
+        
+        :
         <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        }
+        
       </Form.Item>
     ) : (
       <div
         className="editable-cell-value-wrap"
-        style={{ width: "100%", minHeight: "20px" }}
+        style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
         onClick={toggleEdit}
       >
-        {/* {children} */}
-        {children || <span style={{ color: "#999" }}>Click to edit</span>}
+        
+        <Space>
+          {editable ? <EditOutlined style={{color:'gray'}}/> : <></>}
+        
+          {children}
+        </Space>
+        
+        
       </div>
     );
   }
@@ -114,6 +168,8 @@ interface DataType {
   key: React.Key;
   age: string;
   pm: string;
+  category: string;
+  text: string;
 }
 
 type ColumnTypes = Exclude<TableProps<DataType>["columns"], undefined>;
@@ -123,34 +179,46 @@ const MainPage: React.FC = () => {
     {
       key: "0",
       age: "32",
-      pm: "",
-    },
-    {
-      key: "1",
-
-      age: "32",
+      category:'建筑',
+      text:'设计人',
       pm: "韩乐",
     },
     {
+      key: "1",
+      text:'产值',
+      category:'建筑',
+
+      age: "32",
+      pm: "123",
+    },
+    {
       key: "2",
+      text:'设计人',
+      category:'建筑',
 
       age: "32",
       pm: "韩乐",
     },
     {
       key: "3",
+      text:'产值',
+      category:'建筑',
 
       age: "32",
       pm: "韩乐",
     },
     {
       key: "4",
+      text:'设计人',
+      category:'建筑',
 
       age: "32",
       pm: "韩乐",
     },
     {
       key: "5",
+      text:'产值',
+      category:'建筑',
 
       age: "32",
       pm: "",
@@ -169,131 +237,23 @@ const MainPage: React.FC = () => {
       title: "专业分类",
       dataIndex: "category",
       width: 50,
+      rowScope: 'row',
       editable: false,
-      render: (text: string, record: any, index: number) => {
-        const leftContent = ["建筑", "结构", "给排水", "暖通", "强电", "弱电"][
-          Math.floor(index / 2)
-        ];
-        const topContent = "设计人";
-        const bottomContent = "产值";
-        const obj = {
-          children: (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "50px auto",
-                height: "100%",
-            fontWeight:600
-              }}
-            >
-              {/* Left Cell */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRight: "1px solid #f0f0f0",
-                }}
-              >
-                {leftContent}
-              </div>
-
-              {/* Right Cell with top and bottom sections */}
-              <div style={{ paddingLeft: "10px" }}>
-                <div
-                  style={{
-                    borderBottom: "1px solid #f0f0f0",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "50%",
-                    paddingBottom:'20px'
-                  }}
-                >
-                  {topContent}
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "50%",
-                    paddingTop:'20px'
-
-                  }}
-                >
-                  {bottomContent}
-                </div>
-              </div>
-            </div>
-          ),
-          props: {} as any,
-        };
-
-        // Merge the cells for every two rows
-        if (index % 2 === 0) {
-          obj.props.rowSpan = 2; // Merge two rows
-        } else {
-          obj.props.rowSpan = 0; // Hide the second row
+      colSpan: 2,
+      onCell: (_:any, index:number) => {
+        if (index %2===0) {
+          return { rowSpan: 2 };
+        }else{
+          return {rowSpan:0}
         }
-
-        return obj;
-
-        // Define the left and right content based on the index
-        // const leftContent = ["建筑", "结构", "给排水", "暖通", "强电", "弱电"][
-        //   Math.floor(index / 2)
-        // ];
-        // const topContent = "设计人";
-        // const bottomContent = "产值";
-
-        // return (
-        //   <div
-        //     style={{
-        //       display: "grid",
-        //       gridTemplateColumns: "50px auto",
-        //       height: "100%",
-        //     }}
-        //   >
-        //     {/* Left Cell */}
-        //     <div
-        //       style={{
-        //         display: "flex",
-        //         justifyContent: "center",
-        //         alignItems: "center",
-        //         borderRight: "1px solid #f0f0f0",
-        //         backgroundColor: "#fafafa",
-        //       }}
-        //     >
-        //       {leftContent}
-        //     </div>
-
-        //     {/* Right Cell with top and bottom sections */}
-        //     <div style={{ paddingLeft: "10px" }}>
-        //       <div
-        //         style={{
-        //           borderBottom: "1px solid #f0f0f0",
-        //           display: "flex",
-        //           justifyContent: "center",
-        //           alignItems: "center",
-        //           height: "50%",
-        //         }}
-        //       >
-        //         {topContent}
-        //       </div>
-        //       <div
-        //         style={{
-        //           display: "flex",
-        //           justifyContent: "center",
-        //           alignItems: "center",
-        //           height: "50%",
-        //         }}
-        //       >
-        //         {bottomContent}
-        //       </div>
-        //     </div>
-        //   </div>
-        // );
       },
+    },
+    {
+      title: "",//being colSpan to 专业分类
+      dataIndex: "text",
+      width: 50,
+      colSpan:0,
+      editable: false,
     },
     {
       title: "施工图设计",
@@ -306,6 +266,7 @@ const MainPage: React.FC = () => {
           dataIndex: "pm",
           editable: true,
           width: 100,
+          
         },
         {
           title: "专业负责人助理",
@@ -427,11 +388,12 @@ const MainPage: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: DataType) => ({
+      onCell: (record: DataType, rowIndex:number) => ({
         record,
         editable: col.editable,
         dataIndex: col.dataIndex,
         title: col.title,
+        rowIndex,
         handleSave,
       }),
     };

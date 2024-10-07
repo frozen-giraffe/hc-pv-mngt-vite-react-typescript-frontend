@@ -101,9 +101,6 @@ interface DataType {
     tel: string;
     phone: number;
     address: string;
-    leftCell?: string;
-    rightTopCell?: string;
-rightBottomCell?:string;
   }
   
   // In the fifth row, other columns are merged into first column
@@ -118,88 +115,52 @@ rightBottomCell?:string;
   
   const columnsTable: TableProps<DataType>['columns'] = [
     {
-      title: '专业分类',
+      title: 'RowHead',
       dataIndex: 'key',
       rowScope: 'row',
-      width:100,
-      render: (text: string, record: any, index:number) => {
-        const obj = {
-          children: (
-                  <div style={{ display: "flex" }}>
-                    {/* Left cell (建筑) */}
-                    <div style={{ width: "50px", display:'flex',justifyContent:'center', alignItems:'center',borderRight: "1px solid #f0f0f0" }}>
-                    {record.leftCell}
-                    </div>
-                    {/* Right cell (split into top and bottom) */}
-                    <div style={{ width: "100px", paddingLeft: "10px" }}>
-                      <div style={{ borderBottom: "1px solid #f0f0f0", display:'flex',justifyContent:'center', alignItems:'center' }}>
-                      {record.rightTopCell}
-                      </div>
-                      <div style={{display:'flex',justifyContent:'center', alignItems:'center'}}>{record.rightBottomCell}</div>
-                    </div>
-                  </div>
-                ),
-          props: {} as any,
-        };
-
-        // Merge the cells for every two rows
-        if (index % 2 === 0) {
-          obj.props.rowSpan = 2; // Merge two rows
-        } else {
-          obj.props.rowSpan = 0; // Hide the second row
-        }
-
-        return obj;
-      },
-      
     },
     {
-      title:'施工图设计',
-      dataIndex:'施工图设计',
-      children:[
-        {
-          title:'专业负责人'
-        },
-        {
-          title:'专业负责人助理'
-        },
-        {
-          title:'设计',
-        },
-        {
-          title:'施工图',
-        },
-        {
-          title:'后期服务',
-        },
-        {
-          title:'校对',
-        },
-        {
-          title:'审核',
-        },
-        {
-          title:'审定',
-        },
-        {
-          title:'小计',
-          render: (text: string, record: any, index:number) => {
-            const obj = {
-              children: text,
-              props: {} as any,
-            };
-    
-            // Merge the cells for every two rows
-            if (index % 2 === 0) {
-              obj.props.rowSpan = 2; // Merge two rows
-            } else {
-              obj.props.rowSpan = 0; // Hide the second row
-            }
-    
-            return obj;
-          },
-        },
-      ]
+      title: 'Name',
+      dataIndex: 'name',
+      render: (text) => <a>{text}</a>,
+      onCell: (_, index) => ({
+        colSpan: index === 1 ? 5 : 1,
+      }),
+    },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+      onCell: sharedOnCell,
+    },
+    {
+      title: 'Home phone',
+      colSpan: 2,
+      dataIndex: 'tel',
+      onCell: (_, index) => {
+        if (index === 3) {
+          return { rowSpan: 2 };
+        }
+        // These two are merged into above cell
+        if (index === 4) {
+          return { rowSpan: 0 };
+        }
+        if (index === 1) {
+          return { colSpan: 0 };
+        }
+  
+        return {};
+      },
+    },
+    {
+      title: 'Phone',
+      colSpan: 0,
+      dataIndex: 'phone',
+      onCell: sharedOnCell,
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      onCell: sharedOnCell,
     },
   ];
   
@@ -207,9 +168,6 @@ rightBottomCell?:string;
     {
       key: '1',
       name: 'John Brown',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
       age: 32,
       tel: '0571-22098909',
       phone: 18889898989,
@@ -218,9 +176,6 @@ rightBottomCell?:string;
     {
       key: '2',
       name: 'Jim Green',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
       tel: '0571-22098333',
       phone: 18889898888,
       age: 42,
@@ -229,9 +184,6 @@ rightBottomCell?:string;
     {
       key: '3',
       name: 'Joe Black',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
       age: 32,
       tel: '0575-22098909',
       phone: 18900010002,
@@ -240,9 +192,6 @@ rightBottomCell?:string;
     {
       key: '4',
       name: 'Jim Red',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
       age: 18,
       tel: '0575-22098909',
       phone: 18900010002,
@@ -251,20 +200,6 @@ rightBottomCell?:string;
     {
       key: '5',
       name: 'Jake White',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
-      age: 18,
-      tel: '0575-22098909',
-      phone: 18900010002,
-      address: 'Dublin No. 2 Lake Park',
-    },
-    {
-      key: '6',
-      name: 'Jake White',
-      leftCell: "建筑", // Left side of the first cell
-      rightTopCell: "设计人", // Right side (top)
-      rightBottomCell: "产值", // Right side (bottom)
       age: 18,
       tel: '0575-22098909',
       phone: 18900010002,
@@ -773,7 +708,7 @@ const errorMessage = (msg:string) => {
       <Divider />
       {/* 下发产值表 */}
       <Form>
-        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered  rowClassName={() => 'editable-row'}/>
+        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered />
       </Form>
       {/* 顶部统计数据展示 */}
       <Row gutter={16}>

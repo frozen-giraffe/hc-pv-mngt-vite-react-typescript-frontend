@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { Dashboard } from './routers/Dashboard.tsx';
 import { Login } from './routers/Login.tsx';
-import { MainPage } from './routers/MainPage.tsx';
+import MainPage  from './routers/MainPage.tsx';
 import { Employees } from './routers/Employees.tsx';
 import { Projects } from './routers/Projects.tsx';
 import { ProjectDetail } from './routers/ProjectDetail.tsx';
