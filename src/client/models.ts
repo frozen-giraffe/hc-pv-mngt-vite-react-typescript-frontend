@@ -112,13 +112,6 @@ export type ContractPaymentsPublicOut = {
 
 
 
-export type DepartmentCreateIn = {
-	name: string;
-	description?: string | null;
-};
-
-
-
 export type DepartmentPayoutRatioPublicOut = {
 	project_class_id: number;
 	project_rate_adjustment_class_id: number;
@@ -164,13 +157,6 @@ export type DepartmentPublicOut = {
 	name: string;
 	description?: string | null;
 	id: number;
-};
-
-
-
-export type DepartmentUpdateIn = {
-	name?: string | null;
-	description?: string | null;
 };
 
 
@@ -387,7 +373,7 @@ export type JobPayoutRatioProfileCreateIn = {
 	hvac_reviewer_ratio: number;
 	hvac_approver_ratio: number;
 	low_voltage_pm_ratio: number;
-	low_voltage_assistant_ratio: number;
+	low_voltage_pm_assistant_ratio: number;
 	low_voltage_designer_ratio: number;
 	low_voltage_drafter_ratio: number;
 	low_voltage_design_post_service_ratio: number;
@@ -444,7 +430,7 @@ export type JobPayoutRatioProfilePublicOut = {
 	hvac_reviewer_ratio: number;
 	hvac_approver_ratio: number;
 	low_voltage_pm_ratio: number;
-	low_voltage_assistant_ratio: number;
+	low_voltage_pm_assistant_ratio: number;
 	low_voltage_designer_ratio: number;
 	low_voltage_drafter_ratio: number;
 	low_voltage_design_post_service_ratio: number;
@@ -453,6 +439,7 @@ export type JobPayoutRatioProfilePublicOut = {
 	low_voltage_approver_ratio: number;
 	id: number;
 	updated_at: string;
+	is_in_use: boolean;
 };
 
 
@@ -463,57 +450,56 @@ export type JobPayoutRatioProfilePublicOut = {
 export type JobPayoutRatioProfileUpdateIn = {
 	name?: string | null;
 	hidden?: boolean | null;
-	pm_ratio: null;
-	pm_assistant_ratio: null;
-	arch_pm_ratio: null;
-	arch_pm_assistant_ratio: null;
-	arch_designer_ratio: null;
-	arch_drafter_ratio: null;
-	arch_design_post_service_ratio: null;
-	arch_proofreader_ratio: null;
-	arch_reviewer_ratio: null;
-	arch_approver_ratio: null;
-	struct_pm_ratio: null;
-	struct_pm_assistant_ratio: null;
-	struct_designer_ratio: null;
-	struct_drafter_ratio: null;
-	struct_design_post_service_ratio: null;
-	struct_proofreader_ratio: null;
-	struct_reviewer_ratio: null;
-	struct_approver_ratio: null;
-	plumbing_pm_ratio: null;
-	plumbing_pm_assistant_ratio: null;
-	plumbing_designer_ratio: null;
-	plumbing_drafter_ratio: null;
-	plumbing_design_post_service_ratio: null;
-	plumbing_proofreader_ratio: null;
-	plumbing_reviewer_ratio: null;
-	plumbing_approver_ratio: null;
-	electrical_pm_ratio: null;
-	electrical_pm_assistant_ratio: null;
-	electrical_designer_ratio: null;
-	electrical_drafter_ratio: null;
-	electrical_design_post_service_ratio: null;
-	electrical_reviewer_ratio: null;
-	electrical_proofreader_ratio: null;
-	electrical_approver_ratio: null;
-	hvac_pm_ratio: null;
-	hvac_pm_assistant_ratio: null;
-	hvac_designer_ratio: null;
-	hvac_drafter_ratio: null;
-	hvac_design_post_service_ratio: null;
-	hvac_proofreader_ratio: null;
-	hvac_reviewer_ratio: null;
-	hvac_approver_ratio: null;
-	low_voltage_pm_ratio: null;
-	low_voltage_assistant_ratio: null;
-	low_voltage_designer_ratio: null;
-	low_voltage_drafter_ratio: null;
-	low_voltage_design_post_service_ratio: null;
-	low_voltage_proofreader_ratio: null;
-	low_voltage_reviewer_ratio: null;
-	low_voltage_approver_ratio: null;
-	updated_at?: string;
+	pm_ratio?: number | null;
+	pm_assistant_ratio?: number | null;
+	arch_pm_ratio?: number | null;
+	arch_pm_assistant_ratio?: number | null;
+	arch_designer_ratio?: number | null;
+	arch_drafter_ratio?: number | null;
+	arch_design_post_service_ratio?: number | null;
+	arch_proofreader_ratio?: number | null;
+	arch_reviewer_ratio?: number | null;
+	arch_approver_ratio?: number | null;
+	struct_pm_ratio?: number | null;
+	struct_pm_assistant_ratio?: number | null;
+	struct_designer_ratio?: number | null;
+	struct_drafter_ratio?: number | null;
+	struct_design_post_service_ratio?: number | null;
+	struct_proofreader_ratio?: number | null;
+	struct_reviewer_ratio?: number | null;
+	struct_approver_ratio?: number | null;
+	plumbing_pm_ratio?: number | null;
+	plumbing_pm_assistant_ratio?: number | null;
+	plumbing_designer_ratio?: number | null;
+	plumbing_drafter_ratio?: number | null;
+	plumbing_design_post_service_ratio?: number | null;
+	plumbing_proofreader_ratio?: number | null;
+	plumbing_reviewer_ratio?: number | null;
+	plumbing_approver_ratio?: number | null;
+	electrical_pm_ratio?: number | null;
+	electrical_pm_assistant_ratio?: number | null;
+	electrical_designer_ratio?: number | null;
+	electrical_drafter_ratio?: number | null;
+	electrical_design_post_service_ratio?: number | null;
+	electrical_reviewer_ratio?: number | null;
+	electrical_proofreader_ratio?: number | null;
+	electrical_approver_ratio?: number | null;
+	hvac_pm_ratio?: number | null;
+	hvac_pm_assistant_ratio?: number | null;
+	hvac_designer_ratio?: number | null;
+	hvac_drafter_ratio?: number | null;
+	hvac_design_post_service_ratio?: number | null;
+	hvac_proofreader_ratio?: number | null;
+	hvac_reviewer_ratio?: number | null;
+	hvac_approver_ratio?: number | null;
+	low_voltage_pm_ratio?: number | null;
+	low_voltage_pm_assistant_ratio?: number | null;
+	low_voltage_designer_ratio?: number | null;
+	low_voltage_drafter_ratio?: number | null;
+	low_voltage_design_post_service_ratio?: number | null;
+	low_voltage_proofreader_ratio?: number | null;
+	low_voltage_reviewer_ratio?: number | null;
+	low_voltage_approver_ratio?: number | null;
 };
 
 
@@ -640,7 +626,6 @@ export type ProjectCreateIn = {
 	project_construction_cost?: number | null;
 	calculated_employee_payout: number;
 	project_contract_value: number;
-	project_deliverable_production_value?: number | null;
 	notes?: string | null;
 };
 
@@ -997,7 +982,6 @@ export type ProjectPublicOut = {
 	project_construction_cost?: number | null;
 	calculated_employee_payout: number;
 	project_contract_value: number;
-	project_deliverable_production_value?: number | null;
 	notes?: string | null;
 	id: number;
 	date_added: string;
@@ -1108,8 +1092,7 @@ export type ProjectUpdateIn = {
 	project_area?: number | null;
 	project_construction_cost?: number | null;
 	calculated_employee_payout?: number | null;
-	project_contract_value?: number | null;
-	project_deliverable_production_value?: number | null;
+	project_contract_value: number;
 	notes?: string | null;
 };
 

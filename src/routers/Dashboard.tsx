@@ -85,6 +85,12 @@ const items: MenuItem[] = [
     //   { key: '12', label: 'Option 12' },
     // ],
   },
+  {
+    key: 'settings',
+    label: '系统配置',
+    icon: <SettingOutlined />,
+    path: '/settings',
+  },
   
 ];
 

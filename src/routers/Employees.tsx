@@ -461,19 +461,19 @@ export const Employees: React.FC = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item name="department" label="部门" rules={[{ required: true, message: '请选择部门!' }]}>
-                    <MySelectComponent options={employeeStatus}/>
+                    <MySelectComponent options={departments}/>
 
                     </Form.Item>
                     <Form.Item name="workLocation" label="工作地点" rules={[{ required: true, message: '请选择工作地点!' }]}>
-                    <MySelectComponent options={employeeStatus}/>
+                    <MySelectComponent options={workLocations}/>
 
                     </Form.Item>
                     <Form.Item name="employeeTitle" label="职位" rules={[{ required: true,message: '请选择职位!' }]}>
-                    <MySelectComponent options={employeeStatus}/>
+                    <MySelectComponent options={employeeTitles}/>
 
                     </Form.Item>
                     <Form.Item name="professionalTitle" label="职称" rules={[{ required: true,message: '请选择职称!' }]}>
-                    <MySelectComponent options={employeeStatus}/>
+                    <MySelectComponent options={professionalTitles}/>
 
                     </Form.Item>
                     <Form.Item name="employmentStatus" label="员工状态" rules={[{ required: true,message: '请选择员工状态!' }]}>

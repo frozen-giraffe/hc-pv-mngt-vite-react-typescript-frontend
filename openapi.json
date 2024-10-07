@@ -1029,38 +1029,6 @@
               ],
               "title": "Project Contract Value Max"
             }
-          },
-          {
-            "name": "project_deliverable_production_value_min",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Deliverable Production Value Min"
-            }
-          },
-          {
-            "name": "project_deliverable_production_value_max",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Deliverable Production Value Max"
-            }
           }
         ],
         "responses": {
@@ -1258,7 +1226,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Message"
+                  "$ref": "#/components/schemas/ProjectPublicOut"
                 }
               }
             }
@@ -1350,33 +1318,6 @@
         "summary": "Read Project Types",
         "description": "Retrieve project_types.",
         "operationId": "read_project_types",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1397,18 +1338,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1417,20 +1353,15 @@
         "summary": "Create Project Type",
         "description": "Create new ProjectType.",
         "operationId": "create_project_type",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProjectTypeCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1473,7 +1404,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/project-types/{id}": {
@@ -1638,33 +1574,6 @@
         "summary": "Read Building Types",
         "description": "Retrieve building_types.",
         "operationId": "read_building_types",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1685,18 +1594,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1705,20 +1609,15 @@
         "summary": "Create Building Type",
         "description": "Create new BuildingType.",
         "operationId": "create_building_type",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/BuildingTypeCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -1741,6 +1640,16 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法创建民用建筑类别",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1751,7 +1660,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/building-types/{id}": {
@@ -1865,6 +1779,26 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法修改民用建筑类别信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "民用建筑类别ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1886,33 +1820,6 @@
         "summary": "Read Project Task Types",
         "description": "Retrieve project_task_types.",
         "operationId": "read_project_task_types",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1933,18 +1840,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -1953,20 +1855,15 @@
         "summary": "Create Project Task Type",
         "description": "Create new ProjectTaskType.",
         "operationId": "create_project_task_type",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProjectTaskTypeCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2009,7 +1906,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/project-task-types/{id}": {
@@ -2174,33 +2076,6 @@
         "summary": "Read Project Classes",
         "description": "Retrieve ProjectClasses.",
         "operationId": "read_project_classes",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2221,18 +2096,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -2241,20 +2111,15 @@
         "summary": "Create Project Class",
         "description": "Create new ProjectClass.",
         "operationId": "create_project_class",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProjectClassCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2297,7 +2162,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/project-classes/{id}": {
@@ -2462,33 +2332,6 @@
         "summary": "Read Building Structure Types",
         "description": "Retrieve BuildingStructureTypes.",
         "operationId": "read_building_structure_types",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2509,18 +2352,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -2529,20 +2367,15 @@
         "summary": "Create Building Structure Type",
         "description": "Create new BuildingStructureType.",
         "operationId": "create_building_structure_type",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/BuildingStructureTypeCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2565,6 +2398,16 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法创建结构形式",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2575,7 +2418,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/building-structure-types/{id}": {
@@ -2689,6 +2537,26 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法修改结构形式信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "结构形式ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -2710,33 +2578,6 @@
         "summary": "Read Project Rate Adjustment Classes",
         "description": "Retrieve project_rate_adjustment_classes.",
         "operationId": "read_project_rate_adjustment_classes",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2757,18 +2598,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -2777,20 +2613,15 @@
         "summary": "Create Project Rate Adjustment Class",
         "description": "Create new ProjectRateAdjustmentClass.",
         "operationId": "create_project_rate_adjustment_class",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProjectRateAdjustmentClassCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -2833,7 +2664,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/project-rate-adjustment-classes/{id}": {
@@ -2998,33 +2834,6 @@
         "summary": "Read Quality Ratio Classes",
         "description": "Retrieve quality_raitio_classes.",
         "operationId": "read_quality_ratio_classes",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3045,18 +2854,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -3065,20 +2869,15 @@
         "summary": "Create Quality Raitio Class",
         "description": "Create new QualityRatioClass.",
         "operationId": "create_quality_raitio_class",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/QualityRatioClassCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3121,7 +2920,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/quality-ratio-classes/{id}": {
@@ -3333,33 +3137,6 @@
         "summary": "Read Prod Value Calc Ratios",
         "description": "获取施工图产值到下发产值比。",
         "operationId": "read_prod_value_calc_ratios",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -3380,18 +3157,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -3400,20 +3172,15 @@
         "summary": "Create Prod Value Calc Ratio",
         "description": "创建新的施工图产值到下发产值比。",
         "operationId": "create_prod_value_calc_ratio",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProdValueCalcRatioCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -3456,7 +3223,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/prod-value-calc-ratios/{id}": {
@@ -3582,6 +3354,82 @@
           },
           "403": {
             "description": "非超管无法修改施工图产值到下发产值比信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "施工图产值到下发产值比ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          " - /prod-value-calc-ratios"
+        ],
+        "summary": "Delete Prod Value Calc Ratio",
+        "description": "删除施工图产值到下发产值比。",
+        "operationId": "delete_prod_value_calc_ratio",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response 施工图产值到下发产值比 - /Prod-Value-Calc-Ratios-Delete Prod Value Calc Ratio"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法删除施工图产值到下发产值比",
             "content": {
               "application/json": {
                 "schema": {
@@ -3848,6 +3696,16 @@
               }
             }
           },
+          "400": {
+            "description": "无法更新已被项目使用的设计阶段产值系数配置中的比例。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "未登录、登录状态过期或无效",
             "content": {
@@ -4031,6 +3889,26 @@
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新专业产值系数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "专业产值系数配置 ID 不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -4239,6 +4117,16 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法更新专业产值系数",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4269,9 +4157,17 @@
           {
             "name": "show_disabled",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "boolean",
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": false,
               "title": "Show Disabled"
             }
           },
@@ -4364,6 +4260,16 @@
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法创建员工信息",
             "content": {
               "application/json": {
                 "schema": {
@@ -4535,6 +4441,16 @@
               }
             }
           },
+          "404": {
+            "description": "部门ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -4585,6 +4501,16 @@
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "员工ID不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -4659,12 +4585,32 @@
               }
             }
           },
-          "422": {
-            "description": "Validation Error",
+          "403": {
+            "description": "非超管无法更新员工信息",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "员工ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "更新提供的数据不合法",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -4743,12 +4689,24 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
               }
             }
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法使用该接口",
             "content": {
               "application/json": {
                 "schema": {
@@ -4773,33 +4731,6 @@
         "summary": "Read Departments",
         "description": "Retrieve departrments.",
         "operationId": "read_departments",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -4820,73 +4751,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
-      },
-      "post": {
-        "tags": [
-          " - /departments"
-        ],
-        "summary": "Create Department",
-        "description": "Create new Department.",
-        "operationId": "create_department",
+        },
         "security": [
           {
             "JWT": []
           }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DepartmentCreateIn"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DepartmentPublicOut"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录、登录状态过期或无效",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
+        ]
       }
     },
     "/api/v1/departments/{id}": {
@@ -4945,72 +4816,6 @@
             }
           }
         }
-      },
-      "put": {
-        "tags": [
-          " - /departments"
-        ],
-        "summary": "Update Department",
-        "description": "Update an Department.",
-        "operationId": "update_department",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DepartmentUpdateIn"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DepartmentPublicOut"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未登录、登录状态过期或无效",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/work-locations/": {
@@ -5021,33 +4826,6 @@
         "summary": "Read Worklocations",
         "description": "Retrieve WorkLocations.",
         "operationId": "read_WorkLocations",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5068,18 +4846,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -5088,20 +4861,15 @@
         "summary": "Create Worklocation",
         "description": "Create new WorkLocation.",
         "operationId": "create_WorkLocation",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/WorkLocationCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5144,7 +4912,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/work-locations/{id}": {
@@ -5309,33 +5082,6 @@
         "summary": "Read Employee Titles",
         "description": "Retrieve EmployeeTitles.",
         "operationId": "read_employee_titles",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5356,18 +5102,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -5376,20 +5117,15 @@
         "summary": "Create Employee Title",
         "description": "Create new EmployeeTitle.",
         "operationId": "create_employee_title",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/EmployeeTitleCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5412,6 +5148,16 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法创建职位",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5422,7 +5168,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/employee-titles/{id}": {
@@ -5536,6 +5287,26 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法更新职位",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "职位ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5557,33 +5328,6 @@
         "summary": "Read Professional Titles",
         "description": "Retrieve professional_titles.",
         "operationId": "read_professional_titles",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5604,18 +5348,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -5624,20 +5363,15 @@
         "summary": "Create Professional Title",
         "description": "Create new ProfessionalTitle.",
         "operationId": "create_professional_title",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProfessionalTitleCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5680,7 +5414,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/professional-titles/{id}": {
@@ -5845,33 +5584,6 @@
         "summary": "Read Employee Statuses",
         "description": "Retrieve employees.",
         "operationId": "read_employee_statuses",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -5892,18 +5604,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -5912,20 +5619,15 @@
         "summary": "Create Employee Status",
         "description": "Create new EmployStatus.",
         "operationId": "create_employee_status",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/EmployStatusCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -5948,6 +5650,16 @@
               }
             }
           },
+          "403": {
+            "description": "非超管无法创建员工状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -5958,7 +5670,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/employee-statuses/{id}": {
@@ -6064,6 +5781,26 @@
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法更新员工状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "员工状态ID不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -6186,8 +5923,28 @@
               }
             }
           },
+          "400": {
+            "description": "项目已有产值",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目ID不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -6217,6 +5974,22 @@
         "summary": "Get Project Payout By Project Id",
         "description": "Get project payout *by project ID*.",
         "operationId": "get_project_payout_by_project_id",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -6237,13 +6010,28 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "项目产值ID不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/project-payouts/{id}": {
@@ -6283,6 +6071,16 @@
           },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目产值ID不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -6347,8 +6145,28 @@
               }
             }
           },
+          "400": {
+            "description": "项目已有回款记录，不允许修改",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "项目产值ID不存在",
             "content": {
               "application/json": {
                 "schema": {
@@ -6378,33 +6196,6 @@
         "summary": "Get Contract Payment",
         "description": "Retrieve ContractPayments.",
         "operationId": "get_contract_payment",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "skip",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 0,
-              "title": "Skip"
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 100,
-              "title": "Limit"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -6425,18 +6216,13 @@
                 }
               }
             }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -6445,20 +6231,15 @@
         "summary": "Create Contract Payment",
         "description": "Create a new contract_payment payout.",
         "operationId": "create_contract_payment",
-        "security": [
-          {
-            "JWT": []
-          }
-        ],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ContractPaymentCreateIn"
               }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "200": {
@@ -6491,7 +6272,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/v1/contract-payments/by-project-payout-id/{id}": {
@@ -6796,7 +6582,7 @@
           " - /reports"
         ],
         "summary": "生成项目列表报告",
-        "description": "生成项目列表报告。",
+        "description": "生成项目列表报告。\n如果提供项目年份，则生成指定年份的项目列表报告。\n否则生成所有年份的项目列表报告。",
         "operationId": "get_project_list_report",
         "security": [
           {
@@ -6828,6 +6614,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Project List Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -6884,6 +6680,16 @@
               }
             }
           },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "未登录、登录状态过期或无效",
             "content": {
@@ -6918,7 +6724,7 @@
           " - /reports"
         ],
         "summary": "生成回款报告",
-        "description": "生成回款报告。",
+        "description": "生成回款报告。\n如果提供项目id，则生成指定项目的回款报告。\n如果提供时间范围，则生成指定时间范围内的回款报告。\n否则生成所有回款报告。",
         "operationId": "get_contract_payment_list_report",
         "security": [
           {
@@ -6988,6 +6794,16 @@
               }
             }
           },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "401": {
             "description": "未登录、登录状态过期或无效",
             "content": {
@@ -7027,7 +6843,7 @@
           " - /reports"
         ],
         "summary": "生成员工报告",
-        "description": "生成员工报告。",
+        "description": "生成按回款年度汇总个人累计兑付产值报告。",
         "operationId": "get_employee_project_payout_list_by_payment_year_report",
         "security": [
           {
@@ -7061,6 +6877,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Employee Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7104,7 +6930,7 @@
           " - /reports"
         ],
         "summary": "生成员工报告",
-        "description": "生成员工报告。",
+        "description": "生成按工程年度汇总个人累计兑付产值报告。",
         "operationId": "get_employee_project_payout_list_by_project_year_report",
         "security": [
           {
@@ -7138,6 +6964,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Employee Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7181,7 +7017,7 @@
           " - /reports"
         ],
         "summary": "生成员工报告",
-        "description": "生成员工报告。",
+        "description": "生成按工程年度汇总个人产值报告。",
         "operationId": "get_employee_project_production_value_by_project_year_report",
         "security": [
           {
@@ -7215,6 +7051,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Employee Project Production Value By Project Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7258,7 +7104,7 @@
           " - /reports"
         ],
         "summary": "生成公司报告",
-        "description": "生成公司报告。",
+        "description": "生成按回款年度汇总公司累计兑付产值报告。",
         "operationId": "get_company_project_payout_list_by_payment_year_report",
         "security": [
           {
@@ -7283,6 +7129,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Company Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7325,8 +7181,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成公司报告",
-        "description": "生成公司报告。",
+        "summary": "生成按工程年度汇总公司累计兑付产值报告",
+        "description": "生成按工程年度汇总公司累计兑付产值报告。",
         "operationId": "get_company_project_payout_list_by_project_year_report",
         "security": [
           {
@@ -7351,6 +7207,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Company Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7393,8 +7259,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成公司报告",
-        "description": "生成公司报告。",
+        "summary": "生成按工程年度汇总公司产值报告",
+        "description": "生成按工程年度汇总公司产值报告。",
         "operationId": "get_company_project_production_value_by_project_year_report",
         "security": [
           {
@@ -7419,6 +7285,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Company Project Production Value By Project Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7461,8 +7337,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成项目产值报告",
-        "description": "生成项目产值报告。",
+        "summary": "生成项目按回款年度汇总员工累计兑付产值报告",
+        "description": "生成项目按回款年度汇总员工累计兑付产值报告。",
         "operationId": "get_project_payout_list_by_payment_year_report",
         "security": [
           {
@@ -7496,6 +7372,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Project Payout List By Payment Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7538,8 +7424,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成项目产值报告",
-        "description": "生成项目产值报告。",
+        "summary": "生成项目按工程年度汇总员工累计兑付产值报告",
+        "description": "生成项目按工程年度汇总员工累计兑付产值报告。",
         "operationId": "get_project_payout_list_by_project_year_report",
         "security": [
           {
@@ -7564,6 +7450,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Project Payout List By Project Year Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7606,8 +7502,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成项目产值报告",
-        "description": "生成项目产值报告。",
+        "summary": "生成项目按工程年度汇总员工产值报告",
+        "description": "生成项目按工程年度汇总员工产值报告。",
         "operationId": "get_project_production_value_report",
         "security": [
           {
@@ -7632,6 +7528,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Project Production Value Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7674,8 +7580,8 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成回款报告",
-        "description": "生成回款报告。",
+        "summary": "生成回款下发报告",
+        "description": "生成回款下发报告。",
         "operationId": "get_contract_payment_payout_list_report",
         "security": [
           {
@@ -7700,6 +7606,16 @@
               "application/json": {
                 "schema": {
                   "title": "Response 报告 - /Reports-Get Contract Payment Payout List Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -8478,30 +8394,6 @@
         ],
         "title": "ContractPaymentsPublicOut"
       },
-      "DepartmentCreateIn": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name"
-        ],
-        "title": "DepartmentCreateIn"
-      },
       "DepartmentPayoutRatioPublicOut": {
         "properties": {
           "project_class_id": {
@@ -8657,7 +8549,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-09-29T20:58:51.010755"
+            "default": "2024-10-04T13:30:07.046502"
           }
         },
         "type": "object",
@@ -8717,34 +8609,6 @@
           "id"
         ],
         "title": "DepartmentPublicOut"
-      },
-      "DepartmentUpdateIn": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          }
-        },
-        "type": "object",
-        "title": "DepartmentUpdateIn"
       },
       "DepartmentsPublicOut": {
         "properties": {
@@ -9672,9 +9536,9 @@
             "type": "number",
             "title": "Low Voltage Pm Ratio"
           },
-          "low_voltage_assistant_ratio": {
+          "low_voltage_pm_assistant_ratio": {
             "type": "number",
-            "title": "Low Voltage Assistant Ratio"
+            "title": "Low Voltage Pm Assistant Ratio"
           },
           "low_voltage_designer_ratio": {
             "type": "number",
@@ -9747,7 +9611,7 @@
           "hvac_reviewer_ratio",
           "hvac_approver_ratio",
           "low_voltage_pm_ratio",
-          "low_voltage_assistant_ratio",
+          "low_voltage_pm_assistant_ratio",
           "low_voltage_designer_ratio",
           "low_voltage_drafter_ratio",
           "low_voltage_design_post_service_ratio",
@@ -9940,9 +9804,9 @@
             "type": "number",
             "title": "Low Voltage Pm Ratio"
           },
-          "low_voltage_assistant_ratio": {
+          "low_voltage_pm_assistant_ratio": {
             "type": "number",
-            "title": "Low Voltage Assistant Ratio"
+            "title": "Low Voltage Pm Assistant Ratio"
           },
           "low_voltage_designer_ratio": {
             "type": "number",
@@ -9976,6 +9840,10 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "is_in_use": {
+            "type": "boolean",
+            "title": "Is In Use"
           }
         },
         "type": "object",
@@ -10025,7 +9893,7 @@
           "hvac_reviewer_ratio",
           "hvac_approver_ratio",
           "low_voltage_pm_ratio",
-          "low_voltage_assistant_ratio",
+          "low_voltage_pm_assistant_ratio",
           "low_voltage_designer_ratio",
           "low_voltage_drafter_ratio",
           "low_voltage_design_post_service_ratio",
@@ -10033,7 +9901,8 @@
           "low_voltage_reviewer_ratio",
           "low_voltage_approver_ratio",
           "id",
-          "updated_at"
+          "updated_at",
+          "is_in_use"
         ],
         "title": "JobPayoutRatioProfilePublicOut"
       },
@@ -10062,265 +9931,557 @@
             "title": "Hidden"
           },
           "pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Pm Ratio"
           },
           "pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Pm Assistant Ratio"
           },
           "arch_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Pm Ratio"
           },
           "arch_pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Pm Assistant Ratio"
           },
           "arch_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Designer Ratio"
           },
           "arch_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Drafter Ratio"
           },
           "arch_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Design Post Service Ratio"
           },
           "arch_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Proofreader Ratio"
           },
           "arch_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Reviewer Ratio"
           },
           "arch_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Arch Approver Ratio"
           },
           "struct_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Pm Ratio"
           },
           "struct_pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Pm Assistant Ratio"
           },
           "struct_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Designer Ratio"
           },
           "struct_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Drafter Ratio"
           },
           "struct_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Design Post Service Ratio"
           },
           "struct_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Proofreader Ratio"
           },
           "struct_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Reviewer Ratio"
           },
           "struct_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Struct Approver Ratio"
           },
           "plumbing_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Pm Ratio"
           },
           "plumbing_pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Pm Assistant Ratio"
           },
           "plumbing_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Designer Ratio"
           },
           "plumbing_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Drafter Ratio"
           },
           "plumbing_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Design Post Service Ratio"
           },
           "plumbing_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Proofreader Ratio"
           },
           "plumbing_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Reviewer Ratio"
           },
           "plumbing_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Plumbing Approver Ratio"
           },
           "electrical_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Pm Ratio"
           },
           "electrical_pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Pm Assistant Ratio"
           },
           "electrical_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Designer Ratio"
           },
           "electrical_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Drafter Ratio"
           },
           "electrical_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Design Post Service Ratio"
           },
           "electrical_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Reviewer Ratio"
           },
           "electrical_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Proofreader Ratio"
           },
           "electrical_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Electrical Approver Ratio"
           },
           "hvac_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Pm Ratio"
           },
           "hvac_pm_assistant_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Pm Assistant Ratio"
           },
           "hvac_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Designer Ratio"
           },
           "hvac_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Drafter Ratio"
           },
           "hvac_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Design Post Service Ratio"
           },
           "hvac_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Proofreader Ratio"
           },
           "hvac_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Reviewer Ratio"
           },
           "hvac_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Hvac Approver Ratio"
           },
           "low_voltage_pm_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Pm Ratio"
           },
-          "low_voltage_assistant_ratio": {
-            "type": "null",
-            "title": "Low Voltage Assistant Ratio"
+          "low_voltage_pm_assistant_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low Voltage Pm Assistant Ratio"
           },
           "low_voltage_designer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Designer Ratio"
           },
           "low_voltage_drafter_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Drafter Ratio"
           },
           "low_voltage_design_post_service_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Design Post Service Ratio"
           },
           "low_voltage_proofreader_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Proofreader Ratio"
           },
           "low_voltage_reviewer_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Reviewer Ratio"
           },
           "low_voltage_approver_ratio": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Low Voltage Approver Ratio"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Updated At",
-            "default": "2024-09-29T20:58:50.991186"
           }
         },
         "type": "object",
-        "required": [
-          "pm_ratio",
-          "pm_assistant_ratio",
-          "arch_pm_ratio",
-          "arch_pm_assistant_ratio",
-          "arch_designer_ratio",
-          "arch_drafter_ratio",
-          "arch_design_post_service_ratio",
-          "arch_proofreader_ratio",
-          "arch_reviewer_ratio",
-          "arch_approver_ratio",
-          "struct_pm_ratio",
-          "struct_pm_assistant_ratio",
-          "struct_designer_ratio",
-          "struct_drafter_ratio",
-          "struct_design_post_service_ratio",
-          "struct_proofreader_ratio",
-          "struct_reviewer_ratio",
-          "struct_approver_ratio",
-          "plumbing_pm_ratio",
-          "plumbing_pm_assistant_ratio",
-          "plumbing_designer_ratio",
-          "plumbing_drafter_ratio",
-          "plumbing_design_post_service_ratio",
-          "plumbing_proofreader_ratio",
-          "plumbing_reviewer_ratio",
-          "plumbing_approver_ratio",
-          "electrical_pm_ratio",
-          "electrical_pm_assistant_ratio",
-          "electrical_designer_ratio",
-          "electrical_drafter_ratio",
-          "electrical_design_post_service_ratio",
-          "electrical_reviewer_ratio",
-          "electrical_proofreader_ratio",
-          "electrical_approver_ratio",
-          "hvac_pm_ratio",
-          "hvac_pm_assistant_ratio",
-          "hvac_designer_ratio",
-          "hvac_drafter_ratio",
-          "hvac_design_post_service_ratio",
-          "hvac_proofreader_ratio",
-          "hvac_reviewer_ratio",
-          "hvac_approver_ratio",
-          "low_voltage_pm_ratio",
-          "low_voltage_assistant_ratio",
-          "low_voltage_designer_ratio",
-          "low_voltage_drafter_ratio",
-          "low_voltage_design_post_service_ratio",
-          "low_voltage_proofreader_ratio",
-          "low_voltage_reviewer_ratio",
-          "low_voltage_approver_ratio"
-        ],
         "title": "JobPayoutRatioProfileUpdateIn",
         "description": "除了name和hidden, 其他字段都不允许修改"
       },
@@ -10731,17 +10892,6 @@
           "project_contract_value": {
             "type": "number",
             "title": "Project Contract Value"
-          },
-          "project_deliverable_production_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Project Deliverable Production Value"
           },
           "notes": {
             "anyOf": [
@@ -14268,17 +14418,6 @@
             "type": "number",
             "title": "Project Contract Value"
           },
-          "project_deliverable_production_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Project Deliverable Production Value"
-          },
           "notes": {
             "anyOf": [
               {
@@ -14763,26 +14902,8 @@
             "title": "Calculated Employee Payout"
           },
           "project_contract_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "number",
             "title": "Project Contract Value"
-          },
-          "project_deliverable_production_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Project Deliverable Production Value"
           },
           "notes": {
             "anyOf": [
@@ -14797,6 +14918,9 @@
           }
         },
         "type": "object",
+        "required": [
+          "project_contract_value"
+        ],
         "title": "ProjectUpdateIn"
       },
       "ProjectsPublicOut": {
