@@ -135,7 +135,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           onSearch={onSearch}
           placeholder="input here"
           allowClear={true}
-          onKeyDown={}
         />
         
         :

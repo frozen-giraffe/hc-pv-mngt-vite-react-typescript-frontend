@@ -20,7 +20,7 @@ import './main.css'
 
 //OpenAPI.BASE = "http://alang-main.griffin-vibes.ts.net:8000"
 OpenAPI.BASE = "http://api.aaronyou.photos"
-OpenAPI.BASE = "http://localhost:8001"
+//OpenAPI.BASE = "http://localhost:8001"
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
