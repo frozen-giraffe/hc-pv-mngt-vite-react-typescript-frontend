@@ -1,14 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import { useAuth } from '../context/AuthContext';
 import { useNavigate  } from 'react-router-dom';
-import { url } from 'inspector';
-import Image from './../assets/login_image.jpg'
 import Logo from './../assets/Logo.png'
 import { Button, Input,Alert  } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
-import { log } from 'console';
-import {loginPostRequest} from './../requests'
 import { LoginService, type Body_Login_login_access_token as AccessToken } from '../client';
 
 
@@ -30,9 +26,15 @@ export const Login = () => {
   const loginFetch = async (username: string, password: string) => {
     
     const a = {'username': username, 'password':password} as AccessToken
-    LoginService.loginAccessToken({formData: a}).then((data)=>{
-      login(data.access_token)
-      history('/dashboard');
+    LoginService.loginAccessToken({body: a}).then(({data, error})=>{
+      if(data){
+        login(data.access_token)
+        history('/dashboard');
+      }else{
+        console.log(error)
+        setErrorMsg(error?.detail || '未知错误')
+        setErrorMsgVisible(true)
+      }
     }).catch((reason)=>{
       console.log(reason)
     })

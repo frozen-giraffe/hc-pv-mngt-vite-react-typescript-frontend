@@ -19,7 +19,7 @@ import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
 import Logo from '/favicon.png'
 import { useAuth } from "../context/AuthContext";
-import { OpenAPI, UserPublic, UsersService } from "../client";
+import { OpenAPI, ReportsService, UserPublic, UsersService } from "../client";
 
 
 type MenuItem = Required<MenuProps>['items'][number] & {
@@ -127,43 +127,18 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
           '1st menu item'
       ),
       onClick: async()=>{
-        const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
+        // const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
         try {
-          const response = await fetch(url, {
-            method:'GET',
-            
-            headers: {
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjc5OTc2NzIsInN1YiI6IjEifQ.OPf3hUKNY8l9aC92qBl5-QQ2aqzpCqKKn6vyD44i5N4',
-            }
-          });
-          if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-          }
-          
-          response.blob().then((b)=>{
-            const file = new Blob(
-              [b], 
-              {type: 'application/pdf'}
-            );
-            const fileURL = URL.createObjectURL(file);
-            
-            //window.open(fileURL);
-
-            const a = document.createElement('a');
-            a.download = 'my-file.pdf';
-            a.href = fileURL
-            a.click();
-            // a.addEventListener('click', (e) => {
-            //   setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-            // });
-            document.body.appendChild(a);
-            a.click();
-            // Clean up
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
+          const { data, error, request, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
+            projectYear: 2024,
+            employeeId: 21
           })
-          
+          console.log("report res")
+          console.log(data);
+          console.log(error);
+          console.log(request);
+          console.log(response);
+
         } catch (error) {
           console.log(error);
         }

@@ -1,25 +1,16 @@
-import { Button, Table, TableProps, Typography } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Button, message, Table, TableProps, Typography } from "antd";
+import { useEffect, useRef, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
-  ProjectsData,
-  ProjectsPublicOut,
   ProjectsService,
-  ProjectTaskTypesPublicOut,
   BuildingStructureTypePublicOut,
   BuildingStructureTypesService,
-  BuildingStructureTypesPublicOut,
   QualityRatioClassPublicOut,
-  QualityRatioClassesPublicOut,
   QualityRatioClassesService,
   ProjectTypePublicOut,
-  ProjectClassesService,
-  ProjectClassesPublicOut,
-  ProjectClassPublicOut,
   ProjectTaskTypesService,
-  ProjectTypesPublicOut,
   ProjectTypesService,
 } from "../client";
 import { GetColumnNames } from "../helper";
@@ -73,7 +64,7 @@ export const Projects = () => {
     {
       title: "项目年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
-      width: 100,
+      width: 80,
     },
     {
       title: "项目工号",
@@ -83,7 +74,7 @@ export const Projects = () => {
     {
       title: "项目名称",
       dataIndex: getProjectPublicOutColumn("name"),
-      width: 200,
+      width: 300,
     },
     {
       title: "民用建筑类别",
@@ -96,7 +87,7 @@ export const Projects = () => {
       dataIndex: getProjectPublicOutColumn("quality_ratio_class_id"),
       render: (id: number) =>
         getValueFromListByID(id, qualityRatioClass, "id",'name'),
-      width: 120,
+      width: 100,
     },
     {
       title: "项目总造价",
@@ -109,27 +100,20 @@ export const Projects = () => {
       width: 120,
     },
     {
-      title: "施工图产值(元)",
-      dataIndex: getProjectPublicOutColumn(
-        "project_deliverable_production_value"
-      ),
-      width: 130,
-    },
-    {
       title: "下发产值(元)",
       dataIndex: getProjectPublicOutColumn("calculated_employee_payout"),
-      width: 120,
+      width: 100,
     },
     {
       title: "项目录入时间",
       dataIndex: getProjectPublicOutColumn("date_added"),
-      width: 120,
+      width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
     },
     {
       title: "项目修改时间",
       dataIndex: getProjectPublicOutColumn("date_modified"),
-      width: 120,
+      width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
     },
     {
@@ -142,18 +126,18 @@ export const Projects = () => {
       dataIndex: getProjectPublicOutColumn("building_structure_type_id"),
       render: (id: number) =>
         getValueFromListByID(id, buildingStructureType, "id",'name'),
-      width: 100,
+      width: 180,
     },
     {
       title: "工程面积(平方米)",
       dataIndex: getProjectPublicOutColumn("project_area"),
-      width: 140,
+      width: 130,
     },
     {
       title: "工程类别",
       dataIndex: getProjectPublicOutColumn("project_type_id"),
       render: (id: number) => getValueFromListByID(id, projectType, "id",'name'),
-      width: 100,
+      width: 200,
     },
     user?.is_superuser
       ? {
@@ -161,7 +145,7 @@ export const Projects = () => {
           key: "action",
           width: 100,
           fixed: "right",
-          render: (row: any) => {
+          render: (row: ProjectPublicOut) => {
             return (
               <span>
                 <Typography.Link
@@ -199,6 +183,7 @@ export const Projects = () => {
     const item = list.find((item) => item[idCol] === id);
     return item ? String(item[nameCol]) : "Unknown";
   };
+
   const fetchProjects = async () => {
     try {
       //show loading spinner on table
@@ -210,12 +195,6 @@ export const Projects = () => {
         resQualityRatioClass,
         resProjectType,
         resProjectTaskType,
-      ]: [
-        ProjectsPublicOut,
-        BuildingStructureTypesPublicOut,
-        QualityRatioClassesPublicOut,
-        ProjectTypesPublicOut,
-        ProjectTaskTypesPublicOut
       ] = await Promise.all([
         ProjectsService.getAndFilterProjects(),
         BuildingStructureTypesService.readBuildingStructureTypes(),
@@ -223,13 +202,42 @@ export const Projects = () => {
         ProjectTypesService.readProjectTypes(),
         ProjectTaskTypesService.readProjectTaskTypes(),
       ]);
-      console.log(resQualityRatioClass.data);
+      let loadError = false;
+      if (resProjects.error) {
+        message.error("获取项目失败: " + resProjects.error.detail);
+        loadError = true;
+        return;
+      }
+      if (resBuildingStructureType.error) {
+        message.error("获取工程等级失败: " + resBuildingStructureType.error.detail);
+        loadError = true;
+        return;
+      }
+      if (resQualityRatioClass.error) {
+        message.error("获取设计质量系数失败: " + resQualityRatioClass.error.detail);
+        loadError = true;
+        return;
+      }
+      if (resProjectType.error) {
+        message.error("获取项目类型失败: " + resProjectType.error.detail);
+        loadError = true;
+        return;
+      }
+      if (resProjectTaskType.error) {
+        message.error("获取项目类型失败: " + resProjectTaskType.error.detail);
+        loadError = true;
+        return;
+      }
+      if (loadError) {
+        handleLoadingChange(false);
+        return;
+      }
 
-      setProjects(resProjects.data);
-      setBuildingStructureType(resBuildingStructureType.data);
-      setQualityRatioClass(resQualityRatioClass.data);
-      setProjectType(resProjectType.data);
-      setPProjectTaskType(resProjectTaskType.data);
+      setProjects(resProjects.data.data);
+      setBuildingStructureType(resBuildingStructureType.data.data);
+      setQualityRatioClass(resQualityRatioClass.data.data);
+      setProjectType(resProjectType.data.data);
+      setPProjectTaskType(resProjectTaskType.data.data);
     } catch (e) {
       // Stop the loading spinner on table once the data is fetched
       console.error("Error fetching data:", e);
@@ -295,6 +303,7 @@ export const Projects = () => {
         pagination={{ pageSize: 13, position: ["topRight"] }}
         scroll={{ x: "max-content" }}
         style={{ height: "100%" }}
+        size="small"
       />
     </div>
   );

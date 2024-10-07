@@ -8,9 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-client": "openapi-ts --input ./openapi.json --output ./src/client --client axios --exportSchemas true"
+    "openapi-ts": "openapi-ts",
+    "generate-client": "openapi-ts --input ./openapi.json --output ./src/client --client fetch"
   },
   "dependencies": {
+    "@hey-api/client-fetch": "^0.4.0",
     "antd": "^5.20.1",
     "axios": "^1.7.4",
     "chinese-to-pinyin": "^1.3.1",
@@ -21,7 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
-    "@hey-api/openapi-ts": "^0.34.1",
+    "@hey-api/openapi-ts": "^0.53.7",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

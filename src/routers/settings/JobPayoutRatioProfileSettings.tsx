@@ -19,13 +19,10 @@ import {
   JobPayoutRatioProfilesService,
   JobPayoutRatioProfileCreateIn,
   JobPayoutRatioProfileUpdateIn,
-  ApiError,
 } from "../../client";
 import InputDirectPercent from "../../components/InputDirectPercent";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import Modal from "antd/es/modal/Modal";
-
-const { Option } = Select;
 const { Title } = Typography;
 
 const JobPayoutRatioProfileSettings: React.FC = () => {
@@ -61,21 +58,24 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
 
   const fetchProfiles = async () => {
     try {
-      const response =
+      const {error, data} =
         await JobPayoutRatioProfilesService.readJobPayoutRatioProfiles({
-          hidden: true,
+          query: {
+            hidden: true,
+          },
         });
-      const filteredProfiles = response.data.filter(
-        (profile) => profile.id !== 1
-      );
-      setProfiles(filteredProfiles);
-      setLoading(false);
-    } catch (error) {
-      if (error instanceof ApiError) {
-        message.error("获取工比失败: " + error.message);
-      } else {
-        message.error("获取工比失败: 未知错误");
+        if (error) {
+          message.error("获取工比失败: " + error.detail);
+        } else {
+          const filteredProfiles = data.data.filter(
+            (profile) => profile.id !== 1
+          );
+          setProfiles(filteredProfiles);
+        setLoading(false);
       }
+    } catch (error) {
+      message.error("获取工比失败: 未知错误: " + error);
+      console.log(error);
     }
   };
 
@@ -181,28 +181,40 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
         ...values.hvac,
         ...values.low_voltage,
       };
-      // TODO: Implement API call to create new profile
       console.log("Creating new profile:", newProfile);
-      message.success("New profile created successfully");
-      setIsEditing(false);
-      // Refresh profiles list
-      await fetchProfiles();
+      const {error} = await JobPayoutRatioProfilesService.createJobPayoutRatioProfile({
+        body: newProfile,
+      });
+      if (error) {
+        message.error("创建模板失败: " + error.detail);
+      } else {
+        message.success("模板创建成功");
+        setIsEditing(false);
+        // Refresh profiles list
+        await fetchProfiles();
+      }
     } catch (error) {
       console.error("Validation failed:", error);
       message.error("Failed to create new profile");
     }
   };
 
-  const renameProfile = (profileId: number, newName: string) => {
+  const renameProfile = async (profileId: number, newName: string) => {
     // TODO: Implement API call to rename profile
     console.log("Renaming profile:", profileId, "to", newName);
-    JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
-      id: profileId,
-      requestBody: {
+    const {error} = await JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
+      path: {
+        id: profileId,
+      },
+      body: {
         name: newName,
       },
     });
-    message.success("Profile renamed successfully");
+    if (error) {
+      message.error("更改模板名称失败: " + error.detail);
+    } else {
+      message.success("模板名称已更改");
+    }
     // Refresh profiles list
     fetchProfiles();
   };
@@ -246,17 +258,22 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     console.log("Delete profile:", selectedProfileId);
   };
 
-  const handleHide = () => {
+  const handleHide = async () => {
     console.log("Toggle profile visibility:", selectedProfileId);
     try {
-      JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
-        id: selectedProfileId!,
-        requestBody: {
+      const {error} = await JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
+        path:{
+          id: selectedProfileId!,
+        },
+        body: {
           hidden: !selectedProfileData?.hidden,
         },
       });
-      message.success("模板已" + (selectedProfileData?.hidden ? "显示" : "隐藏"));
-      
+      if (error) {
+        message.error("更改模板可见性失败: " + error.detail);
+      } else {
+        message.success("模板已" + (selectedProfileData?.hidden ? "显示" : "隐藏"));
+      }
       setProfiles(prevProfiles =>
         prevProfiles.map(profile =>
           profile.id === selectedProfileId
@@ -268,11 +285,8 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
         prevData ? { ...prevData, hidden: !prevData.hidden } : null
       );
     } catch (error) {
-      if (error instanceof ApiError) {
-        message.error("更改模板可见性失败: " + error.message);
-      } else {
-        message.error("更改模板可见性失败: 未知错误");
-      }
+      message.error("更改模板可见性失败，未知错误: " + error);
+      console.log(error);
     }
   };
 
@@ -761,11 +775,11 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     };
   });
 
-  const hasErrors = () => {
-    return Object.values(errorsRef.current.departments).some(
-      (error) => error !== null
-    );
-  };
+  // const hasErrors = () => {
+  //   return Object.values(errorsRef.current.departments).some(
+  //     (error) => error !== null
+  //   );
+  // };
 
   const handleNewProfileOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
