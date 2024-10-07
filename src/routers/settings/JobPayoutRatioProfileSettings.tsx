@@ -163,9 +163,8 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     setProfiles([...profiles, newProfile]);
     setSelectedProfileId(-1);
     setSelectedProfileData(newProfile);
-    setIsEditing(true);
     setIsNewProfilePopoverVisible(false);
-    form.setFieldsValue(newProfile);
+    handleEdit(newProfile);
   };
 
   const createNewProfile = async (name: string) => {
@@ -290,82 +289,91 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     }
   };
 
-  const handleEdit = () => {
+  const profileDataToFormValues = (profileData: JobPayoutRatioProfilePublicOut) => {
+    return {
+      pm: {
+        pm_ratio: profileData.pm_ratio,
+        pm_assistant_ratio: profileData.pm_assistant_ratio,
+      },
+      arch: {
+        pm_ratio: profileData.arch_pm_ratio,
+        pm_assistant_ratio: profileData.arch_pm_assistant_ratio,
+        designer_ratio: profileData.arch_designer_ratio,
+        drafter_ratio: profileData.arch_drafter_ratio,
+        design_post_service_ratio:
+          profileData.arch_design_post_service_ratio,
+        proofreader_ratio: profileData.arch_proofreader_ratio,
+        reviewer_ratio: profileData.arch_reviewer_ratio,
+        approver_ratio: profileData.arch_approver_ratio,
+      },
+      struct: {
+        pm_ratio: profileData.struct_pm_ratio,
+        pm_assistant_ratio: profileData.struct_pm_assistant_ratio,
+        designer_ratio: profileData.struct_designer_ratio,
+        drafter_ratio: profileData.struct_drafter_ratio,
+        design_post_service_ratio:
+          profileData.struct_design_post_service_ratio,
+        proofreader_ratio: profileData.struct_proofreader_ratio,
+        reviewer_ratio: profileData.struct_reviewer_ratio,
+        approver_ratio: profileData.struct_approver_ratio,
+      },
+      plumbing: {
+        pm_ratio: profileData.plumbing_pm_ratio,
+        pm_assistant_ratio: profileData.plumbing_pm_assistant_ratio,
+        designer_ratio: profileData.plumbing_designer_ratio,
+        drafter_ratio: profileData.plumbing_drafter_ratio,
+        design_post_service_ratio:
+          profileData.plumbing_design_post_service_ratio,
+        proofreader_ratio: profileData.plumbing_proofreader_ratio,
+        reviewer_ratio: profileData.plumbing_reviewer_ratio,
+        approver_ratio: profileData.plumbing_approver_ratio,
+      },
+      electrical: {
+        pm_ratio: profileData.electrical_pm_ratio,
+        pm_assistant_ratio: profileData.electrical_pm_assistant_ratio,
+        designer_ratio: profileData.electrical_designer_ratio,
+        drafter_ratio: profileData.electrical_drafter_ratio,
+        design_post_service_ratio:
+          profileData.electrical_design_post_service_ratio,
+        proofreader_ratio: profileData.electrical_proofreader_ratio,
+        reviewer_ratio: profileData.electrical_reviewer_ratio,
+        approver_ratio: profileData.electrical_approver_ratio,
+      },
+      hvac: {
+        pm_ratio: profileData.hvac_pm_ratio,
+        pm_assistant_ratio: profileData.hvac_pm_assistant_ratio,
+        designer_ratio: profileData.hvac_designer_ratio,
+        drafter_ratio: profileData.hvac_drafter_ratio,
+        design_post_service_ratio:
+          profileData.hvac_design_post_service_ratio,
+        proofreader_ratio: profileData.hvac_proofreader_ratio,
+        reviewer_ratio: profileData.hvac_reviewer_ratio,
+        approver_ratio: profileData.hvac_approver_ratio,
+      },
+      low_voltage: {
+        pm_ratio: profileData.low_voltage_pm_ratio,
+        pm_assistant_ratio:
+          profileData.low_voltage_pm_assistant_ratio,
+        designer_ratio: profileData.low_voltage_designer_ratio,
+        drafter_ratio: profileData.low_voltage_drafter_ratio,
+        design_post_service_ratio:
+          profileData.low_voltage_design_post_service_ratio,
+        proofreader_ratio: profileData.low_voltage_proofreader_ratio,
+        reviewer_ratio: profileData.low_voltage_reviewer_ratio,
+        approver_ratio: profileData.low_voltage_approver_ratio,
+      }
+    }
+  };
+        
+  
+
+  const handleEdit = (override_data?: JobPayoutRatioProfilePublicOut) => {
     setIsEditing(true);
-    if (selectedProfileData) {
-      const formValues = {
-        pm: {
-          pm_ratio: selectedProfileData.pm_ratio,
-          pm_assistant_ratio: selectedProfileData.pm_assistant_ratio,
-        },
-        arch: {
-          pm_ratio: selectedProfileData.arch_pm_ratio,
-          pm_assistant_ratio: selectedProfileData.arch_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.arch_designer_ratio,
-          drafter_ratio: selectedProfileData.arch_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.arch_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.arch_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.arch_reviewer_ratio,
-          approver_ratio: selectedProfileData.arch_approver_ratio,
-        },
-        struct: {
-          pm_ratio: selectedProfileData.struct_pm_ratio,
-          pm_assistant_ratio: selectedProfileData.struct_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.struct_designer_ratio,
-          drafter_ratio: selectedProfileData.struct_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.struct_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.struct_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.struct_reviewer_ratio,
-          approver_ratio: selectedProfileData.struct_approver_ratio,
-        },
-        plumbing: {
-          pm_ratio: selectedProfileData.plumbing_pm_ratio,
-          pm_assistant_ratio: selectedProfileData.plumbing_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.plumbing_designer_ratio,
-          drafter_ratio: selectedProfileData.plumbing_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.plumbing_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.plumbing_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.plumbing_reviewer_ratio,
-          approver_ratio: selectedProfileData.plumbing_approver_ratio,
-        },
-        electrical: {
-          pm_ratio: selectedProfileData.electrical_pm_ratio,
-          pm_assistant_ratio: selectedProfileData.electrical_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.electrical_designer_ratio,
-          drafter_ratio: selectedProfileData.electrical_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.electrical_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.electrical_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.electrical_reviewer_ratio,
-          approver_ratio: selectedProfileData.electrical_approver_ratio,
-        },
-        hvac: {
-          pm_ratio: selectedProfileData.hvac_pm_ratio,
-          pm_assistant_ratio: selectedProfileData.hvac_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.hvac_designer_ratio,
-          drafter_ratio: selectedProfileData.hvac_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.hvac_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.hvac_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.hvac_reviewer_ratio,
-          approver_ratio: selectedProfileData.hvac_approver_ratio,
-        },
-        low_voltage: {
-          pm_ratio: selectedProfileData.low_voltage_pm_ratio,
-          pm_assistant_ratio:
-            selectedProfileData.low_voltage_pm_assistant_ratio,
-          designer_ratio: selectedProfileData.low_voltage_designer_ratio,
-          drafter_ratio: selectedProfileData.low_voltage_drafter_ratio,
-          design_post_service_ratio:
-            selectedProfileData.low_voltage_design_post_service_ratio,
-          proofreader_ratio: selectedProfileData.low_voltage_proofreader_ratio,
-          reviewer_ratio: selectedProfileData.low_voltage_reviewer_ratio,
-          approver_ratio: selectedProfileData.low_voltage_approver_ratio,
-        },
-      };
+    if (override_data) {
+      const formValues = profileDataToFormValues(override_data);
+      form.setFieldsValue(formValues);
+    } else if (selectedProfileData) {
+      const formValues = profileDataToFormValues(selectedProfileData);
       form.setFieldsValue(formValues);
     }
     validateForm();
@@ -388,8 +396,8 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   const validateDepartmentSum = (department: string) => {
     const departmentValues = form.getFieldValue(department);
     if (!departmentValues) {
-      console.log(`No values found for department ${department}`);
-      return false;
+      console.log(`No values found for department ${department}, assuming 0%`);
+      return true;
     }
 
     const sum = Object.values(departmentValues).reduce(
