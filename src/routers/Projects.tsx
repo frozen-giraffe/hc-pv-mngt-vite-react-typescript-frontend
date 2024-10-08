@@ -20,6 +20,7 @@ import { GetColumnNames } from "../helper";
 import { useAuth } from "../context/AuthContext";
 import { downloadReport, useDownloadReport } from "../utils/ReportFileDownload";
 import { useNavigate } from "react-router-dom";
+import ProjectListDownloadModal from '../components/ProjectListDownloadModal';
 // type ProjectFullDetail = Omit<ProjectPublicOut, 'project_type_id', 'project_task_type_id'> & {
 
 // 	project_task_types: Array<ProjectTaskTypePublicOut>;
@@ -44,6 +45,7 @@ export const Projects = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
   const handleLoadingChange = (enable: boolean) => {
     setLoading(enable);
   };
@@ -283,21 +285,27 @@ export const Projects = () => {
     return () => window.removeEventListener("resize", updateTableHeight);
   }, []);
 
-  const downloadProjectList = (project_year: number|null) => {
+  const showProjectListDownloadModal = () => {
+    setIsDownloadModalVisible(true);
+  };
+
+  const downloadProjectList = (project_year: number | null) => {
     try {
       messageApi.open({
         key: "downloadProjectList",
         type: 'loading',
         content: '正在导出项目列表...',
         duration: 5,
-        onClose: () => {messageApi.open({
+        onClose: () => {
+          messageApi.open({
             key: "downloadProjectList",
             type: 'loading',
             content: '正在导出项目列表...数据较多，请耐心等待，且不要离开此页面',
             duration: 0,
-        })}
+          });
+        }
       });
-      ReportsService.getProjectListReport({ query: {project_year: project_year} }).then((res) => {
+      ReportsService.getProjectListReport({ query: { project_year: project_year } }).then((res) => {
         if (res.data) {
           messageApi.open({
             key: "downloadProjectList",
@@ -314,8 +322,8 @@ export const Projects = () => {
             duration: 10,
           });
         }
-    });
-  } catch (e) {
+      });
+    } catch (e) {
       messageApi.open({
         key: "downloadProjectList",
         type: 'error',
@@ -329,8 +337,7 @@ export const Projects = () => {
     <div ref={scrollContainerRef}>
       {contextHolder}
       {user?.is_superuser && (
-        <Space style={loading || projects.length===0 ? { marginBottom: 16} : { marginBottom: 16, position: 'absolute', zIndex:1}}>
-
+        <Space style={loading || projects.length === 0 ? { marginBottom: 16 } : { marginBottom: 16, position: 'absolute', zIndex: 1 }}>
           <Button
             onClick={showProjectDetail}
             type="primary"
@@ -339,7 +346,7 @@ export const Projects = () => {
             添加
           </Button>
           <Button
-            onClick={downloadProjectList}
+            onClick={showProjectListDownloadModal}
             type="primary"
             icon={<FilePdfOutlined />}
           >
@@ -357,6 +364,14 @@ export const Projects = () => {
         scroll={{ x: "max-content" }}
         style={{ height: "100%" }}
         size="small"
+      />
+      <ProjectListDownloadModal
+        visible={isDownloadModalVisible}
+        onCancel={() => setIsDownloadModalVisible(false)}
+        onDownload={(year) => {
+          downloadProjectList(year);
+          setIsDownloadModalVisible(false);
+        }}
       />
     </div>
   );
