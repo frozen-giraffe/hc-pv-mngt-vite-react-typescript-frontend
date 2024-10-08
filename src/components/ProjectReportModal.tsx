@@ -113,6 +113,7 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
             <DatePicker
               picker="year"
               onChange={(date) => setSelectedYear(date ? date.year() : null)}
+              placeholder='请选择年度'
             />
           )}
         </Space>

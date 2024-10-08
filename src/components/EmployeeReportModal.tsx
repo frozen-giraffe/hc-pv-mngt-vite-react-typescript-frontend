@@ -3,14 +3,16 @@ import { Modal, Tabs, Radio, DatePicker, Space, Button, message } from 'antd';
 import { ReportsService } from '../client';
 import { downloadReport } from "../utils/ReportFileDownload";
 
-interface CompanyReportModalProps {
+interface EmployeeReportModalProps {
   visible: boolean;
   onCancel: () => void;
+  employeeId: number;
 }
 
-const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
+const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
   visible,
   onCancel,
+  employeeId,
 }) => {
   const [activeTab, setActiveTab] = useState('1');
   const [payoutListType, setPayoutListType] = useState<'payment' | 'project'>('payment');
@@ -21,13 +23,13 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
     try {
       let response;
       messageApi.open({
-        key: 'project_report_loading',
+        key: 'employee_report_loading',
         type: 'loading',
         content: '正在生成报告...',
         duration: 2,
         onClose: () => {
           messageApi.open({
-            key: 'project_report_loading',
+            key: 'employee_report_loading',
             type: 'loading',
             content: '正在生成报告...数据较多，请耐心等待，并不要离开页面',
             duration: 0,
@@ -36,7 +38,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
       });
       if (!selectedYear) {
         messageApi.open({
-        key: 'project_report_loading',
+        key: 'employee_report_loading',
         type: 'error',
         content: '未提供年度',
         duration: 2,
@@ -47,17 +49,17 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
       onCancel();
       switch (activeTab) {
         case '1':
-          response = await ReportsService.getCompanyProjectProductionValueByProjectYearReport({ 
-            query: { project_year: selectedYear} });
+          response = await ReportsService.getEmployeeProjectProductionValueByProjectYearReport({ 
+            query: { project_year: selectedYear, employee_id: employeeId} });
           break;
         case '2':
           if (payoutListType === 'payment') {
-            response = await ReportsService.getCompanyProjectPayoutListByPaymentYearReport({ 
-              query: { payment_year: selectedYear } 
+            response = await ReportsService.getEmployeeProjectPayoutListByPaymentYearReport({ 
+              query: { payment_year: selectedYear, employee_id: employeeId } 
             });
           } else {
-            response = await ReportsService.getCompanyProjectPayoutListByProjectYearReport({ 
-              query: { project_year: selectedYear } 
+            response = await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({ 
+              query: { project_year: selectedYear, employee_id: employeeId } 
             });
           }
           break;
@@ -65,7 +67,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
 
       if (response?.data) {
         messageApi.open({
-          key: 'project_report_loading',
+          key: 'employee_report_loading',
           type: 'success',
           content: '报告生成成功，正在下载...',
           duration: 2,
@@ -73,7 +75,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
         downloadReport(response.data, response.response);
       } else {
         messageApi.open({
-          key: 'project_report_loading',
+          key: 'employee_report_loading',
           type: 'error',
           content: '获取报告失败：' + response?.error?.detail,
           duration: 20,
@@ -81,7 +83,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
       }
     } catch (error) {
       messageApi.open({
-        key: 'project_report_loading',
+        key: 'employee_report_loading',
         type: 'error',
         content: '获取报告失败，未知错误：' + error,
         duration: 10,
@@ -93,11 +95,11 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
 
   const tabItems = [
     { key: '1', 
-      label: '年度产值报告',
+      label: '产值报告',
      },
     {
       key: '2',
-      label: '年度累计兑付产值报告',
+      label: '累计兑付产值报告',
       children: (
         <Space direction="vertical">
           <Radio.Group
@@ -114,7 +116,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
 
   return (
     <Modal
-      title="生成公司年度报告"
+      title="生成员工年度报告"
       open={visible}
       onCancel={onCancel}
       footer={[
@@ -130,13 +132,13 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
       <Space direction="vertical">
         <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
           <DatePicker
-            picker="year"
-            onChange={(date) => setSelectedYear(date ? date.year() : null)}
-            placeholder='请选择年度'
+          picker="year"
+          onChange={(date) => setSelectedYear(date ? date.year() : null)}
+          placeholder='请选择年度'
           />
       </Space>
     </Modal>
   );
 };
 
-export default CompanyReportModal;
+export default EmployeeReportModal;

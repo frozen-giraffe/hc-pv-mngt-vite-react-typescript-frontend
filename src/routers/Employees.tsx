@@ -8,6 +8,7 @@ import { FilterDropdownProps } from 'antd/es/table/interface';
 import pinyin from 'chinese-to-pinyin';
 import MySelectComponent from '../components/Dropdown';
 import { downloadReport, useDownloadReport } from '../utils/ReportFileDownload';
+import EmployeeReportModal from '../components/EmployeeReportModal';
 
 
 type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_location_id' | 'employee_title_id' | 'professional_title_id' | 'employ_status_id'> & {
@@ -54,7 +55,8 @@ export const Employees: React.FC = () => {
     const [employeeTitles, setEmployeeTitles] = useState<EmployeeTitlePublicOut[]>([])//use for dropdown while editing
     const [professionalTitles, setProfessionalTitles] = useState<ProfessionalTitlePublicOut[]>([])//use for dropdown while editing
     const [employeeStatus, setEmloyeeStatus] = useState<EmployStatusPublicOut[]>([])//use for dropdown while editing
-    
+    const [isEmployeeReportModalVisible, setIsEmployeeReportModalVisible] = useState(false);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
     
     const successMessage = (msg:string) => {
@@ -288,7 +290,7 @@ export const Employees: React.FC = () => {
             const editable = isEditing(record);
             return editable ? (
             <span>
-                <Typography.Link onClick={() => handleEditSave(record)} style={{ marginInlineEnd: 8 }}>
+                <Typography.Link onClick={() => handleEditSave(record)}>
                     保存
                 </Typography.Link>
                 <Typography.Link onClick={() => handleEditCancel()}>
@@ -297,13 +299,22 @@ export const Employees: React.FC = () => {
             </span>
             ) : (
             <span>
-                <Typography.Link disabled={false} onClick={() => handleEdit(record)} style={{ marginInlineEnd: 8 }}>
-                    修改
-                </Typography.Link>
-                {/* <Popconfirm title="确定要删除这行吗?" onConfirm={() => handleDelete(record.id)} okText='是' cancelText='否'>
-                    
-                    <a>删除</a>
-                </Popconfirm> */}
+                <Space>
+                    <Typography.Link disabled={false} onClick={() => handleEdit(record)}>
+                        修改
+                    </Typography.Link>
+                    {/* <Popconfirm title="确定要删除这行吗?" onConfirm={() => handleDelete(record.id)} okText='是' cancelText='否'>
+                        
+                        <a>删除</a>
+                    </Popconfirm> */}
+                    <Typography.Link disabled={false} onClick={() => {
+                        setSelectedEmployeeId(record.id);
+                        setIsEmployeeReportModalVisible(true);
+                    }}>
+                        报告
+                    </Typography.Link>
+                </Space>
+                
             </span>
             );
         },
@@ -558,6 +569,11 @@ export const Employees: React.FC = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+            <EmployeeReportModal
+                visible={isEmployeeReportModalVisible}
+                onCancel={() => setIsEmployeeReportModalVisible(false)}
+                employeeId={selectedEmployeeId!}
+            />
         </div>
   )
 }
