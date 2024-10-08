@@ -7525,8 +7525,88 @@
           " - /reports"
         ],
         "summary": "生成项目员工产值报告",
-        "description": "生成项目按工程年度汇总员工产值报告。",
+        "description": "生成项目员工产值报告。",
         "operationId": "get_project_production_value_report",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "生成报告时发生错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录、登录状态过期或无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "非超管无法生成报告",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/project/project-payout": {
+      "get": {
+        "tags": [
+          " - /reports"
+        ],
+        "summary": "生成项目产值下发表",
+        "description": "生成项目产值下发报告。",
+        "operationId": "get_project_payout_report",
         "security": [
           {
             "JWT": []
@@ -8575,7 +8655,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-07T22:37:51.986164"
+            "default": "2024-10-08T14:46:48.535976"
           }
         },
         "type": "object",

@@ -1,4 +1,4 @@
-import { Button, message, Space, Table, TableProps, Typography } from "antd";
+import { Button, message, Popover, Space, Table, TableProps, Typography } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
 import {
@@ -21,6 +21,7 @@ import { useAuth } from "../context/AuthContext";
 import { downloadReport, useDownloadReport } from "../utils/ReportFileDownload";
 import { useNavigate } from "react-router-dom";
 import ProjectListDownloadModal from '../components/ProjectListDownloadModal';
+import ProjectReportModal from '../components/ProjectReportModal';
 // type ProjectFullDetail = Omit<ProjectPublicOut, 'project_type_id', 'project_task_type_id'> & {
 
 // 	project_task_types: Array<ProjectTaskTypePublicOut>;
@@ -45,7 +46,9 @@ export const Projects = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
+  const [isProjectListDownloadModalVisible, setIsProjectListDownloadModalVisible] = useState(false);
+  const [isProjectReportModalVisible, setIsProjectReportModalVisible] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const handleLoadingChange = (enable: boolean) => {
     setLoading(enable);
   };
@@ -150,18 +153,30 @@ export const Projects = () => {
       ? {
           title: "操作",
           key: "action",
-          width: 100,
+          width: 150,
           fixed: "right",
           render: (row: ProjectPublicOut) => {
             return (
-              <span>
+              <Space>
                 <Typography.Link
                   onClick={() => handleOpenDetail(row)}
                   style={{ marginInlineEnd: 8 }}
                 >
                   详情
                 </Typography.Link>
-              </span>
+                <Popover
+                  title={row.project_payout === null ? "项目没有下发产值，无法生成报告" : ""}>
+                  <Typography.Link
+                    onClick={() => {
+                      setSelectedProjectId(row.id);
+                      setIsProjectReportModalVisible(true);
+                    }}
+                    disabled={row.project_payout === null}
+                  >
+                    报告
+                  </Typography.Link>
+                </Popover>
+              </Space>
             );
           },
         }
@@ -286,7 +301,7 @@ export const Projects = () => {
   }, []);
 
   const showProjectListDownloadModal = () => {
-    setIsDownloadModalVisible(true);
+    setIsProjectListDownloadModalVisible(true);
   };
 
   const downloadProjectList = (project_year: number | null) => {
@@ -366,12 +381,17 @@ export const Projects = () => {
         size="small"
       />
       <ProjectListDownloadModal
-        visible={isDownloadModalVisible}
-        onCancel={() => setIsDownloadModalVisible(false)}
+        visible={isProjectListDownloadModalVisible}
+        onCancel={() => setIsProjectListDownloadModalVisible(false)}
         onDownload={(year) => {
           downloadProjectList(year);
-          setIsDownloadModalVisible(false);
+          setIsProjectListDownloadModalVisible(false);
         }}
+      />
+      <ProjectReportModal
+        visible={isProjectReportModalVisible}
+        onCancel={() => setIsProjectReportModalVisible(false)}
+        projectId={selectedProjectId!}
       />
     </div>
   );

@@ -2086,6 +2086,16 @@ export type GetProjectProductionValueReportResponse = (string);
 
 export type GetProjectProductionValueReportError = (ErrorResponse | HTTPValidationError);
 
+export type GetProjectPayoutReportData = {
+    query: {
+        project_id: number;
+    };
+};
+
+export type GetProjectPayoutReportResponse = (string);
+
+export type GetProjectPayoutReportError = (ErrorResponse | HTTPValidationError);
+
 export type GetContractPaymentPayoutListReportData = {
     query: {
         contract_payment_id: number;
