@@ -1250,7 +1250,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成回款报告
+     * 生成回款列表报告
      * 生成回款报告。
      * 如果提供项目id，则生成指定项目的回款报告。
      * 如果提供时间范围，则生成指定时间范围内的回款报告。
@@ -1264,7 +1264,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成员工报告
+     * 生成员工按回款年度汇总个人累计兑付产值报告
      * 生成按回款年度汇总个人累计兑付产值报告。
      */
     public static getEmployeeProjectPayoutListByPaymentYearReport<ThrowOnError extends boolean = false>(options: Options<GetEmployeeProjectPayoutListByPaymentYearReportData, ThrowOnError>) {
@@ -1275,7 +1275,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成员工报告
+     * 生成员工按工程年度汇总个人累计兑付产值报告
      * 生成按工程年度汇总个人累计兑付产值报告。
      */
     public static getEmployeeProjectPayoutListByProjectYearReport<ThrowOnError extends boolean = false>(options: Options<GetEmployeeProjectPayoutListByProjectYearReportData, ThrowOnError>) {
@@ -1286,7 +1286,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成员工报告
+     * 生成员工按工程年度汇总个人产值报告
      * 生成按工程年度汇总个人产值报告。
      */
     public static getEmployeeProjectProductionValueByProjectYearReport<ThrowOnError extends boolean = false>(options: Options<GetEmployeeProjectProductionValueByProjectYearReportData, ThrowOnError>) {
@@ -1297,7 +1297,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成公司报告
+     * 生成公司按回款年度汇总累计兑付产值报告
      * 生成按回款年度汇总公司累计兑付产值报告。
      */
     public static getCompanyProjectPayoutListByPaymentYearReport<ThrowOnError extends boolean = false>(options: Options<GetCompanyProjectPayoutListByPaymentYearReportData, ThrowOnError>) {
@@ -1352,7 +1352,7 @@ export class ReportsService {
     }
     
     /**
-     * 生成项目按工程年度汇总员工产值报告
+     * 生成项目员工产值报告
      * 生成项目按工程年度汇总员工产值报告。
      */
     public static getProjectProductionValueReport<ThrowOnError extends boolean = false>(options: Options<GetProjectProductionValueReportData, ThrowOnError>) {

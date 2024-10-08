@@ -6611,10 +6611,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Project List Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -6672,12 +6674,14 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Employee List Report"
-                }
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
+            },
+            "content": {
+              "application/pdf": {}
             }
           },
           "400": {
@@ -6723,7 +6727,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成回款报告",
+        "summary": "生成回款列表报告",
         "description": "生成回款报告。\n如果提供项目id，则生成指定项目的回款报告。\n如果提供时间范围，则生成指定时间范围内的回款报告。\n否则生成所有回款报告。",
         "operationId": "get_contract_payment_list_report",
         "security": [
@@ -6787,10 +6791,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Contract Payment List Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -6842,7 +6848,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成员工报告",
+        "summary": "生成员工按回款年度汇总个人累计兑付产值报告",
         "description": "生成按回款年度汇总个人累计兑付产值报告。",
         "operationId": "get_employee_project_payout_list_by_payment_year_report",
         "security": [
@@ -6875,6 +6881,12 @@
             "description": "Successful Response",
             "content": {
               "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
+              }
             }
           },
           "400": {
@@ -6925,7 +6937,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成员工报告",
+        "summary": "生成员工按工程年度汇总个人累计兑付产值报告",
         "description": "生成按工程年度汇总个人累计兑付产值报告。",
         "operationId": "get_employee_project_payout_list_by_project_year_report",
         "security": [
@@ -6957,10 +6969,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Employee Project Payout List By Project Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7012,7 +7026,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成员工报告",
+        "summary": "生成员工按工程年度汇总个人产值报告",
         "description": "生成按工程年度汇总个人产值报告。",
         "operationId": "get_employee_project_production_value_by_project_year_report",
         "security": [
@@ -7044,10 +7058,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Employee Project Production Value By Project Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7099,7 +7115,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成公司报告",
+        "summary": "生成公司按回款年度汇总累计兑付产值报告",
         "description": "生成按回款年度汇总公司累计兑付产值报告。",
         "operationId": "get_company_project_payout_list_by_payment_year_report",
         "security": [
@@ -7122,10 +7138,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Company Project Payout List By Payment Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7200,10 +7218,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Company Project Payout List By Project Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7278,10 +7298,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Company Project Production Value By Project Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7365,10 +7387,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Project Payout List By Payment Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7443,10 +7467,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Project Payout List By Project Year Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7498,7 +7524,7 @@
         "tags": [
           " - /reports"
         ],
-        "summary": "生成项目按工程年度汇总员工产值报告",
+        "summary": "生成项目员工产值报告",
         "description": "生成项目按工程年度汇总员工产值报告。",
         "operationId": "get_project_production_value_report",
         "security": [
@@ -7521,10 +7547,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Project Production Value Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -7599,10 +7627,12 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/json": {
-                "schema": {
-                  "title": "Response 报告 - /Reports-Get Contract Payment Payout List Report"
-                }
+              "application/pdf": {}
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "format": "string"
               }
             }
           },
@@ -8545,7 +8575,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-04T22:33:00.803893"
+            "default": "2024-10-07T22:37:51.986164"
           }
         },
         "type": "object",

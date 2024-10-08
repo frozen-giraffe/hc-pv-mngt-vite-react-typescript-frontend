@@ -4,7 +4,7 @@ import { Nav } from "../components/Nav";
 import "./Dashboard.css";
 import { Test } from "./MainPage";
 import { Link, Navigate, Route, Router, Routes, useNavigate } from "react-router-dom";
-import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider } from "antd";
+import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -20,6 +20,7 @@ import { Content, Header } from "antd/es/layout/layout";
 import Logo from '/favicon.png'
 import { useAuth } from "../context/AuthContext";
 import { OpenAPI, ReportsService, UserPublic, UsersService } from "../client";
+import { downloadReport } from "../utils/ReportFileDownload";
 
 
 type MenuItem = Required<MenuProps>['items'][number] & {
@@ -95,6 +96,7 @@ const items: MenuItem[] = [
 ];
 
 
+
 export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) => {
   const navigate = useNavigate();
   const auth = useAuth()
@@ -123,28 +125,25 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     {
       key: '1',
       label: (
-        
           '1st menu item'
       ),
       onClick: async()=>{
-        // const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
         try {
-          const { data, error, request, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
+          const { data, error, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
             query: {
-              project_year: 2024,
+              project_year: 2023,
               employee_id: 21
             }
           })
-          console.log("report res")
-          console.log(data);
-          console.log(error);
-          console.log(request);
-          console.log(response);
-
+          if (error){
+            console.log(error);
+            message.error("Error getting report: "+error.detail)
+            return;
+          }
+          downloadReport(data, response)
         } catch (error) {
           console.log(error);
         }
-        
       }
     },
     {

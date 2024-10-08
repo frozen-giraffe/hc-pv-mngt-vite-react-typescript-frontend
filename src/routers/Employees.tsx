@@ -1,12 +1,13 @@
 import React, { Key, useEffect, useState } from 'react'
 import { Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
-import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { SearchOutlined, PlusOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { TableColumnsType, TableProps } from 'antd';
-import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, WorkLocationPublicOut, WorkLocationsService } from '../client';
+import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, ReportsService, WorkLocationPublicOut, WorkLocationsService } from '../client';
 import { useAuth } from '../context/AuthContext';
 import { FilterDropdownProps } from 'antd/es/table/interface';
 import pinyin from 'chinese-to-pinyin';
 import MySelectComponent from '../components/Dropdown';
+import { downloadReport, useDownloadReport } from '../utils/ReportFileDownload';
 
 
 type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_location_id' | 'employee_title_id' | 'professional_title_id' | 'employ_status_id'> & {
@@ -105,7 +106,7 @@ export const Employees: React.FC = () => {
             //   const newEmployee = { ...values }; // 处理输入的表单数据
             //   await EmployeeService.addEmployee(newEmployee); // 假设这是添加人员的 API 请求
             //   fetchEmployees(); // 更新人员列表
-            //   setIsModalVisible(false); // 关闭模态框
+            //   setIsAddEmployeeModalVisible(false); // 关闭模态框
             //   form.resetFields(); // 重置表单
         } catch (error) {
            console.error('Error adding employee:', error);
@@ -447,14 +448,54 @@ export const Employees: React.FC = () => {
         fetchEmployees()
     },[])
 
+    const downloadEmployeeList = () => {
+        try{
+            messageApi.open({
+                key: "downloadEmployeeList",
+                type: 'loading',
+                content: '正在生成人员列表...',
+                duration: 0,
+            });
+            ReportsService.getEmployeeListReport({ query: {} }).then((res) => {
+            if (res.data) {
+                messageApi.open({
+                    key: "downloadEmployeeList",
+                    type: 'success',
+                    content: '人员列表生成成功，正在下载...',
+                    duration: 2,
+                });
+                downloadReport(res.data, res.response);
+            } else {
+              messageApi.open({
+                key: "downloadEmployeeList",
+                type: 'error',
+                content: '人员列表生成失败：' + res.error?.detail,
+                duration: 10,
+              });
+            }
+        });
+        } catch (e) {
+            messageApi.open({
+                key: "downloadEmployeeList",
+                type: 'error',
+                content: '人员列表生成失败，未知错误：' + e,
+                duration: 10,
+              });
+        }
+    }
+
     return (
         <div>
             {contextHolder}
             {user?.is_superuser &&
-            <Button onClick={showModal} type="primary" style={loading || employees.length===0 ? { marginBottom: 16} : { marginBottom: 16,position: 'absolute', zIndex:1}}>
-                <PlusOutlined />
-                添加
-            </Button>
+            <Space style={loading || employees.length===0 ? { marginBottom: 16} : { marginBottom: 16, position: 'absolute', zIndex:1}}>
+                <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
+                    添加
+                </Button>
+                <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
+                    导出人员列表
+                </Button>
+            </Space>
             }
             <Form form={form} component={false}>
                 <Table

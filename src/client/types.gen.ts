@@ -1972,11 +1972,11 @@ export type GetProjectListReportData = {
     };
 };
 
-export type GetProjectListReportResponse = (unknown);
+export type GetProjectListReportResponse = (string);
 
 export type GetProjectListReportError = (ErrorResponse | HTTPValidationError);
 
-export type GetEmployeeListReportResponse = (unknown);
+export type GetEmployeeListReportResponse = (string);
 
 export type GetEmployeeListReportError = (ErrorResponse);
 
@@ -1988,7 +1988,7 @@ export type GetContractPaymentListReportData = {
     };
 };
 
-export type GetContractPaymentListReportResponse = (unknown);
+export type GetContractPaymentListReportResponse = (string);
 
 export type GetContractPaymentListReportError = (ErrorResponse | HTTPValidationError);
 
@@ -1999,7 +1999,7 @@ export type GetEmployeeProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetEmployeeProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetEmployeeProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetEmployeeProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2010,7 +2010,7 @@ export type GetEmployeeProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetEmployeeProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetEmployeeProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetEmployeeProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2021,7 +2021,7 @@ export type GetEmployeeProjectProductionValueByProjectYearReportData = {
     };
 };
 
-export type GetEmployeeProjectProductionValueByProjectYearReportResponse = (unknown);
+export type GetEmployeeProjectProductionValueByProjectYearReportResponse = (string);
 
 export type GetEmployeeProjectProductionValueByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2031,7 +2031,7 @@ export type GetCompanyProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetCompanyProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetCompanyProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetCompanyProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2041,7 +2041,7 @@ export type GetCompanyProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetCompanyProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetCompanyProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetCompanyProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2051,7 +2051,7 @@ export type GetCompanyProjectProductionValueByProjectYearReportData = {
     };
 };
 
-export type GetCompanyProjectProductionValueByProjectYearReportResponse = (unknown);
+export type GetCompanyProjectProductionValueByProjectYearReportResponse = (string);
 
 export type GetCompanyProjectProductionValueByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2062,7 +2062,7 @@ export type GetProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2072,7 +2072,7 @@ export type GetProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2082,7 +2082,7 @@ export type GetProjectProductionValueReportData = {
     };
 };
 
-export type GetProjectProductionValueReportResponse = (unknown);
+export type GetProjectProductionValueReportResponse = (string);
 
 export type GetProjectProductionValueReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2092,7 +2092,7 @@ export type GetContractPaymentPayoutListReportData = {
     };
 };
 
-export type GetContractPaymentPayoutListReportResponse = (unknown);
+export type GetContractPaymentPayoutListReportResponse = (string);
 
 export type GetContractPaymentPayoutListReportError = (ErrorResponse | HTTPValidationError);
 

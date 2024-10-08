@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-04T22:33:00.803893'
+            default: '2024-10-07T22:37:51.986164'
         }
     },
     type: 'object',

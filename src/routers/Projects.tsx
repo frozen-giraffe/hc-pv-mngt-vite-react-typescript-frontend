@@ -1,6 +1,6 @@
-import { Button, message, Table, TableProps, Typography } from "antd";
+import { Button, message, Space, Table, TableProps, Typography } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
@@ -12,9 +12,13 @@ import {
   ProjectTypePublicOut,
   ProjectTaskTypesService,
   ProjectTypesService,
+  ReportsService,
+  GetProjectListReportData,
+  GetProjectListReportError,
 } from "../client";
 import { GetColumnNames } from "../helper";
 import { useAuth } from "../context/AuthContext";
+import { downloadReport, useDownloadReport } from "../utils/ReportFileDownload";
 import { useNavigate } from "react-router-dom";
 // type ProjectFullDetail = Omit<ProjectPublicOut, 'project_type_id', 'project_task_type_id'> & {
 
@@ -39,6 +43,7 @@ export const Projects = () => {
   >([]);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const handleLoadingChange = (enable: boolean) => {
     setLoading(enable);
   };
@@ -278,21 +283,69 @@ export const Projects = () => {
     return () => window.removeEventListener("resize", updateTableHeight);
   }, []);
 
+  const downloadProjectList = (project_year: number|null) => {
+    try {
+      messageApi.open({
+        key: "downloadProjectList",
+        type: 'loading',
+        content: '正在导出项目列表...',
+        duration: 5,
+        onClose: () => {messageApi.open({
+            key: "downloadProjectList",
+            type: 'loading',
+            content: '正在导出项目列表...数据较多，请耐心等待，且不要离开此页面',
+            duration: 0,
+        })}
+      });
+      ReportsService.getProjectListReport({ query: {project_year: project_year} }).then((res) => {
+        if (res.data) {
+          messageApi.open({
+            key: "downloadProjectList",
+            type: 'success',
+            content: '项目列表导出成功，正在下载...',
+            duration: 2,
+          });
+          downloadReport(res.data, res.response);
+        } else {
+          messageApi.open({
+            key: "downloadProjectList",
+            type: 'error',
+            content: '获取项目列表失败：' + res.error?.detail,
+            duration: 10,
+          });
+        }
+    });
+  } catch (e) {
+      messageApi.open({
+        key: "downloadProjectList",
+        type: 'error',
+        content: '获取项目列表失败，未知错误：' + e,
+        duration: 10,
+      });
+    }
+  };
+
   return (
     <div ref={scrollContainerRef}>
+      {contextHolder}
       {user?.is_superuser && (
-        <Button
-          onClick={showProjectDetail}
-          type="primary"
-          style={
-            loading || projects.length === 0
-              ? { marginBottom: 16 }
-              : { marginBottom: 16, position: "absolute", zIndex: 1 }
-          }
-        >
-          <PlusOutlined />
-          添加
-        </Button>
+        <Space style={loading || projects.length===0 ? { marginBottom: 16} : { marginBottom: 16, position: 'absolute', zIndex:1}}>
+
+          <Button
+            onClick={showProjectDetail}
+            type="primary"
+          >
+            <PlusOutlined />
+            添加
+          </Button>
+          <Button
+            onClick={downloadProjectList}
+            type="primary"
+            icon={<FilePdfOutlined />}
+          >
+            导出项目列表
+          </Button>
+        </Space>
       )}
       <Table
         rowKey="id"
