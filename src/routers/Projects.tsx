@@ -22,6 +22,7 @@ import { downloadReport, useDownloadReport } from "../utils/ReportFileDownload";
 import { useNavigate } from "react-router-dom";
 import ProjectListDownloadModal from '../components/ProjectListDownloadModal';
 import ProjectReportModal from '../components/ProjectReportModal';
+import CompanyReportModal from "../components/CompanyReportModal";
 // type ProjectFullDetail = Omit<ProjectPublicOut, 'project_type_id', 'project_task_type_id'> & {
 
 // 	project_task_types: Array<ProjectTaskTypePublicOut>;
@@ -48,6 +49,7 @@ export const Projects = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [isProjectListDownloadModalVisible, setIsProjectListDownloadModalVisible] = useState(false);
   const [isProjectReportModalVisible, setIsProjectReportModalVisible] = useState(false);
+  const [isCompanyReportModalVisible, setIsCompanyReportModalVisible] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const handleLoadingChange = (enable: boolean) => {
     setLoading(enable);
@@ -303,6 +305,9 @@ export const Projects = () => {
   const showProjectListDownloadModal = () => {
     setIsProjectListDownloadModalVisible(true);
   };
+  const showCompanyReportModal = () => {
+    setIsCompanyReportModalVisible(true);
+  };
 
   const downloadProjectList = (project_year: number | null) => {
     try {
@@ -362,10 +367,15 @@ export const Projects = () => {
           </Button>
           <Button
             onClick={showProjectListDownloadModal}
-            type="primary"
             icon={<FilePdfOutlined />}
           >
             导出项目列表
+          </Button>
+          <Button
+            onClick={showCompanyReportModal}
+            icon={<FilePdfOutlined />}
+          >
+            公司年度报告
           </Button>
         </Space>
       )}
@@ -392,6 +402,10 @@ export const Projects = () => {
         visible={isProjectReportModalVisible}
         onCancel={() => setIsProjectReportModalVisible(false)}
         projectId={selectedProjectId!}
+      />
+      <CompanyReportModal
+        visible={isCompanyReportModalVisible}
+        onCancel={() => setIsCompanyReportModalVisible(false)}
       />
     </div>
   );
