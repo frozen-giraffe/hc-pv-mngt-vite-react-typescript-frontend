@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import ProjectListDownloadModal from '../components/ProjectListDownloadModal';
 import ProjectReportModal from '../components/ProjectReportModal';
 import CompanyReportModal from "../components/CompanyReportModal";
+import ContractPaymentModal from '../components/ContractPaymentModal';
 // type ProjectFullDetail = Omit<ProjectPublicOut, 'project_type_id', 'project_task_type_id'> & {
 
 // 	project_task_types: Array<ProjectTaskTypePublicOut>;
@@ -51,6 +52,8 @@ export const Projects = () => {
   const [isProjectReportModalVisible, setIsProjectReportModalVisible] = useState(false);
   const [isCompanyReportModalVisible, setIsCompanyReportModalVisible] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedProjectPayoutId, setSelectedProjectPayoutId] = useState<number | null>(null);
+  const [isContractPaymentModalVisible, setIsContractPaymentModalVisible] = useState(false);
   const handleLoadingChange = (enable: boolean) => {
     setLoading(enable);
   };
@@ -151,38 +154,47 @@ export const Projects = () => {
       render: (id: number) => getValueFromListByID(id, projectType, "id",'name'),
       width: 200,
     },
-    user?.is_superuser
-      ? {
-          title: "操作",
-          key: "action",
-          width: 150,
-          fixed: "right",
-          render: (row: ProjectPublicOut) => {
-            return (
-              <Space>
-                <Typography.Link
-                  onClick={() => handleOpenDetail(row)}
-                  style={{ marginInlineEnd: 8 }}
-                >
-                  详情
-                </Typography.Link>
-                <Popover
-                  title={row.project_payout === null ? "项目没有下发产值，无法生成报告" : ""}>
-                  <Typography.Link
-                    onClick={() => {
-                      setSelectedProjectId(row.id);
-                      setIsProjectReportModalVisible(true);
-                    }}
-                    disabled={row.project_payout === null}
-                  >
-                    报告
-                  </Typography.Link>
-                </Popover>
-              </Space>
-            );
-          },
-        }
-      : {},
+    {
+      title: "操作",
+      key: "action",
+      width: 150,
+      fixed: "right",
+      render: (row: ProjectPublicOut) => {
+        return user?.is_superuser ?(
+          <Space>
+            <Typography.Link
+              onClick={() => handleOpenDetail(row)}
+              style={{ marginInlineEnd: 8 }}
+            >
+              详情
+            </Typography.Link>
+            <Popover
+              title={row.project_payout === null ? "项目没有下发产值，无法生成报告" : ""}>
+              <Typography.Link
+                onClick={() => {
+                  setSelectedProjectId(row.id);
+                  setIsProjectReportModalVisible(true);
+                }}
+                disabled={row.project_payout === null}
+              >
+                报告
+              </Typography.Link>
+            </Popover>
+            <Popover
+              title={row.project_payout === null ? "项目没有下发产值，无法录入回款" : ""}>
+              <Typography.Link
+                onClick={() => showContractPaymentModal(row.project_payout!.id)}
+                disabled={row.project_payout === null}
+              >
+                回款
+              </Typography.Link>
+            </Popover>
+          </Space>
+        ) : (
+          <></>
+        );
+      },
+    },
   ];
   const handleOpenDetail = (data: any) => {
     console.log(data);
@@ -353,6 +365,11 @@ export const Projects = () => {
     }
   };
 
+  const showContractPaymentModal = (projectPayoutId: number) => {
+    setSelectedProjectPayoutId(projectPayoutId);
+    setIsContractPaymentModalVisible(true);
+  };
+
   return (
     <div ref={scrollContainerRef}>
       {contextHolder}
@@ -406,6 +423,11 @@ export const Projects = () => {
       <CompanyReportModal
         visible={isCompanyReportModalVisible}
         onCancel={() => setIsCompanyReportModalVisible(false)}
+      />
+      <ContractPaymentModal
+        visible={isContractPaymentModalVisible}
+        onCancel={() => setIsContractPaymentModalVisible(false)}
+        projectPayoutId={selectedProjectPayoutId!}
       />
     </div>
   );
