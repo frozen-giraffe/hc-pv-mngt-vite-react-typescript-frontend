@@ -7,12 +7,14 @@ interface EmployeeReportModalProps {
   visible: boolean;
   onCancel: () => void;
   employeeId: number;
+  employeeName: string;
 }
 
 const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
   visible,
   onCancel,
   employeeId,
+  employeeName,
 }) => {
   const [activeTab, setActiveTab] = useState('1');
   const [payoutListType, setPayoutListType] = useState<'payment' | 'project'>('payment');
@@ -31,7 +33,7 @@ const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
           messageApi.open({
             key: 'employee_report_loading',
             type: 'loading',
-            content: '正在生成报告...数据较多，请耐心等待，并不要离开页面',
+            content: '正在生成报告...数据较多，请耐心等待，不要离开页面',
             duration: 0,
           });
         },
@@ -116,7 +118,7 @@ const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
 
   return (
     <Modal
-      title="生成员工年度报告"
+      title={`生成员工年度报告：${employeeName}`}
       open={visible}
       onCancel={onCancel}
       footer={[

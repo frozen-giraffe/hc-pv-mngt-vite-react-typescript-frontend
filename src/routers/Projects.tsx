@@ -1,4 +1,4 @@
-import { Button, message, Popover, Space, Table, TableProps, Typography } from "antd";
+import { Button, Divider, message, Popover, Space, Table, TableProps, Typography } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
 import {
@@ -374,7 +374,7 @@ export const Projects = () => {
     <div ref={scrollContainerRef}>
       {contextHolder}
       {user?.is_superuser && (
-        <Space style={loading || projects.length === 0 ? { marginBottom: 16 } : { marginBottom: 16, position: 'absolute', zIndex: 1 }}>
+        <Space wrap>
           <Button
             onClick={showProjectDetail}
             type="primary"
@@ -382,6 +382,7 @@ export const Projects = () => {
             <PlusOutlined />
             添加
           </Button>
+          <Divider type="vertical" />
           <Button
             onClick={showProjectListDownloadModal}
             icon={<FilePdfOutlined />}

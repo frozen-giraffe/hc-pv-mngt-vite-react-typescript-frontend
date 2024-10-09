@@ -68,7 +68,6 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
           path: { id: payment.id },
           body: paymentData,
         });
-        message.success('项目回款更新成功');
       } else {
         await ContractPaymentsService.createContractPayment({
           body: paymentData,

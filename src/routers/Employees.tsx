@@ -1,5 +1,5 @@
 import React, { Key, useEffect, useState } from 'react'
-import { Button, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
+import { Button, Divider, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
 import { SearchOutlined, PlusOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { TableColumnsType, TableProps } from 'antd';
 import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, ReportsService, WorkLocationPublicOut, WorkLocationsService } from '../client';
@@ -503,6 +503,7 @@ export const Employees: React.FC = () => {
                 <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
                     添加
                 </Button>
+                <Divider type="vertical" />
                 <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
                     导出人员列表
                 </Button>
@@ -573,6 +574,7 @@ export const Employees: React.FC = () => {
                 visible={isEmployeeReportModalVisible}
                 onCancel={() => setIsEmployeeReportModalVisible(false)}
                 employeeId={selectedEmployeeId!}
+                employeeName={employees.find(employee => employee.id === selectedEmployeeId)?.name ?? ''}
             />
         </div>
   )

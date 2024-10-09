@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Tabs, Radio, DatePicker, Space, Button, message } from 'antd';
 import { ReportsService } from '../client';
 import { downloadReport } from "../utils/ReportFileDownload";
+import Paragraph from 'antd/es/typography/Paragraph';
 
 interface CompanyReportModalProps {
   visible: boolean;
@@ -29,7 +30,7 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
           messageApi.open({
             key: 'project_report_loading',
             type: 'loading',
-            content: '正在生成报告...数据较多，请耐心等待，并不要离开页面',
+            content: '正在生成报告...数据较多，请耐心等待，不要离开页面',
             duration: 0,
           });
         },
@@ -60,6 +61,11 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
               query: { project_year: selectedYear } 
             });
           }
+          break;
+        case '3':
+          response = await ReportsService.getContractPaymentListReport({ 
+            query: { time_start: `${selectedYear}-01-01`, time_end: `${selectedYear}-12-31` } 
+          });
           break;
       }
 
@@ -110,6 +116,15 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
         </Space>
       ),
     },
+    {
+      key: '3',
+      label: '年度回款列表',
+      children: (
+        <Paragraph>
+            <blockquote>按回款年度</blockquote>
+        </Paragraph>
+      ),
+    }
   ];
 
   return (

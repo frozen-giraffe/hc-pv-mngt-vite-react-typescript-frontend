@@ -31,7 +31,7 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
           messageApi.open({
             key: 'project_report_loading',
             type: 'loading',
-            content: '正在生成报告...数据较多，请耐心等待，并不要离开页面',
+            content: '正在生成报告...数据较多，请耐心等待，不要离开页面',
             duration: 0,
           });
         },
