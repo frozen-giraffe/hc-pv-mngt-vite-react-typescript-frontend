@@ -1042,7 +1042,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
                   }
                 >
                   <Button
-                    onClick={handleEdit}
+                    onClick={() => handleEdit(selectedProfileData)}
                     disabled={selectedProfileData.is_in_use}
                   >
                     编辑
