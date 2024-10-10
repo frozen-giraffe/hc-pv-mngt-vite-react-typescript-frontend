@@ -1,18 +1,11 @@
-// import React from 'react'
-
-// export const MainPage = () => {
-//   return (
-//     <div>欢迎
-
-//     </div>
-//   )
-// }
-
 import React, { useContext, useEffect, useRef, useState } from "react";
-import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
+import type { AutoCompleteProps, GetRef, InputRef, StatisticProps, TableProps } from "antd";
 import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Form, Input, Popconfirm, Space, Table } from "antd";
+import { AutoComplete, Button, Card, Col, Form, Input, Popconfirm, Row, Space, Statistic, Table } from "antd";
 import { EmployeePublicOut, EmployeeService } from "../client";
+import {ArrowDownOutlined, ArrowUpOutlined} from '@ant-design/icons'
+import CountUp from 'react-countup';
+import { useAuth } from "../context/AuthContext";
 
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -64,6 +57,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   const [options, setOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
+  const {user} = useAuth()
 
   useEffect(() => {
     if (editing) {
@@ -178,6 +172,7 @@ interface DataType {
 type ColumnTypes = Exclude<TableProps<DataType>["columns"], undefined>;
 
 const MainPage: React.FC = () => {
+  const { user } = useAuth();  // Move this line inside the component
   const [dataSource, setDataSource] = useState<DataType[]>([
     {
       key: "0",
@@ -402,8 +397,14 @@ const MainPage: React.FC = () => {
     };
   });
 
+  const formatter: StatisticProps['formatter'] = (value) => (
+    <CountUp start={(value as number) / 2} end={value as number} duration={2} />
+  );
+
   return (
     <div>
+      <h1>新疆昊辰建筑设计规划研究院有限公司-产值计算系统</h1>
+      <h2>欢迎回来，{user?.full_name}</h2>
       <Table<DataType>
         components={components}
         rowClassName={() => "editable-row"}
@@ -411,6 +412,48 @@ const MainPage: React.FC = () => {
         dataSource={dataSource}
         columns={columns as ColumnTypes}
       />
+      <Row gutter={[18,18]}>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="本年工程数量"
+              value={420}
+              suffix="个"
+              formatter={formatter}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="总工程数量"
+              value={2048}
+              suffix="个"
+              formatter={formatter}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="未进行产值计算项目"
+              value={3}
+              suffix="个"
+              formatter={formatter}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="无回款项目"
+              value={10}
+              suffix="个"
+              formatter={formatter}
+            />
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };

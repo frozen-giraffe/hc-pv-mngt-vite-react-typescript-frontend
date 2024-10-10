@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Select,
   Button,
@@ -502,10 +502,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   const EditableCell: React.FC<any> = ({
     editing,
     dataIndex,
-    title,
-    inputType,
     record,
-    index,
     children,
     ...restProps
   }) => {
@@ -547,7 +544,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
             max={100}
             style={{ width: "100%" }}
             onChange={(value) => {
-              const numValue = parseFloat(value);
+              const numValue = parseFloat(value ? value.toString() : "0");
               handleInputChange(numValue, dataIndex, recordKey);
             }}
           />
@@ -691,7 +688,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     },
   ];
 
-  const departmentNameMap: { [key: string]: string } = {
+  const departmentNameMap = useMemo(() => ({
     pm: "项目管理",
     arch: "建筑",
     struct: "结构",
@@ -699,9 +696,9 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     electrical: "电气",
     hvac: "暖通",
     low_voltage: "弱电",
-  };
+  }), []);
 
-  const getDepartmentName = (key: string) => departmentNameMap[key] || key;
+  const getDepartmentName = useCallback((key: keyof typeof departmentNameMap) => departmentNameMap[key] || key, [departmentNameMap]);
 
   const getDepartmentTableData = useCallback(() => {
     if (!selectedProfileData) return [];
@@ -717,7 +714,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
 
     return departments.map((dept) => ({
       key: dept,
-      department: getDepartmentName(dept),
+      department: getDepartmentName(dept as keyof typeof departmentNameMap),
       pm_ratio:
         selectedProfileData[
           `${dept}_pm_ratio` as keyof JobPayoutRatioProfilePublicOut
@@ -759,7 +756,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: any) => ({
+      onCell: (record: JobPayoutRatioProfilePublicOut) => ({
         record,
         dataIndex: col.dataIndex,
         title: col.title,
@@ -774,7 +771,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     }
     return {
       ...col,
-      onCell: (record: any) => ({
+      onCell: (record: JobPayoutRatioProfilePublicOut) => ({
         record,
         dataIndex: col.dataIndex,
         title: col.title,
