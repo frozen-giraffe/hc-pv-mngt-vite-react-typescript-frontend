@@ -23,17 +23,19 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    if (visible && payment) {
-      form.setFieldsValue({
-        ...payment,
-        payment_date: dayjs(payment.payment_date),
-        processed_by_id: { value: payment.processed_by_id, label: employeeName || 'Unknown' },
-      });
-    } else {
-      form.resetFields();
+    if (visible) {
+      if (payment) {
+        form.setFieldsValue({
+          ...payment,
+          payment_date: dayjs(payment.payment_date),
+          processed_by_id: { value: payment.processed_by_id, label: employeeName || 'Unknown' },
+        });
+      } else {
+        form.resetFields();
+      }
+      // Trigger form validation when modal becomes visible
+      form.validateFields().then(() => setFormIsValid(true)).catch(() => setFormIsValid(false));
     }
-    // Trigger form validation when modal becomes visible
-    form.validateFields().then(() => setFormIsValid(true)).catch(() => setFormIsValid(false));
   }, [visible, payment, form, employeeName]);
 
   const handleSearch = async (value: string) => {
@@ -93,44 +95,46 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
       onCancel={onCancel}
       okButtonProps={{ disabled: !formIsValid }}
     >
-      <Form form={form} layout="vertical" onValuesChange={onFormValuesChange}>
-        <Form.Item
-          name="payment_date"
-          label="回款日期"
-          rules={[{ required: true, message: '请填写回款日期' }]}
-        >
-          <DatePicker style={{ width: '100%' }} placeholder="请选择回款日期" />
-        </Form.Item>
-        <Form.Item
-          name="amount"
-          label="回款金额"
-          rules={[{ required: true, message: '请填写回款金额' }]}
-        >
-          <InputNumber style={{ width: '100%' }} placeholder="请填写回款金额" />
-        </Form.Item>
-        <Form.Item
-          name="processed_by_id"
-          label="经办人"
-          rules={[{ required: true, message: '请选择经办人' }]}
-        >
-          <Select
-            showSearch
-            placeholder="搜索员工"
-            onSearch={handleSearch}
-            filterOption={false}
-            labelInValue
+      {visible && (
+        <Form form={form} layout="vertical" onValuesChange={onFormValuesChange}>
+          <Form.Item
+            name="payment_date"
+            label="回款日期"
+            rules={[{ required: true, message: '请填写回款日期' }]}
           >
-            {employees.map(employee => (
-              <Select.Option key={employee.id} value={employee.id}>
-                {employee.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item name="notes" label="备注">
-          <Input.TextArea placeholder="请填写备注" />
-        </Form.Item>
-      </Form>
+            <DatePicker style={{ width: '100%' }} placeholder="请选择回款日期" />
+          </Form.Item>
+          <Form.Item
+            name="amount"
+            label="回款金额"
+            rules={[{ required: true, message: '请填写回款金额' }]}
+          >
+            <InputNumber style={{ width: '100%' }} placeholder="请填写回款金额" />
+          </Form.Item>
+          <Form.Item
+            name="processed_by_id"
+            label="经办人"
+            rules={[{ required: true, message: '请选择经办人' }]}
+          >
+            <Select
+              showSearch
+              placeholder="搜索员工"
+              onSearch={handleSearch}
+              filterOption={false}
+              labelInValue
+            >
+              {employees.map(employee => (
+                <Select.Option key={employee.id} value={employee.id}>
+                  {employee.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="notes" label="备注">
+            <Input.TextArea placeholder="请填写备注" />
+          </Form.Item>
+        </Form>
+      )}
     </Modal>
   );
 };
