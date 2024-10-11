@@ -100,6 +100,11 @@ const CompanyReportModal: React.FC<CompanyReportModalProps> = ({
   const tabItems = [
     { key: '1', 
       label: '年度产值报告',
+      children: (
+        <Paragraph>
+            <blockquote>按工程年度</blockquote>
+        </Paragraph>
+      ),
      },
     {
       key: '2',
