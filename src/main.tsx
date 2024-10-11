@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-import { LoginService, OpenAPI } from './client';
-import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+import { AuthProvider, useAuth, LOCALSTORAGE_ACCESS_TOKEN_NAME } from './context/AuthContext.tsx';
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { Dashboard } from './routers/Dashboard.tsx';
 import { Login } from './routers/Login.tsx';
@@ -13,8 +12,6 @@ import { Employees } from './routers/Employees.tsx';
 import { Projects } from './routers/Projects.tsx';
 import { ProjectDetail } from './routers/ProjectDetail.tsx';
 import {  SystemConfig } from './routers/SystemConfig.tsx';
-import { Interceptors } from './client/core/OpenAPI.ts';
-import { AxiosRequestConfig } from 'axios';
 import './main.css'
 import { client } from './client/services.gen.ts';
 
@@ -26,9 +23,18 @@ client.setConfig({
 });
 
 client.interceptors.request.use((request, options) => {
-  request.headers.set('Authorization', 'Bearer ' + localStorage.getItem("access_token"));
+  request.headers.set('Authorization', 'Bearer ' + localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME));
   return request;
 });
+
+client.interceptors.response.use((response)=>{
+  if (response.status === 401) {
+    localStorage.removeItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
+    const currentPath = window.location.pathname;
+    window.location.href = "/login?redirect=" + currentPath;
+  }
+  return response;
+})
 
 
 //console.log('aa '+localStorage.getItem("access_token"));
@@ -65,8 +71,7 @@ client.interceptors.request.use((request, options) => {
 // })
 
 const AuthenticatedRoute: React.FC<{ children: React.ReactNode}> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated+"11");
+  const { isAuthenticated, } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 

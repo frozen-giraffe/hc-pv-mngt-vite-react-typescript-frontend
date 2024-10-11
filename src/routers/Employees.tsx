@@ -418,8 +418,6 @@ export const Employees: React.FC = () => {
                 return;
             }
             
-            console.log(responseEmployees,'ppppppp');
-            
             const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
                 ...employee,
                 key: employee.id.toString(),

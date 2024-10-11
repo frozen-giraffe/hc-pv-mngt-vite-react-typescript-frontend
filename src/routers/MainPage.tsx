@@ -62,9 +62,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   useEffect(() => {
     if (editing) {
       inputRef.current?.focus();
-    }
-    console.log("rowIndex1",rowIndex, title, record?.text==='设计人',editable);
-    
+    }    
   }, [editing]);
 
   const toggleEdit = () => {
@@ -77,7 +75,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   const save = async () => {
     try {
       const values = await form.validateFields();
-      console.log(values);
       
       toggleEdit();
       handleSave({ ...record, ...values });

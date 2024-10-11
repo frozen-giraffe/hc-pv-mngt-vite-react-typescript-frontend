@@ -14,22 +14,24 @@ export const Login = () => {
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errorMsgVisible, setErrorMsgVisible] = useState(false);
-  const { isAuthenticated,login } = useAuth();
-  const history = useNavigate();
-  
+  const { isAuthenticated, login } = useAuth();
+  const navigate = useNavigate();
+  const redirect = new URLSearchParams(window.location.search).get('redirect');
+
   useEffect(()=>{
-    console.log("useEffect"+isAuthenticated)
+    console.log("useEffect isAuthenticated: " + isAuthenticated)
+    console.log("redirect: " + redirect)
     if(isAuthenticated){
-      history('/dashboard');
+      navigate(redirect || '/dashboard');
     }
-  },[isAuthenticated])
+  },[isAuthenticated, navigate, redirect])
   const loginFetch = async (username: string, password: string) => {
     
     const a = {'username': username, 'password':password} as AccessToken
     LoginService.loginAccessToken({body: a}).then(({data, error})=>{
       if(data){
         login(data.access_token)
-        history('/dashboard');
+        navigate(redirect || '/dashboard');
       }else{
         console.log(error)
         setErrorMsg(error?.detail || '未知错误')
@@ -44,7 +46,7 @@ export const Login = () => {
     //   // Handle the successful login and save the token if needed
     //   console.log('Login successful:', data.access_token);
     //   login(data.access_token);
-    //   history('/dashboard');
+    //   navigate('/dashboard');
 
     // } else {
     //   setErrorMsg(data.detail)
@@ -54,15 +56,8 @@ export const Login = () => {
   };
 
   const handleLogin = () => {
-    // Perform login API call className='background-wrap'
-    console.log(isAuthenticated)
-    if(isAuthenticated){
-      history('/dashboard');
-    }
     loginFetch(username, password);
   };
-
-  
 
   return (
     <div className='login-page-wrap'>
@@ -92,6 +87,10 @@ export const Login = () => {
           size='large'
           placeholder="Password"
           value={password}
+          visibilityToggle={{
+            visible: passwordVisible,
+            onVisibleChange: setPasswordVisible,
+          }}
           iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
           onChange={(e) => setPassword(e.target.value)}
         />

@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { LoginService, UserCreate, UserPublic, UsersService } from '../client';
-import { useNavigate } from 'react-router-dom';
+import { UserPublic, UsersService } from '../client';
 import { message } from 'antd';
 
-const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
+export const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
@@ -32,21 +31,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
   }, []);
   const getUser = async() =>{
+    if (!localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME)){
+      console.log("getUserMe失败: 没有Token");
+      return;
+    }
     const {data, error} = await UsersService.readUserMe()
     if(error){
       message.error("获取用户信息失败: " + error);
     }
+    if (!data?.is_active){
+      logout()
+    }
     setUser(data)
   }
-  // const checkTOkenValidation=async()=>{
-  //   const res:UserPublic = await LoginService.testToken()
-  //   if(!res.is_active){
-  //     navigate('/login')
-  //   }
 
-  // }
   const login = (token: string) => {
     localStorage.setItem(LOCALSTORAGE_ACCESS_TOKEN_NAME, token);
+    getUser()
     setIsAuthenticated(true);
     
   };
