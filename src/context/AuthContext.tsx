@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { UserPublic, UsersService } from '../client';
 import { message } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
 interface AuthContextType {
@@ -17,19 +18,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<UserPublic>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
-     getUser()
     const token = localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
     if (token) {
       setIsAuthenticated(true);
+      getUser();
+    } else {
+      // If there's no token, redirect to login
+      navigate('/login', { state: { from: location.pathname } });
     }
-    // setInterval(()=>{
-    //   console.log("ppp");
-      
-    // },10)
-    console.log("AuthProvider useEffect");
-    
   }, []);
+
   const getUser = async() =>{
     if (!localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME)){
       console.log("getUserMe失败: 没有Token");

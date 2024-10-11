@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from 'react'
 import { useAuth } from '../context/AuthContext';
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Logo from './../assets/Logo.png'
-import { Button, Input,Alert  } from "antd";
+import { Button, Input, Alert } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
 import { LoginService, type Body_Login_login_access_token as AccessToken } from '../client';
-
 
 export const Login = () => {
   const [username, setUsername] = useState<string>('');
@@ -16,43 +15,29 @@ export const Login = () => {
   const [errorMsgVisible, setErrorMsgVisible] = useState(false);
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const redirect = new URLSearchParams(window.location.search).get('redirect');
+  const location = useLocation();
+  const from = (location.state as { from?: string })?.from || '/dashboard';
 
-  useEffect(()=>{
-    console.log("useEffect isAuthenticated: " + isAuthenticated)
-    console.log("redirect: " + redirect)
-    if(isAuthenticated){
-      navigate(redirect || '/dashboard');
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from);
     }
-  },[isAuthenticated, navigate, redirect])
+  }, [isAuthenticated, navigate, from]);
+
   const loginFetch = async (username: string, password: string) => {
-    
     const a = {'username': username, 'password':password} as AccessToken
-    LoginService.loginAccessToken({body: a}).then(({data, error})=>{
-      if(data){
+    LoginService.loginAccessToken({body: a}).then(({data, error}) => {
+      if (data) {
         login(data.access_token)
-        navigate(redirect || '/dashboard');
-      }else{
+        navigate(from);
+      } else {
         console.log(error)
         setErrorMsg(error?.detail || '未知错误')
         setErrorMsgVisible(true)
       }
-    }).catch((reason)=>{
+    }).catch((reason) => {
       console.log(reason)
     })
-    //const data = await response.json();
-  
-    // if (response.ok) {
-    //   // Handle the successful login and save the token if needed
-    //   console.log('Login successful:', data.access_token);
-    //   login(data.access_token);
-    //   navigate('/dashboard');
-
-    // } else {
-    //   setErrorMsg(data.detail)
-    //   setErrorMsgVisible(true)
-    //   return false;
-    // }
   };
 
   const handleLogin = () => {
