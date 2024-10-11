@@ -674,6 +674,54 @@
         }
       }
     },
+    "/api/v1/users/admin-reset-password/{user_id}": {
+      "post": {
+        "tags": [
+          " - users"
+        ],
+        "summary": "Admin Reset Password",
+        "description": "Admin reset user password. Generate a random password and display it to the user.",
+        "operationId": "admin_reset_password",
+        "security": [
+          {
+            "JWT": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/projects/": {
       "get": {
         "tags": [
@@ -8655,7 +8703,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-08T14:46:48.535976"
+            "default": "2024-10-11T14:26:44.327104"
           }
         },
         "type": "object",
@@ -15210,6 +15258,11 @@
             ],
             "title": "Full Name"
           },
+          "password_reset_by_admin": {
+            "type": "boolean",
+            "title": "Password Reset By Admin",
+            "default": false
+          },
           "password": {
             "type": "string",
             "maxLength": 40,
@@ -15253,6 +15306,11 @@
               }
             ],
             "title": "Full Name"
+          },
+          "password_reset_by_admin": {
+            "type": "boolean",
+            "title": "Password Reset By Admin",
+            "default": false
           },
           "id": {
             "type": "integer",
@@ -15336,6 +15394,11 @@
               }
             ],
             "title": "Full Name"
+          },
+          "password_reset_by_admin": {
+            "type": "boolean",
+            "title": "Password Reset By Admin",
+            "default": false
           },
           "password": {
             "anyOf": [

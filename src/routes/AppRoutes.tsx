@@ -5,8 +5,10 @@ import MainPage from '../routers/MainPage';
 import { Employees } from '../routers/Employees';
 import { Projects } from '../routers/Projects';
 import { ProjectDetail } from '../routers/ProjectDetail';
-import { SystemConfig } from '../routers/SystemConfig';
+import { CalculationSettings } from '../routers/CalculationSettings';
 import { AuthenticatedRoute } from '../components/AuthenticatedRoute';
+import { Routes, Route } from 'react-router-dom';
+import SystemManagement from '../routers/SystemManagement';
 
 export const AppRoutes = [
   { path: "/login", element: <Login /> },
@@ -71,11 +73,21 @@ export const AppRoutes = [
     )
   },
   { 
-    path: "/settings", 
+    path: "/calculation-settings", 
     element: (
       <AuthenticatedRoute>
         <Dashboard>
-          <SystemConfig />
+          <CalculationSettings />
+        </Dashboard>
+      </AuthenticatedRoute>
+    )
+  },
+  { 
+    path: "/system-management", 
+    element: (
+      <AuthenticatedRoute>
+        <Dashboard>
+          <SystemManagement />
         </Dashboard>
       </AuthenticatedRoute>
     )

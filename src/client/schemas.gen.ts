@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-08T14:46:48.535976'
+            default: '2024-10-11T14:26:44.327104'
         }
     },
     type: 'object',
@@ -6862,6 +6862,11 @@ export const UserCreateSchema = {
             ],
             title: 'Full Name'
         },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
+        },
         password: {
             type: 'string',
             maxLength: 40,
@@ -6903,6 +6908,11 @@ export const UserPublicSchema = {
                 }
             ],
             title: 'Full Name'
+        },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
         },
         id: {
             type: 'integer',
@@ -6982,6 +6992,11 @@ export const UserUpdateSchema = {
                 }
             ],
             title: 'Full Name'
+        },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
         },
         password: {
             anyOf: [

@@ -1,11 +1,11 @@
 import React, { useMemo, useCallback } from 'react';
 import { Tabs } from 'antd';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import ProdValueRatioSettings from './settings/ProdValueRatioSettings';
-import DepartmentPayoutRatioSettings from './settings/DepartmentPayoutRatioSettings';
-import JobPayoutRatioProfileSettings from './settings/JobPayoutRatioProfileSettings';
+import ProdValueRatioSettings from './calculation-settings-tabs/ProdValueRatioSettings';
+import DepartmentPayoutRatioSettings from './calculation-settings-tabs/DepartmentPayoutRatioSettings';
+import JobPayoutRatioProfileSettings from './calculation-settings-tabs/JobPayoutRatioProfileSettings';
 
-export const SystemConfig: React.FC = () => {
+export const CalculationSettings: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const validTabs = useMemo(() => ['prodValueRatio', 'departmentPayoutRatio', 'jobPayoutRatioProfile'], []);
@@ -13,13 +13,13 @@ export const SystemConfig: React.FC = () => {
   const activeTab = searchParams.get('tab') || 'prodValueRatio';
 
   React.useEffect(() => {
-    if (tabParam && !validTabs.includes(tabParam)) {
-      navigate('/settings?tab=prodValueRatio', { replace: true });
+    if (!tabParam || !validTabs.includes(tabParam)) {
+      navigate('/calculation-settings?tab=prodValueRatio', { replace: true });
     }
   }, [tabParam, navigate, validTabs]);
 
   const handleTabChange = useCallback((key: string) => {
-    navigate(`/settings?tab=${key}`, { replace: true });
+    navigate(`/calculation-settings?tab=${key}`, { replace: false });
   }, [navigate]);
 
   const items = useMemo(() => [
@@ -42,10 +42,10 @@ export const SystemConfig: React.FC = () => {
 
   return (
     <div className="system-config-container">
-      <h1>系统配置</h1>
+      <h1>计算配置</h1>
       <Tabs activeKey={activeTab} onChange={handleTabChange} items={items} />
     </div>
   );
 };
 
-export default React.memo(SystemConfig);
+export default React.memo(CalculationSettings);

@@ -993,6 +993,7 @@ export type UserCreate = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     password: string;
 };
 
@@ -1001,6 +1002,7 @@ export type UserPublic = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     id: number;
 };
 
@@ -1015,6 +1017,7 @@ export type UserUpdate = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     password?: (string | null);
 };
 
@@ -1180,6 +1183,16 @@ export type DeleteUserData = {
 export type DeleteUserResponse = (Message);
 
 export type DeleteUserError = (HTTPValidationError);
+
+export type AdminResetPasswordData = {
+    path: {
+        user_id: number;
+    };
+};
+
+export type AdminResetPasswordResponse = (Message);
+
+export type AdminResetPasswordError = (HTTPValidationError);
 
 export type GetAndFilterProjectsData = {
     query?: {

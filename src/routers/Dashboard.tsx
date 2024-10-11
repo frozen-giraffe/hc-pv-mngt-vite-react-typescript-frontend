@@ -32,44 +32,13 @@ const items: MenuItem[] = [
     label: '主页',
     icon: <MailOutlined />,
     path: '/mainpage',
-    // children: [
-    //   {
-    //     key: 'g1',
-    //     label: 'Item 1',
-    //     type: 'group',
-    //     children: [
-    //       { key: '1', label: 'Option 1' },
-    //       { key: '2', label: 'Option 2' },
-    //     ],
-    //   },
-    //   {
-    //     key: 'g2',
-    //     label: 'Item 2',
-    //     type: 'group',
-    //     children: [
-    //       { key: '3', label: 'Option 3' },
-    //       { key: '4', label: 'Option 4' },
-    //     ],
-    //   },
-    // ],
+
   },
   {
     key: '/people',
     label: '人员',
     icon: <AppstoreOutlined />,
     path: '/people'
-    // children: [
-    //   { key: '5', label: 'Option 5' },
-    //   { key: '6', label: 'Option 6' },
-    //   {
-    //     key: 'sub3',
-    //     label: 'Submenu',
-    //     children: [
-    //       { key: '7', label: 'Option 7' },
-    //       { key: '8', label: 'Option 8' },
-    //     ],
-    //   },
-    // ],
   },
   {
     type: 'divider',
@@ -79,18 +48,18 @@ const items: MenuItem[] = [
     label: '工程',
     icon: <SettingOutlined />,
     path: '/projects'
-    // children: [
-    //   { key: '9', label: 'Option 9' },
-    //   { key: '10', label: 'Option 10' },
-    //   { key: '11', label: 'Option 11' },
-    //   { key: '12', label: 'Option 12' },
-    // ],
   },
   {
-    key: '/settings',
-    label: '系统配置',
+    key: '/calculation-settings',
+    label: '计算配置',
     icon: <SettingOutlined />,
-    path: '/settings',
+    path: '/calculation-settings',
+  },
+  {
+    key: '/system-management',
+    label: '系统管理',
+    icon: <SettingOutlined />,
+    path: '/system-management',
   },
   
 ];
