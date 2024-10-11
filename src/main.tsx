@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 
@@ -29,6 +29,7 @@ client.interceptors.request.use((request, options) => {
 client.interceptors.response.use((response)=>{
   if (response.status === 401) {
     localStorage.removeItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
+    localStorage.setItem('redirect_login_reason', 'token_expired');
     const currentPath = window.location.pathname;
     window.location.href = "/login?redirect=" + currentPath;
   }
@@ -36,8 +37,16 @@ client.interceptors.response.use((response)=>{
 })
 
 const AuthenticatedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, checkAuth } = useAuth();
   const location = useLocation();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;

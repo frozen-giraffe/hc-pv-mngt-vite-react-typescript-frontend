@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from './../assets/Logo.png'
-import { Button, Input, Alert } from "antd";
+import { Button, Input, Alert, message } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
-import { LoginService, type Body_Login_login_access_token as AccessToken } from '../client';
 
 export const Login = () => {
   const [username, setUsername] = useState<string>('');
@@ -16,38 +15,43 @@ export const Login = () => {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const from = (location.state as { from?: string })?.from || '/dashboard';
+  const redirectUrl = searchParams.get('redirect');
 
-  useEffect(() => {
-    if (isAuthenticated) {
+  const navigateAfterLogin = useCallback(() => {
+    if (redirectUrl) {
+      navigate(redirectUrl);
+    } else {
       navigate(from);
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [navigate, redirectUrl, from]);
 
-  const loginFetch = async (username: string, password: string) => {
-    const a = {'username': username, 'password':password} as AccessToken
-    LoginService.loginAccessToken({body: a}).then(({data, error}) => {
-      if (data) {
-        login(data.access_token)
-        navigate(from);
-      } else {
-        console.log(error)
-        setErrorMsg(error?.detail || '未知错误')
-        setErrorMsgVisible(true)
-      }
-    }).catch((reason) => {
-      console.log(reason)
-    })
-  };
+  useEffect(() => {
+    const loginReason = localStorage.getItem('redirect_login_reason');
+    if (loginReason === 'token_expired') {
+      message.error('登录已过期，请重新登录');
+      localStorage.removeItem('redirect_login_reason');
+    }
+    if (isAuthenticated) {
+      navigateAfterLogin();
+    }
+  }, [isAuthenticated, navigateAfterLogin]);
 
-  const handleLogin = () => {
-    loginFetch(username, password);
+  const handleLogin = async () => {
+    try {
+      await login(username, password);
+      navigateAfterLogin();
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrorMsg((error as Error).message || '未知错误');
+      setErrorMsgVisible(true);
+    }
   };
 
   return (
     <div className='login-page-wrap'>
       <div className='login-page-left'>
-        {/* <img className='login-page-left-img' src={Image}></img> */}
         <div></div>
         <div className='text'>新疆昊辰产值管理系统</div>
       </div>
@@ -60,7 +64,6 @@ export const Login = () => {
           message="Error"
           description={errorMsg}
           type="error"
-
           showIcon
         />
         <Input 
