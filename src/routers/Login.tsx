@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from './../assets/Logo.png'
@@ -48,7 +48,6 @@ export const Login = () => {
       setErrorMsgVisible(true);
     }
   };
-
   return (
     <div className='login-page-wrap'>
       <div className='login-page-left'>
@@ -91,3 +90,4 @@ export const Login = () => {
     </div>
   )
 }
+

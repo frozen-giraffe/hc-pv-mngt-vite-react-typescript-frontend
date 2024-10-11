@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { UserPublic, UsersService, LoginService } from '../client';
 import { message } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export const LOCALSTORAGE_ACCESS_TOKEN_NAME = 'access_token';
 
