@@ -3,7 +3,7 @@ import SelfMenu from "./../components/Menu";
 import { Nav } from "../components/Nav";
 import "./Dashboard.css";
 import { Test } from "./MainPage";
-import { Link, Navigate, Route, Router, Routes, useNavigate } from "react-router-dom";
+import { Link, Navigate, Route, Router, Routes, useNavigate, useLocation } from "react-router-dom";
 import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -54,7 +54,7 @@ const items: MenuItem[] = [
     // ],
   },
   {
-    key: 'sub2',
+    key: '/people',
     label: '人员',
     icon: <AppstoreOutlined />,
     path: '/people'
@@ -75,7 +75,7 @@ const items: MenuItem[] = [
     type: 'divider',
   },
   {
-    key: 'sub4',
+    key: '/projects',
     label: '工程',
     icon: <SettingOutlined />,
     path: '/projects'
@@ -87,7 +87,7 @@ const items: MenuItem[] = [
     // ],
   },
   {
-    key: 'settings',
+    key: '/settings',
     label: '系统配置',
     icon: <SettingOutlined />,
     path: '/settings',
@@ -99,15 +99,23 @@ const items: MenuItem[] = [
 
 export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth()
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  useEffect(()=>{
-    console.log(auth.user);
-    
-  },[])
+
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/mainpage']);
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const matchingItem = items.find(item => item.path === currentPath);
+    if (matchingItem) {
+      setSelectedKeys([matchingItem.key as string]);
+    }
+  }, [location]);
+
   const toggle = () => {
     setCollapsed(!collapsed);
   };
@@ -191,7 +199,7 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          selectedKeys={selectedKeys}
           items={items}
           onClick={onClickMenuItem}
           
