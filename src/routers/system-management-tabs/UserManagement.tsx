@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Table,
   Button,
@@ -16,29 +17,46 @@ import {
 import { UserPublic, UsersService, UserUpdate } from "../../client";
 import { useAuth } from "../../context/AuthContext";
 import { copyToClipboard } from "../../utils/copyToClipboard";
-import { ColumnsType } from "antd/es/table";
+import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserPublic[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<UserPublic | null>(null);
-  const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] =
-    useState(false);
+  const [isResetPasswordModalVisible, setIsResetPasswordModalVisible] = useState(false);
   const [form] = Form.useForm();
   const { user } = useAuth();
   const [newPassword, setNewPassword] = useState("");
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Fetch users from API
-    fetchUsers();
-  }, []);
+    const search_current_page = searchParams.get("current_page");
+    const search_page_size = searchParams.get("page_size");
+    if (search_current_page) {
+      setCurrentPage(parseInt(search_current_page));
+    }
+    if (search_page_size) {
+      setPageSize(parseInt(search_page_size));
+    }
+    fetchUsers(currentPage, pageSize);
+  }, [currentPage, pageSize, searchParams]);
 
-  const fetchUsers = async () => {
-    const { data, error } = await UsersService.readUsers();
+  const fetchUsers = async (page: number, size: number) => {
+    const { data, error } = await UsersService.readUsers({
+      query: {
+        skip: (page - 1) * size,
+        limit: size,
+      },
+    });
     if (error) {
       message.error("获取用户列表失败：" + error.detail);
     } else if (data) {
       setUsers(data.data);
+      setTotalUsers(data.count);
     }
   };
 
@@ -88,9 +106,20 @@ const UserManagement: React.FC = () => {
       } else if (data) {
         message.success("用户信息已更新");
         setIsModalVisible(false);
-        fetchUsers();
+        fetchUsers(currentPage, pageSize);
       }
     });
+  };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    if (pagination.current) {
+    //   setCurrentPage(pagination.current);
+      navigate(`/system-management?tab=userManagement&current_page=${pagination.current}&page_size=${pagination.pageSize}`, { replace: true });
+    }
+    if (pagination.pageSize) {
+    //   setPageSize(pagination.pageSize);
+      navigate(`/system-management?tab=userManagement&current_page=${pagination.current}&page_size=${pagination.pageSize}`, { replace: true });
+    }
   };
 
   const columns: ColumnsType<UserPublic> = [
@@ -137,7 +166,7 @@ const UserManagement: React.FC = () => {
       title: "操作",
       key: "actions",
       fixed: "right",
-      width: 200,
+      width: 160,
       render: (record: UserPublic) =>
         user?.id === record.id ? (
           <Tag color="cyan">当前用户</Tag>
@@ -170,6 +199,16 @@ const UserManagement: React.FC = () => {
         columns={columns}
         rowKey="id"
         scroll={{ x: 800 }}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: totalUsers,
+          showSizeChanger: true,
+          pageSizeOptions: ["10", "20", "50", "100"],
+          showQuickJumper: true,
+          showTotal: (total) => `共 ${total} 条记录`,
+        }}
+        onChange={handleTableChange}
       />
       <Modal
         title={`重置密码: ${editingUser?.full_name}`}
