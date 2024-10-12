@@ -37,6 +37,7 @@ import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
 import { ColumnsType } from "antd/es/table";
 import ProjectFilterDropdown from "../components/ProjectFilterDropdown";
+import { SortOrder } from 'antd/es/table/interface';
 
 const { RangePicker, YearPicker } = DatePicker;
 
@@ -238,6 +239,15 @@ export const Projects = () => {
       }
     });
 
+    // Handle sorting
+    if (sorter && !Array.isArray(sorter) && sorter.order) {
+      newFilters.sort_by = sorter.field as string;
+      newFilters.sort_direction = sorter.order === 'ascend' ? 'asc' : 'desc';
+    } else {
+      delete newFilters.sort_by;
+      delete newFilters.sort_direction;
+    }
+
     setFilters(newFilters);
 
     const queryParams = new URLSearchParams();
@@ -368,11 +378,13 @@ export const Projects = () => {
       title: "ID",
       dataIndex: getProjectPublicOutColumn("id"),
       width: 50,
+      sorter: true,
     },
     {
       title: "项目年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
-      width: 80,
+      width: 100,
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -457,7 +469,8 @@ export const Projects = () => {
     {
       title: "项目总造价",
       dataIndex: getProjectPublicOutColumn("project_construction_cost"),
-      width: 105,
+      width: 110,
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -478,6 +491,7 @@ export const Projects = () => {
       title: "施工图合同额",
       dataIndex: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -513,12 +527,14 @@ export const Projects = () => {
           onClear={clearFilters || (() => {})}
         />
       ),
+      sorter: true,
     },
     {
       title: "项目录入时间",
       dataIndex: getProjectPublicOutColumn("date_added"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -542,6 +558,7 @@ export const Projects = () => {
       dataIndex: getProjectPublicOutColumn("date_modified"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -584,6 +601,7 @@ export const Projects = () => {
       title: "工程面积(平方米)",
       dataIndex: getProjectPublicOutColumn("project_area"),
       width: 130,
+      sorter: true,
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
