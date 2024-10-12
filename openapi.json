@@ -805,6 +805,22 @@
             }
           },
           {
+            "name": "project_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Year"
+            }
+          },
+          {
             "name": "project_type_id",
             "in": "query",
             "required": false,
@@ -1076,6 +1092,31 @@
                 }
               ],
               "title": "Project Contract Value Max"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sort By"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection",
+              "default": "asc"
             }
           }
         ],
@@ -4447,6 +4488,15 @@
           }
         ],
         "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          },
           {
             "name": "skip",
             "in": "query",
@@ -8703,7 +8753,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-11T14:26:44.327104"
+            "default": "2024-10-12T13:38:14.496226"
           }
         },
         "type": "object",
@@ -15187,6 +15237,14 @@
           "count"
         ],
         "title": "QualityRatioClassesPublicOut"
+      },
+      "SortDirection": {
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "title": "SortDirection"
       },
       "Token": {
         "properties": {

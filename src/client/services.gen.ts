@@ -827,7 +827,7 @@ export class EmployeeService {
      * Read Employees By Department
      * Retrieve employees by department ID.
      */
-    public static readEmployeesByDepartment<ThrowOnError extends boolean = false>(options?: Options<ReadEmployeesByDepartmentData, ThrowOnError>) {
+    public static readEmployeesByDepartment<ThrowOnError extends boolean = false>(options: Options<ReadEmployeesByDepartmentData, ThrowOnError>) {
         return (options?.client ?? client).get<ReadEmployeesByDepartmentResponse, ReadEmployeesByDepartmentError, ThrowOnError>({
             ...options,
             url: '/api/v1/employee/by-department-id/{id}'

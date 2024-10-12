@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-11T14:26:44.327104'
+            default: '2024-10-12T13:38:14.496226'
         }
     },
     type: 'object',
@@ -6793,6 +6793,12 @@ export const QualityRatioClassesPublicOutSchema = {
     type: 'object',
     required: ['data', 'count'],
     title: 'QualityRatioClassesPublicOut'
+} as const;
+
+export const SortDirectionSchema = {
+    type: 'string',
+    enum: ['asc', 'desc'],
+    title: 'SortDirection'
 } as const;
 
 export const TokenSchema = {

@@ -978,6 +978,13 @@ export type QualityRatioClassesPublicOut = {
     count: number;
 };
 
+export type SortDirection = 'asc' | 'desc';
+
+export const SortDirection = {
+    ASC: 'asc',
+    DESC: 'desc'
+} as const;
+
 export type Token = {
     access_token: string;
     token_type?: string;
@@ -1216,8 +1223,11 @@ export type GetAndFilterProjectsData = {
         project_rate_adjustment_class_id?: (number | null);
         project_task_type_id?: (number | null);
         project_type_id?: (number | null);
+        project_year?: (number | null);
         quality_ratio_class_id?: (number | null);
         skip?: number;
+        sort_by?: (string | null);
+        sort_direction?: SortDirection;
     };
 };
 
@@ -1675,6 +1685,9 @@ export type SearchEmployeeResponse = (EmployeesPublicOut);
 export type SearchEmployeeError = (ErrorResponse | HTTPValidationError);
 
 export type ReadEmployeesByDepartmentData = {
+    path: {
+        id: number;
+    };
     query?: {
         limit?: number;
         skip?: number;

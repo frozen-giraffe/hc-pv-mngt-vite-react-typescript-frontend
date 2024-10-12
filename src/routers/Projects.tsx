@@ -7,10 +7,13 @@ import {
   Table,
   TableProps,
   Typography,
+  Input,
+  DatePicker,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
@@ -23,6 +26,7 @@ import {
   ProjectTaskTypesService,
   ProjectTypesService,
   ReportsService,
+  ProjectPayoutPublicOut,
 } from "../client";
 import { GetColumnNames } from "../helper";
 import { useAuth } from "../context/AuthContext";
@@ -31,6 +35,15 @@ import ProjectListDownloadModal from "../components/ProjectListDownloadModal";
 import ProjectReportModal from "../components/ProjectReportModal";
 import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
+import { ColumnsType } from "antd/es/table";
+import ProjectFilterDropdown from "../components/ProjectFilterDropdown";
+
+const { RangePicker, YearPicker } = DatePicker;
+
+// Add this type alias using the correct type from ProjectsService
+type ProjectQueryParams = NonNullable<
+  Parameters<typeof ProjectsService.getAndFilterProjects>[0]
+>["query"];
 
 export const Projects = () => {
   const { user } = useAuth();
@@ -73,6 +86,8 @@ export const Projects = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(18);
 
+  const [filters, setFilters] = useState<Partial<ProjectQueryParams>>({});
+
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
     const search_page_size = searchParams.get("page_size");
@@ -82,20 +97,63 @@ export const Projects = () => {
     if (search_page_size) {
       setPageSize(parseInt(search_page_size));
     }
-    fetchProjects(currentPage, pageSize);
-  }, [currentPage, pageSize, searchParams]);
+
+    // Parse filters from URL
+    const newFilters: Partial<ProjectQueryParams> = {};
+    searchParams.forEach((value, key) => {
+      // Check if the key is a valid filter
+      if (
+        key in
+        {
+          building_structure_type_id: true,
+          building_type_id: true,
+          calculated_employee_payout_max: true,
+          calculated_employee_payout_min: true,
+          date_added_from: true,
+          date_added_to: true,
+          id: true,
+          name: true,
+          project_area_max: true,
+          project_area_min: true,
+          project_class_id: true,
+          project_code: true,
+          project_year: true,
+          project_construction_cost_max: true,
+          project_construction_cost_min: true,
+          project_contract_value_max: true,
+          project_contract_value_min: true,
+          project_rate_adjustment_class_id: true,
+          project_task_type_id: true,
+          project_type_id: true,
+          quality_ratio_class_id: true,
+          sort_by: true,
+          sort_direction: true,
+        }
+      ) {
+        newFilters[key as keyof ProjectQueryParams] = value;
+      }
+    });
+    setFilters(newFilters);
+
+    fetchProjects(currentPage, pageSize, newFilters);
+  }, [searchParams, currentPage, pageSize]);
 
   useEffect(() => {
     fetchStaticData();
   }, []);
 
-  const fetchProjects = async (page: number, size: number) => {
+  const fetchProjects = async (
+    page: number,
+    size: number,
+    currentFilters: Partial<ProjectQueryParams>
+  ) => {
     setLoading(true);
     try {
       const { data, error } = await ProjectsService.getAndFilterProjects({
         query: {
           skip: (page - 1) * size,
           limit: size,
+          ...currentFilters,
         },
       });
       if (error) {
@@ -143,14 +201,59 @@ export const Projects = () => {
   };
 
   const handleTableChange: TableProps<ProjectPublicOut>["onChange"] = (
-    pagination
+    pagination,
+    filters,
+    sorter
   ) => {
-    if (pagination.current && pagination.pageSize) {
-      navigate(
-        `/projects?current_page=${pagination.current}&page_size=${pagination.pageSize}`,
-        { replace: true }
-      );
+    const newFilters: Partial<ProjectQueryParams> = { ...filters };
+    Object.entries(filters).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length === 2) {
+        if (key === "date_added" || key === "date_modified") {
+          // Handle date range filters
+          const [from, to] = value;
+          if (from) {
+            newFilters[`${key}_from` as keyof ProjectQueryParams] =
+              from as string;
+          }
+          if (to) {
+            newFilters[`${key}_to` as keyof ProjectQueryParams] = to as string;
+          }
+        } else {
+          // Handle numeric range filters
+          const [min, max] = value;
+          if (min) {
+            newFilters[`${key}_min` as keyof ProjectQueryParams] =
+              min as string;
+          }
+          if (max) {
+            newFilters[`${key}_max` as keyof ProjectQueryParams] =
+              max as string;
+          }
+        }
+        delete newFilters[key as keyof ProjectQueryParams];
+      } else if (value) {
+        newFilters[key as keyof ProjectQueryParams] = value[0] as string;
+      } else {
+        delete newFilters[key as keyof ProjectQueryParams];
+      }
+    });
+
+    setFilters(newFilters);
+
+    const queryParams = new URLSearchParams();
+    if (pagination.current) {
+      queryParams.set("current_page", pagination.current.toString());
     }
+    if (pagination.pageSize) {
+      queryParams.set("page_size", pagination.pageSize.toString());
+    }
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.set(key, value.toString());
+      }
+    });
+
+    navigate(`/projects?${queryParams.toString()}`, { replace: true });
   };
 
   const handleOpenDetail = (data: any) => {
@@ -255,10 +358,12 @@ export const Projects = () => {
   };
 
   const getProjectPublicOutColumn = GetColumnNames<ProjectPublicOut>();
+  const getProjectPayoutPublicOutColumn =
+    GetColumnNames<ProjectPayoutPublicOut>();
   //or use
   //const getProjectPublicOutColumn = <T,> (name: keyof T)=> name //usage getProjectPublicOutColumn<ProjectPublicOut>('building_structure_type_id')
 
-  const columns = [
+  const columns: ColumnsType<ProjectPublicOut> = [
     {
       title: "ID",
       dataIndex: getProjectPublicOutColumn("id"),
@@ -268,16 +373,61 @@ export const Projects = () => {
       title: "项目年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
       width: 80,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="year"
+          placeholder="选择年份"
+          value={selectedKeys[0]}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "项目工号",
       dataIndex: getProjectPublicOutColumn("project_code"),
       width: 100,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="input"
+          placeholder="输入项目工号"
+          value={selectedKeys[0]}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "项目名称",
       dataIndex: getProjectPublicOutColumn("name"),
       width: 300,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="input"
+          placeholder="输入项目名称"
+          value={selectedKeys[0]}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "民用建筑类别",
@@ -285,6 +435,12 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, projectTaskType, "id", "name"),
       width: 120,
+      filters: projectTaskType.map((type) => ({
+        text: type.name,
+        value: type.id,
+      })),
+      filterMultiple: false,
+      filterSearch: true,
     },
     {
       title: "设计质量系数",
@@ -292,37 +448,123 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, qualityRatioClass, "id", "name"),
       width: 100,
+      filters: qualityRatioClass.map((type) => ({
+        text: type.name,
+        value: type.id,
+      })),
+      filterMultiple: false,
     },
     {
       title: "项目总造价",
       dataIndex: getProjectPublicOutColumn("project_construction_cost"),
       width: 105,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="number_range"
+          placeholder={["最小值", "最大值"]}
+          value={selectedKeys}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
-      title: "施工图合同款",
+      title: "施工图合同额",
       dataIndex: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="number_range"
+          placeholder={["最小值", "最大值"]}
+          value={selectedKeys}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "下发产值(元)",
       dataIndex: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="number_range"
+          placeholder={["最小值", "最大值"]}
+          value={selectedKeys}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "项目录入时间",
       dataIndex: getProjectPublicOutColumn("date_added"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="date_range"
+          placeholder={["开始日期", "结束日期"]}
+          value={selectedKeys}
+          onChange={(values) => {
+            setSelectedKeys([values[0], values[1]]);
+          }}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "项目修改时间",
       dataIndex: getProjectPublicOutColumn("date_modified"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="date_range"
+          placeholder={["开始日期", "结束日期"]}
+          value={selectedKeys}
+          onChange={(values) => {
+            setSelectedKeys([values[0], values[1]]);
+          }}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "产值计算时间",
-      dataIndex: getProjectPublicOutColumn("project_construction_cost"),
+      dataIndex:
+        "project_payout." +
+        getProjectPayoutPublicOutColumn("calculation_updated_at"),
       width: 120, //这个不知道
     },
     {
@@ -331,11 +573,32 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, buildingStructureType, "id", "name"),
       width: 180,
+      filters: buildingStructureType.map((type) => ({
+        text: type.name,
+        value: type.id,
+      })),
+      filterMultiple: false,
+      filterSearch: true,
     },
     {
       title: "工程面积(平方米)",
       dataIndex: getProjectPublicOutColumn("project_area"),
       width: 130,
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <ProjectFilterDropdown
+          type="number_range"
+          placeholder={["最小值", "最大值"]}
+          value={selectedKeys}
+          onChange={setSelectedKeys}
+          onConfirm={confirm}
+          onClear={clearFilters || (() => {})}
+        />
+      ),
     },
     {
       title: "工程类别",
@@ -343,6 +606,9 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, projectType, "id", "name"),
       width: 200,
+      filters: projectType.map((type) => ({ text: type.name, value: type.id })),
+      filterMultiple: false,
+      filterSearch: true,
     },
     {
       title: "操作",
