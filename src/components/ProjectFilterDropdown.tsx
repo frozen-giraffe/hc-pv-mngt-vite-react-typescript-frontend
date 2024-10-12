@@ -68,6 +68,7 @@ const ProjectFilterDropdown: React.FC<FilterDropdownProps> = ({
         }
       }}
       style={{ width: 188, marginBottom: 8, display: 'block' }}
+      allowClear={false}
     />
   );
 

@@ -1209,6 +1209,8 @@ export type GetAndFilterProjectsData = {
         calculated_employee_payout_min?: (number | null);
         date_added_from?: (string | null);
         date_added_to?: (string | null);
+        date_modified_from?: (string | null);
+        date_modified_to?: (string | null);
         id?: (number | null);
         limit?: number;
         name?: (string | null);

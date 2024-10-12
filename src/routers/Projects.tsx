@@ -113,6 +113,8 @@ export const Projects = () => {
           calculated_employee_payout_min: true,
           date_added_from: true,
           date_added_to: true,
+          date_modified_from: true,
+          date_modified_to: true,
           id: true,
           name: true,
           project_area_max: true,
@@ -409,7 +411,7 @@ export const Projects = () => {
           placeholder="选择年份"
           value={selectedKeys[0]}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -430,7 +432,7 @@ export const Projects = () => {
           placeholder="输入项目工号"
           value={selectedKeys[0]}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -451,7 +453,7 @@ export const Projects = () => {
           placeholder="输入项目名称"
           value={selectedKeys[0]}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -500,7 +502,7 @@ export const Projects = () => {
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -522,7 +524,7 @@ export const Projects = () => {
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -543,7 +545,7 @@ export const Projects = () => {
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -569,7 +571,7 @@ export const Projects = () => {
           onChange={(values) => {
             setSelectedKeys([values[0], values[1]]);
           }}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -594,7 +596,7 @@ export const Projects = () => {
           onChange={(values) => {
             setSelectedKeys([values[0], values[1]]);
           }}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -638,7 +640,7 @@ export const Projects = () => {
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
           onChange={setSelectedKeys}
-          onConfirm={confirm}
+          onConfirm={() => confirm({ closeDropdown: true })}
           onClear={clearFilters || (() => {})}
         />
       ),
@@ -719,6 +721,13 @@ export const Projects = () => {
     );
   };
 
+  const clearFilters = () => {
+    setFilters({});
+    setCurrentPage(1);
+    navigate('/projects', { replace: true });
+    fetchProjects(1, pageSize, {});
+  };
+
   return (
     <div ref={scrollContainerRef}>
       {contextHolder}
@@ -774,6 +783,9 @@ export const Projects = () => {
                 );
               }}
             />
+            {filters && Object.keys(filters).length > 0 && (
+              <Button onClick={clearFilters}>清空过滤器</Button>
+            )}
           </Space>
         )}
         <Table
@@ -790,7 +802,10 @@ export const Projects = () => {
             total: totalProjects,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条记录`,
+            showTotal: (total) =>
+              `共 ${total} 个工程 ${
+                filters && Object.keys(filters).length > 0 ? ", 已过滤" : ""
+              }`,
           }}
           scroll={{ x: "max-content" }}
           style={{ height: "100%" }}

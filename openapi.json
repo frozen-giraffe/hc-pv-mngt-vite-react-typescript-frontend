@@ -967,6 +967,40 @@
             }
           },
           {
+            "name": "date_modified_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date Modified From"
+            }
+          },
+          {
+            "name": "date_modified_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date Modified To"
+            }
+          },
+          {
             "name": "project_area_min",
             "in": "query",
             "required": false,
@@ -8753,7 +8787,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-12T13:38:14.496226"
+            "default": "2024-10-12T15:16:26.824497"
           }
         },
         "type": "object",
