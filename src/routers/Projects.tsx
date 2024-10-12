@@ -14,7 +14,7 @@ import {
   Select,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { PlusOutlined, FilePdfOutlined, MinusOutlined } from "@ant-design/icons";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   ProjectTaskTypePublicOut,
@@ -87,8 +87,11 @@ export const Projects = () => {
   const [pageSize, setPageSize] = useState(18);
 
   const [filters, setFilters] = useState<Partial<ProjectQueryParams>>({});
-
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+  const [tableRefreshKey, setTableRefreshKey] = useState(0);
+
+  // Add this ref
+  const filterResetRef = useRef<number>(0);
 
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
@@ -386,20 +389,45 @@ export const Projects = () => {
   //or use
   //const getProjectPublicOutColumn = <T,> (name: keyof T)=> name //usage getProjectPublicOutColumn<ProjectPublicOut>('building_structure_type_id')
 
+  // Add this function to get the filtered value for a specific filter
+  const getFilteredValue = (key: string): string[] | undefined => {
+    const value = filters?.[key as keyof ProjectQueryParams];
+    return value ? [value] : undefined;
+  };
+
+  // Add this function to get the filtered value for range filters
+  const getRangeFilteredValue = (key: string): string[] | undefined => {
+    const minValue = filters?.[`${key}_min` as keyof ProjectQueryParams];
+    const maxValue = filters?.[`${key}_max` as keyof ProjectQueryParams];
+    return minValue || maxValue
+      ? ([minValue, maxValue].filter(Boolean) as string[])
+      : undefined;
+  };
+
+  // Add this function to get the filtered value for date range filters
+  const getDateRangeFilteredValue = (key: string): string[] | undefined => {
+    const fromValue = filters?.[`${key}_from` as keyof ProjectQueryParams];
+    const toValue = filters?.[`${key}_to` as keyof ProjectQueryParams];
+    return fromValue || toValue
+      ? ([fromValue, toValue].filter(Boolean) as string[])
+      : undefined;
+  };
+
   const columns: ColumnsType<ProjectPublicOut> = [
     {
       title: "ID",
       dataIndex: getProjectPublicOutColumn("id"),
       key: getProjectPublicOutColumn("id"),
-      width: 50,
+      width: 60,
       sorter: true,
     },
     {
       title: "项目年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
       key: getProjectPublicOutColumn("project_year"),
-      width: 100,
+      width: 80,
       sorter: true,
+      filteredValue: getFilteredValue("project_year"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -420,7 +448,8 @@ export const Projects = () => {
       title: "项目工号",
       dataIndex: getProjectPublicOutColumn("project_code"),
       key: getProjectPublicOutColumn("project_code"),
-      width: 100,
+      width: 120,
+      filteredValue: getFilteredValue("project_code"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -442,6 +471,7 @@ export const Projects = () => {
       dataIndex: getProjectPublicOutColumn("name"),
       key: getProjectPublicOutColumn("name"),
       width: 300,
+      filteredValue: getFilteredValue("name"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -465,6 +495,7 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, projectTaskType, "id", "name"),
       width: 120,
+      filteredValue: getFilteredValue("project_task_type_id"),
       filters: projectTaskType.map((type) => ({
         text: type.name,
         value: type.id,
@@ -479,6 +510,7 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, qualityRatioClass, "id", "name"),
       width: 100,
+      filteredValue: getFilteredValue("quality_ratio_class_id"),
       filters: qualityRatioClass.map((type) => ({
         text: type.name,
         value: type.id,
@@ -486,11 +518,12 @@ export const Projects = () => {
       filterMultiple: false,
     },
     {
-      title: "项目总造价",
+      title: "总造价(元)",
       dataIndex: getProjectPublicOutColumn("project_construction_cost"),
       key: getProjectPublicOutColumn("project_construction_cost"),
       width: 110,
       sorter: true,
+      filteredValue: getRangeFilteredValue("project_construction_cost"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -508,11 +541,12 @@ export const Projects = () => {
       ),
     },
     {
-      title: "施工图合同额",
+      title: "合同额(元)",
       dataIndex: getProjectPublicOutColumn("project_contract_value"),
       key: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
       sorter: true,
+      filteredValue: getRangeFilteredValue("project_contract_value"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -534,6 +568,8 @@ export const Projects = () => {
       dataIndex: getProjectPublicOutColumn("calculated_employee_payout"),
       key: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
+      sorter: true,
+      filteredValue: getRangeFilteredValue("calculated_employee_payout"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -549,7 +585,6 @@ export const Projects = () => {
           onClear={clearFilters || (() => {})}
         />
       ),
-      sorter: true,
     },
     {
       title: "项目录入时间",
@@ -558,6 +593,7 @@ export const Projects = () => {
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
+      filteredValue: getDateRangeFilteredValue("date_added"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -583,6 +619,7 @@ export const Projects = () => {
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
+      filteredValue: getDateRangeFilteredValue("date_modified"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -601,14 +638,14 @@ export const Projects = () => {
         />
       ),
     },
-    {
-      title: "产值计算时间",
-      dataIndex:
-        "project_payout." +
-        getProjectPayoutPublicOutColumn("calculation_updated_at"),
-      key: getProjectPayoutPublicOutColumn("calculation_updated_at"),
-      width: 120, //这个不知道
-    },
+    // {
+    //   title: "产值计算时间",
+    //   dataIndex:
+    //     "project_payout." +
+    //     getProjectPayoutPublicOutColumn("calculation_updated_at"),
+    //   key: getProjectPayoutPublicOutColumn("calculation_updated_at"),
+    //   width: 140, //这个不知道
+    // },
     {
       title: "工程级别",
       dataIndex: getProjectPublicOutColumn("building_structure_type_id"),
@@ -616,6 +653,7 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, buildingStructureType, "id", "name"),
       width: 180,
+      filteredValue: getFilteredValue("building_structure_type_id"),
       filters: buildingStructureType.map((type) => ({
         text: type.name,
         value: type.id,
@@ -627,8 +665,9 @@ export const Projects = () => {
       title: "工程面积(平方米)",
       dataIndex: getProjectPublicOutColumn("project_area"),
       key: getProjectPublicOutColumn("project_area"),
-      width: 130,
+      width: 120,
       sorter: true,
+      filteredValue: getRangeFilteredValue("project_area"),
       filterDropdown: ({
         setSelectedKeys,
         selectedKeys,
@@ -652,6 +691,7 @@ export const Projects = () => {
       render: (id: number) =>
         getValueFromListByID(id, projectType, "id", "name"),
       width: 200,
+      filteredValue: getFilteredValue("project_type_id"),
       filters: projectType.map((type) => ({ text: type.name, value: type.id })),
       filterMultiple: false,
       filterSearch: true,
@@ -714,6 +754,10 @@ export const Projects = () => {
   );
 
   const handleColumnChange = (selected: string[]) => {
+    if (selected.length === 0) {
+      selected.push("id");
+      selected.push("action");
+    }
     setSelectedColumns(selected);
     localStorage.setItem(
       "project_table_shown_columns",
@@ -724,8 +768,9 @@ export const Projects = () => {
   const clearFilters = () => {
     setFilters({});
     setCurrentPage(1);
-    navigate('/projects', { replace: true });
+    navigate("/projects", { replace: true });
     fetchProjects(1, pageSize, {});
+    setTableRefreshKey(tableRefreshKey + 1);
   };
 
   return (
@@ -759,14 +804,17 @@ export const Projects = () => {
               options={columns.map((col) => ({
                 label: col.title,
                 value: col.key as string,
+                disabled: col.key === "id" || col.key === "action",
               }))}
+              allowClear={true}
+              onClear={() => handleColumnChange([])}
               maxTagCount="responsive"
               dropdownRender={(menu) => {
                 return (
                   <>
                     {menu}
                     <Divider style={{ margin: "8px 0" }} />
-                    <Space style={{ padding: "0 8px 4px" }}>
+                    <Space style={{ padding: "0 8px 4px", width: "100%" }}>
                       <Button
                         type="text"
                         icon={<PlusOutlined />}
@@ -777,6 +825,13 @@ export const Projects = () => {
                         }
                       >
                         全选
+                      </Button>
+                      <Button
+                        type="text"
+                        icon={<MinusOutlined />}
+                        onClick={() => handleColumnChange([])}
+                      >
+                        全不选
                       </Button>
                     </Space>
                   </>
@@ -789,6 +844,7 @@ export const Projects = () => {
           </Space>
         )}
         <Table
+          key={tableRefreshKey}
           rowKey="id"
           loading={loading}
           columns={visibleColumns}
