@@ -8,6 +8,9 @@ import './main.css'
 import { client } from './client/services.gen.ts';
 import { AppRoutes } from './routes/AppRoutes';
 
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+
 client.setConfig({
   baseUrl: "http://localhost:8001",
   headers: {
@@ -32,14 +35,16 @@ client.interceptors.response.use((response) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Router>
-      <AuthProvider>
-        <Routes>
-          {AppRoutes.map((route, index) => (
-            <Route key={index} path={route.path} element={route.element} />
-          ))}
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <ConfigProvider locale={zhCN}>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            {AppRoutes.map((route, index) => (
+              <Route key={index} path={route.path} element={route.element} />
+            ))}
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </ConfigProvider>
   </StrictMode>,
 )
