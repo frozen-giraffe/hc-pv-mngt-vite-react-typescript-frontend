@@ -9,11 +9,13 @@ import {
   Typography,
   Input,
   DatePicker,
+  Modal,
+  Checkbox,
+  Select,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
@@ -37,9 +39,6 @@ import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
 import { ColumnsType } from "antd/es/table";
 import ProjectFilterDropdown from "../components/ProjectFilterDropdown";
-import { SortOrder } from 'antd/es/table/interface';
-
-const { RangePicker, YearPicker } = DatePicker;
 
 // Add this type alias using the correct type from ProjectsService
 type ProjectQueryParams = NonNullable<
@@ -88,6 +87,8 @@ export const Projects = () => {
   const [pageSize, setPageSize] = useState(18);
 
   const [filters, setFilters] = useState<Partial<ProjectQueryParams>>({});
+
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
 
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
@@ -141,6 +142,16 @@ export const Projects = () => {
 
   useEffect(() => {
     fetchStaticData();
+  }, []);
+
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("project_table_shown_columns");
+    if (savedColumns) {
+      setSelectedColumns(JSON.parse(savedColumns));
+    } else {
+      // If no saved preferences, show all columns by default
+      setSelectedColumns(columns.map((col) => col.key as string));
+    }
   }, []);
 
   const fetchProjects = async (
@@ -242,7 +253,7 @@ export const Projects = () => {
     // Handle sorting
     if (sorter && !Array.isArray(sorter) && sorter.order) {
       newFilters.sort_by = sorter.field as string;
-      newFilters.sort_direction = sorter.order === 'ascend' ? 'asc' : 'desc';
+      newFilters.sort_direction = sorter.order === "ascend" ? "asc" : "desc";
     } else {
       delete newFilters.sort_by;
       delete newFilters.sort_direction;
@@ -377,12 +388,14 @@ export const Projects = () => {
     {
       title: "ID",
       dataIndex: getProjectPublicOutColumn("id"),
+      key: getProjectPublicOutColumn("id"),
       width: 50,
       sorter: true,
     },
     {
       title: "项目年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
+      key: getProjectPublicOutColumn("project_year"),
       width: 100,
       sorter: true,
       filterDropdown: ({
@@ -404,6 +417,7 @@ export const Projects = () => {
     {
       title: "项目工号",
       dataIndex: getProjectPublicOutColumn("project_code"),
+      key: getProjectPublicOutColumn("project_code"),
       width: 100,
       filterDropdown: ({
         setSelectedKeys,
@@ -424,6 +438,7 @@ export const Projects = () => {
     {
       title: "项目名称",
       dataIndex: getProjectPublicOutColumn("name"),
+      key: getProjectPublicOutColumn("name"),
       width: 300,
       filterDropdown: ({
         setSelectedKeys,
@@ -444,6 +459,7 @@ export const Projects = () => {
     {
       title: "民用建筑类别",
       dataIndex: getProjectPublicOutColumn("project_task_type_id"),
+      key: getProjectPublicOutColumn("project_task_type_id"),
       render: (id: number) =>
         getValueFromListByID(id, projectTaskType, "id", "name"),
       width: 120,
@@ -457,6 +473,7 @@ export const Projects = () => {
     {
       title: "设计质量系数",
       dataIndex: getProjectPublicOutColumn("quality_ratio_class_id"),
+      key: getProjectPublicOutColumn("quality_ratio_class_id"),
       render: (id: number) =>
         getValueFromListByID(id, qualityRatioClass, "id", "name"),
       width: 100,
@@ -469,6 +486,7 @@ export const Projects = () => {
     {
       title: "项目总造价",
       dataIndex: getProjectPublicOutColumn("project_construction_cost"),
+      key: getProjectPublicOutColumn("project_construction_cost"),
       width: 110,
       sorter: true,
       filterDropdown: ({
@@ -490,6 +508,7 @@ export const Projects = () => {
     {
       title: "施工图合同额",
       dataIndex: getProjectPublicOutColumn("project_contract_value"),
+      key: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
       sorter: true,
       filterDropdown: ({
@@ -511,6 +530,7 @@ export const Projects = () => {
     {
       title: "下发产值(元)",
       dataIndex: getProjectPublicOutColumn("calculated_employee_payout"),
+      key: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
       filterDropdown: ({
         setSelectedKeys,
@@ -532,6 +552,7 @@ export const Projects = () => {
     {
       title: "项目录入时间",
       dataIndex: getProjectPublicOutColumn("date_added"),
+      key: getProjectPublicOutColumn("date_added"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
@@ -556,6 +577,7 @@ export const Projects = () => {
     {
       title: "项目修改时间",
       dataIndex: getProjectPublicOutColumn("date_modified"),
+      key: getProjectPublicOutColumn("date_modified"),
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
@@ -582,11 +604,13 @@ export const Projects = () => {
       dataIndex:
         "project_payout." +
         getProjectPayoutPublicOutColumn("calculation_updated_at"),
+      key: getProjectPayoutPublicOutColumn("calculation_updated_at"),
       width: 120, //这个不知道
     },
     {
       title: "工程级别",
       dataIndex: getProjectPublicOutColumn("building_structure_type_id"),
+      key: getProjectPublicOutColumn("building_structure_type_id"),
       render: (id: number) =>
         getValueFromListByID(id, buildingStructureType, "id", "name"),
       width: 180,
@@ -600,6 +624,7 @@ export const Projects = () => {
     {
       title: "工程面积(平方米)",
       dataIndex: getProjectPublicOutColumn("project_area"),
+      key: getProjectPublicOutColumn("project_area"),
       width: 130,
       sorter: true,
       filterDropdown: ({
@@ -621,6 +646,7 @@ export const Projects = () => {
     {
       title: "工程类别",
       dataIndex: getProjectPublicOutColumn("project_type_id"),
+      key: getProjectPublicOutColumn("project_type_id"),
       render: (id: number) =>
         getValueFromListByID(id, projectType, "id", "name"),
       width: 200,
@@ -681,6 +707,18 @@ export const Projects = () => {
     },
   ];
 
+  const visibleColumns = columns.filter((col) =>
+    selectedColumns.includes(col.key as string)
+  );
+
+  const handleColumnChange = (selected: string[]) => {
+    setSelectedColumns(selected);
+    localStorage.setItem(
+      "project_table_shown_columns",
+      JSON.stringify(selected)
+    );
+  };
+
   return (
     <div ref={scrollContainerRef}>
       {contextHolder}
@@ -701,12 +739,47 @@ export const Projects = () => {
             <Button onClick={showCompanyReportModal} icon={<FilePdfOutlined />}>
               公司年度报告
             </Button>
+            <Divider type="vertical" />
+            <p>显示列：</p>
+            <Select
+              mode="multiple"
+              style={{ width: "300px" }}
+              placeholder="选择显示的列"
+              value={selectedColumns}
+              onChange={handleColumnChange}
+              options={columns.map((col) => ({
+                label: col.title,
+                value: col.key as string,
+              }))}
+              maxTagCount="responsive"
+              dropdownRender={(menu) => {
+                return (
+                  <>
+                    {menu}
+                    <Divider style={{ margin: "8px 0" }} />
+                    <Space style={{ padding: "0 8px 4px" }}>
+                      <Button
+                        type="text"
+                        icon={<PlusOutlined />}
+                        onClick={() =>
+                          handleColumnChange(
+                            columns.map((col) => col.key as string)
+                          )
+                        }
+                      >
+                        全选
+                      </Button>
+                    </Space>
+                  </>
+                );
+              }}
+            />
           </Space>
         )}
         <Table
           rowKey="id"
           loading={loading}
-          columns={columns}
+          columns={visibleColumns}
           dataSource={projects}
           onChange={handleTableChange}
           pagination={{
