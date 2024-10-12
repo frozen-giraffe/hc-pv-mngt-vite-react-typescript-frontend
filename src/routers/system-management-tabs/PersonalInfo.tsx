@@ -91,7 +91,7 @@ const PersonalInfo: React.FC = () => {
 
   return (
     <Card>
-      <Form form={form} layout="horizontal" labelCol={{ span: 3 }} >
+      <Form form={form} layout="horizontal" labelCol={{ span: 3 }} labelAlign="left">
           <Form.Item label="ID">
             <Text strong>{userInfo.id}</Text>
           </Form.Item>
