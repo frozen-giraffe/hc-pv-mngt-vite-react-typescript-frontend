@@ -79,7 +79,7 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
       message.error("获取项目回款失败: " + projectPayoutResponse.error.detail);
     }
     const projectResponse = await ProjectsService.readProject({
-      path: { id: projectPayoutResponse.data.project_id },
+      path: { id: projectPayoutResponse.data!.project_id },
     });
     if (projectResponse.error) {
       message.error("获取项目失败: " + projectResponse.error.detail);

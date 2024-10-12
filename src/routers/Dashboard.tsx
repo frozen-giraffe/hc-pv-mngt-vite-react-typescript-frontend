@@ -28,26 +28,26 @@ type MenuItem = Required<MenuProps>['items'][number] & {
 };
 const items: MenuItem[] = [
   {
-    key: '/mainpage',
+    key: '/dashboard',
     label: '主页',
     icon: <MailOutlined />,
-    path: '/mainpage',
+    path: '/dashboard',
 
   },
   {
-    key: '/people',
-    label: '人员',
-    icon: <AppstoreOutlined />,
-    path: '/people'
+    key: '/projects',
+    label: '项目',
+    icon: <SettingOutlined />,
+    path: '/projects'
   },
   {
     type: 'divider',
   },
   {
-    key: '/projects',
-    label: '工程',
-    icon: <SettingOutlined />,
-    path: '/projects'
+    key: '/people',
+    label: '人员管理',
+    icon: <AppstoreOutlined />,
+    path: '/people'
   },
   {
     key: '/calculation-settings',
@@ -75,7 +75,7 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/mainpage']);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/dashboard']);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -167,7 +167,7 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
         </div>
         <Menu
           theme="dark"
-          mode="inline"
+          mode="vertical"
           selectedKeys={selectedKeys}
           items={items}
           onClick={onClickMenuItem}

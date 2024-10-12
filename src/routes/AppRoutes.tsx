@@ -7,7 +7,6 @@ import { Projects } from '../routers/Projects';
 import { ProjectDetail } from '../routers/ProjectDetail';
 import { CalculationSettings } from '../routers/CalculationSettings';
 import { AuthenticatedRoute } from '../components/AuthenticatedRoute';
-import { Routes, Route } from 'react-router-dom';
 import SystemManagement from '../routers/SystemManagement';
 
 export const AppRoutes = [
@@ -24,16 +23,6 @@ export const AppRoutes = [
   },
   { 
     path: "/dashboard", 
-    element: (
-      <AuthenticatedRoute>
-        <Dashboard>
-          <MainPage/>
-        </Dashboard>
-      </AuthenticatedRoute>
-    )
-  },
-  { 
-    path: "/mainpage", 
     element: (
       <AuthenticatedRoute>
         <Dashboard>

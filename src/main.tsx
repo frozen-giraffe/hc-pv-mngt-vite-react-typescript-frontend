@@ -10,6 +10,7 @@ import { AppRoutes } from './routes/AppRoutes';
 
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { REDIRECT_LOGIN_REASON_KEY } from './client/const.tsx';
 
 client.setConfig({
   baseUrl: "http://localhost:8001",
@@ -26,7 +27,7 @@ client.interceptors.request.use((request) => {
 client.interceptors.response.use((response) => {
   if (response.status === 401) {
     localStorage.removeItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
-    localStorage.setItem('redirect_login_reason', 'token_expired');
+    localStorage.setItem(REDIRECT_LOGIN_REASON_KEY, 'token_expired');
     const currentPath = window.location.pathname;
     window.location.href = "/login?redirect=" + currentPath;
   }

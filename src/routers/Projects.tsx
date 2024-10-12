@@ -39,6 +39,8 @@ import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
 import { ColumnsType } from "antd/es/table";
 import ProjectFilterDropdown from "../components/ProjectFilterDropdown";
+import FloatNumberCellRender from '../components/FloatNumberCellRender';
+import { PROJECT_TABLE_SHOWN_COLUMNS_KEY, PROJECT_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
 
 // Add this type alias using the correct type from ProjectsService
 type ProjectQueryParams = NonNullable<
@@ -84,14 +86,11 @@ export const Projects = () => {
 
   const [totalProjects, setTotalProjects] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(18);
+  const [pageSize, setPageSize] = useState(PROJECT_PAGE_DEFAULT_PAGE_SIZE);
 
   const [filters, setFilters] = useState<Partial<ProjectQueryParams>>({});
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
-
-  // Add this ref
-  const filterResetRef = useRef<number>(0);
 
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
@@ -150,7 +149,7 @@ export const Projects = () => {
   }, []);
 
   useEffect(() => {
-    const savedColumns = localStorage.getItem("project_table_shown_columns");
+    const savedColumns = localStorage.getItem(PROJECT_TABLE_SHOWN_COLUMNS_KEY);
     if (savedColumns) {
       setSelectedColumns(JSON.parse(savedColumns));
     } else {
@@ -422,10 +421,10 @@ export const Projects = () => {
       sorter: true,
     },
     {
-      title: "项目年度",
+      title: "年度",
       dataIndex: getProjectPublicOutColumn("project_year"),
       key: getProjectPublicOutColumn("project_year"),
-      width: 80,
+      width: 90,
       sorter: true,
       filteredValue: getFilteredValue("project_year"),
       filterDropdown: ({
@@ -523,6 +522,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_construction_cost"),
       width: 110,
       sorter: true,
+      render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_construction_cost"),
       filterDropdown: ({
         setSelectedKeys,
@@ -546,6 +546,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
       sorter: true,
+      render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_contract_value"),
       filterDropdown: ({
         setSelectedKeys,
@@ -569,6 +570,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
       sorter: true,
+      render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("calculated_employee_payout"),
       filterDropdown: ({
         setSelectedKeys,
@@ -667,6 +669,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_area"),
       width: 120,
       sorter: true,
+      render: (value: number) => <FloatNumberCellRender value={value}/>,
       filteredValue: getRangeFilteredValue("project_area"),
       filterDropdown: ({
         setSelectedKeys,
@@ -760,7 +763,7 @@ export const Projects = () => {
     }
     setSelectedColumns(selected);
     localStorage.setItem(
-      "project_table_shown_columns",
+      PROJECT_TABLE_SHOWN_COLUMNS_KEY,
       JSON.stringify(selected)
     );
   };
@@ -844,6 +847,7 @@ export const Projects = () => {
           </Space>
         )}
         <Table
+          bordered
           key={tableRefreshKey}
           rowKey="id"
           loading={loading}
@@ -887,7 +891,10 @@ export const Projects = () => {
       />
       <ContractPaymentModal
         visible={isContractPaymentModalVisible}
-        onCancel={() => setIsContractPaymentModalVisible(false)}
+        onCancel={() => {
+          setIsContractPaymentModalVisible(false);
+          setSelectedProjectPayoutId(null);
+        }}
         projectPayoutId={selectedProjectPayoutId!}
       />
     </div>

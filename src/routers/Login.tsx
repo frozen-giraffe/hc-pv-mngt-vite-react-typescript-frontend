@@ -5,6 +5,7 @@ import Logo from './../assets/Logo.png'
 import { Button, Input, Alert, message } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
+import { REDIRECT_LOGIN_REASON_KEY, REDIRECT_LOGIN_TOKEN_EXPIRED } from '../client/const';
 
 export const Login = () => {
   const [username, setUsername] = useState<string>('');
@@ -28,10 +29,10 @@ export const Login = () => {
   }, [navigate, redirectUrl, from]);
 
   useEffect(() => {
-    const loginReason = localStorage.getItem('redirect_login_reason');
-    if (loginReason === 'token_expired') {
+    const loginReason = localStorage.getItem(REDIRECT_LOGIN_REASON_KEY);
+    if (loginReason === REDIRECT_LOGIN_TOKEN_EXPIRED) {
       message.error('登录已过期，请重新登录');
-      localStorage.removeItem('redirect_login_reason');
+      localStorage.removeItem(REDIRECT_LOGIN_REASON_KEY);
     }
     if (isAuthenticated) {
       navigateAfterLogin();
