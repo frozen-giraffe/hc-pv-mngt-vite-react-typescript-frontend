@@ -44,10 +44,10 @@ const items: MenuItem[] = [
     type: 'divider',
   },
   {
-    key: '/people',
+    key: '/employees',
     label: '人员管理',
     icon: <AppstoreOutlined />,
-    path: '/people'
+    path: '/employees'
   },
   {
     key: '/calculation-settings',

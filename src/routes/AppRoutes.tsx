@@ -32,7 +32,7 @@ export const AppRoutes = [
     )
   },
   { 
-    path: "/people", 
+    path: "/employees", 
     element: (
       <AuthenticatedRoute>
         <Dashboard>

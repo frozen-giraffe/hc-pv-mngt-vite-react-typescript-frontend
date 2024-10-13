@@ -9,6 +9,8 @@ import pinyin from 'chinese-to-pinyin';
 import MySelectComponent from '../components/Dropdown';
 import { downloadReport, useDownloadReport } from '../utils/ReportFileDownload';
 import EmployeeReportModal from '../components/EmployeeReportModal';
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
 
 
 type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_location_id' | 'employee_title_id' | 'professional_title_id' | 'employ_status_id'> & {
@@ -58,6 +60,12 @@ export const Employees: React.FC = () => {
     const [isEmployeeReportModalVisible, setIsEmployeeReportModalVisible] = useState(false);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
+    const [totalEmployees, setTotalEmployees] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE);
+
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     
     const successMessage = (msg:string) => {
         messageApi.open({
@@ -371,78 +379,89 @@ export const Employees: React.FC = () => {
           </td>
         );
     };
-    const fetchEmployees = async () => {
+
+    useEffect(() => {
+        fetchStaticData();
+    }, []);
+
+    useEffect(() => {
+        const search_current_page = searchParams.get("current_page");
+        const search_page_size = searchParams.get("page_size");
+        if (search_current_page) {
+            setCurrentPage(parseInt(search_current_page));
+        }
+        if (search_page_size) {
+            setPageSize(parseInt(search_page_size));
+        }
+
+        fetchEmployees(currentPage, pageSize);
+    }, [searchParams, currentPage, pageSize]);
+
+    const fetchStaticData = async () => {
         try {
-            //show loading spinner on table
-            handleLoadingChange(true)
-            // Fetch data from the service
-            const responseEmployees = await EmployeeService.readEmployees({showDisabled: true, limit:300});
-            const responseDepartments = await DepartmentsService.readDepartments();
-            const responseWorkLocations= await WorkLocationsService.readWorkLocations();
-            const responseEmployeeTitles= await EmployeeTitlesService.readEmployeeTitles();
-            const responseProfessionalTitles = await ProfessionalTitlesService.readProfessionalTitles();
-            const responseEmployeeStatuses = await EmployeeStatusesService.readEmployeeStatuses();
-            let loadError = false;
+            const [
+                responseDepartments,
+                responseWorkLocations,
+                responseEmployeeTitles,
+                responseProfessionalTitles,
+                responseEmployeeStatuses
+            ] = await Promise.all([
+                DepartmentsService.readDepartments(),
+                WorkLocationsService.readWorkLocations(),
+                EmployeeTitlesService.readEmployeeTitles(),
+                ProfessionalTitlesService.readProfessionalTitles(),
+                EmployeeStatusesService.readEmployeeStatuses()
+            ]);
+
+            if (responseDepartments.data) setDepartments(responseDepartments.data.data);
+            if (responseWorkLocations.data) setWorkLocations(responseWorkLocations.data.data);
+            if (responseEmployeeTitles.data) setEmployeeTitles(responseEmployeeTitles.data.data);
+            if (responseProfessionalTitles.data) setProfessionalTitles(responseProfessionalTitles.data.data);
+            if (responseEmployeeStatuses.data) setEmloyeeStatus(responseEmployeeStatuses.data.data);
+        } catch (error) {
+            console.error("Error fetching static data:", error);
+            message.error("加载静态数据失败，请刷新页面重试");
+        }
+    };
+
+    const fetchEmployees = async (page: number, size: number) => {
+        try {
+            handleLoadingChange(true);
+            const responseEmployees = await EmployeeService.readEmployees({
+                query: {
+                    skip: (page - 1) * size,
+                    limit: size,
+                    showDisabled: true,
+                }
+            });
+
             if (responseEmployees.error) {
                 message.error("获取员工失败: " + responseEmployees.error.detail);
-                loadError = true;
                 return;
             }
-            if (responseDepartments.error) {
-                message.error("获取部门失败: " + responseDepartments.error.detail);
-                loadError = true;
-                return;
+
+            if (responseEmployees.data) {
+                const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
+                    ...employee,
+                    key: employee.id.toString(),
+                    department: departments.find(dept => dept.id === employee.department_id),
+                    workLocation: workLocations.find(location => location.id === employee.work_location_id),
+                    employeeTitle: employeeTitles.find(title => title.id === employee.employee_title_id),
+                    professionalTitle: professionalTitles.find(profTitle => profTitle.id === employee.professional_title_id),
+                    employmentStatus: employeeStatus.find(status => status.id === employee.employ_status_id),
+                }));
+
+                setEmployees(employeeFullDetails);
+                setTotalEmployees(responseEmployees.data.count);
             }
-            if (responseWorkLocations.error) {
-                message.error("获取工作地点失败: " + responseWorkLocations.error.detail);
-                loadError = true;
-                return;
-            }
-            if (responseEmployeeTitles.error) {
-                message.error("获取职位失败: " + responseEmployeeTitles.error.detail);
-                loadError = true;
-                return;
-            }
-            if (responseProfessionalTitles.error) {
-                message.error("获取职称失败: " + responseProfessionalTitles.error.detail);
-                loadError = true;
-                return;
-            }
-            if (responseEmployeeStatuses.error) {
-                message.error("获取员工状态失败: " + responseEmployeeStatuses.error.detail);
-                loadError = true;
-                return;
-            }
-            if (loadError) {
-                handleLoadingChange(false); 
-                return;
-            }
-            
-            const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
-                ...employee,
-                key: employee.id.toString(),
-                department: responseDepartments.data.data.find(dept => dept.id === employee.department_id),
-                workLocation: responseWorkLocations.data.data.find(location => location.id === employee.work_location_id),
-                employeeTitle: responseEmployeeTitles.data.data.find(title => title.id === employee.employee_title_id),
-                professionalTitle: responseProfessionalTitles.data.data.find(profTitle => profTitle.id === employee.professional_title_id),
-                employmentStatus: responseEmployeeStatuses.data.data.find(status => status.id === employee.employ_status_id),
-            }));
-            
-            setEmployees(employeeFullDetails)
-            setDepartments(responseDepartments.data.data)
-            setWorkLocations(responseWorkLocations.data.data)
-            setEmployeeTitles(responseEmployeeTitles.data.data)
-            setProfessionalTitles(responseProfessionalTitles.data.data)
-            setEmloyeeStatus(responseEmployeeStatuses.data.data)
-            //.log(employeeFullDetails);
-            
         } catch (error) {
-          console.error("Error fetching employees and related data:", error);
+            console.error("Error fetching employees:", error);
+            message.error("获取员工数据失败，请重试");
         } finally {
-            // Stop the loading spinner on table once the data is fetched
-            handleLoadingChange(false); 
+            handleLoadingChange(false);
         }
-      };
+    };
+
     const convertDateToYYYYMMDD = (dateStr:string) => {
         const date = new Date(dateStr); 
         const formattedDate = date.toLocaleDateString('en-CA', {
@@ -453,9 +472,6 @@ export const Employees: React.FC = () => {
         });
     return formattedDate;
     };
-    useEffect(()=>{
-        fetchEmployees()
-    },[])
 
     const downloadEmployeeList = () => {
         try{
@@ -493,11 +509,28 @@ export const Employees: React.FC = () => {
         }
     }
 
+    const handleTableChange: TableProps<EmployeeFullDetails>["onChange"] = (
+        pagination,
+        filters,
+        sorter
+    ) => {
+        const queryParams = new URLSearchParams();
+        if (pagination.current) {
+            queryParams.set("current_page", pagination.current.toString());
+        }
+        if (pagination.pageSize) {
+            queryParams.set("page_size", pagination.pageSize.toString());
+        }
+        // Add any other filters or sorting parameters here if needed
+
+        navigate(`/employees?${queryParams.toString()}`, { replace: true });
+    };
+
     return (
         <div>
             {contextHolder}
             {user?.is_superuser &&
-            <Space style={loading || employees.length===0 ? { marginBottom: 16} : { marginBottom: 16, position: 'absolute', zIndex:1}}>
+            <Space>
                 <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
                     添加
                 </Button>
@@ -519,9 +552,18 @@ export const Employees: React.FC = () => {
                     loading={loading}
                     columns={mergedColumns}
                     dataSource={employees}
-                    onChange={onChange}
+                    onChange={handleTableChange}
                     showSorterTooltip={{ target: 'sorter-icon' }}
-                    pagination={{pageSize:10, position:['topRight']}}
+                    pagination={{
+                        position: ["topRight"],
+                        current: currentPage,
+                        pageSize: pageSize,
+                        pageSizeOptions: ["10", "20", "50", "100"],
+                        total: totalEmployees,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total) => `共 ${total} 个员工`,
+                    }}
                     scroll={{ x:500 }}
                 />
             </Form>
