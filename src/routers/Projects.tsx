@@ -92,61 +92,65 @@ export const Projects = () => {
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
-  useEffect(() => {
-    const search_current_page = searchParams.get("current_page");
-    const search_page_size = searchParams.get("page_size");
-    if (search_current_page) {
-      setCurrentPage(parseInt(search_current_page));
-    }
-    if (search_page_size) {
-      setPageSize(parseInt(search_page_size));
-    }
-
-    // Parse filters from URL
-    const newFilters: Partial<ProjectQueryParams> = {};
-    searchParams.forEach((value, key) => {
-      // Check if the key is a valid filter
-      if (
-        key in
-        {
-          building_structure_type_id: true,
-          building_type_id: true,
-          calculated_employee_payout_max: true,
-          calculated_employee_payout_min: true,
-          date_added_from: true,
-          date_added_to: true,
-          date_modified_from: true,
-          date_modified_to: true,
-          id: true,
-          name: true,
-          project_area_max: true,
-          project_area_min: true,
-          project_class_id: true,
-          project_code: true,
-          project_year: true,
-          project_construction_cost_max: true,
-          project_construction_cost_min: true,
-          project_contract_value_max: true,
-          project_contract_value_min: true,
-          project_rate_adjustment_class_id: true,
-          project_task_type_id: true,
-          project_type_id: true,
-          quality_ratio_class_id: true,
-          sort_by: true,
-          sort_direction: true,
-        }
-      ) {
-        newFilters[key as keyof ProjectQueryParams] = value;
-      }
-    });
-    setFilters(newFilters);
-
-    fetchProjects(currentPage, pageSize, newFilters);
-  }, [searchParams, currentPage, pageSize]);
+  const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
 
   useEffect(() => {
     fetchStaticData();
   }, []);
+
+  useEffect(() => {
+    if (isStaticDataLoaded) {
+      const search_current_page = searchParams.get("current_page");
+      const search_page_size = searchParams.get("page_size");
+      if (search_current_page) {
+        setCurrentPage(parseInt(search_current_page));
+      }
+      if (search_page_size) {
+        setPageSize(parseInt(search_page_size));
+      }
+
+      // Parse filters from URL
+      const newFilters: Partial<ProjectQueryParams> = {};
+      searchParams.forEach((value, key) => {
+        // Check if the key is a valid filter
+        if (
+          key in
+          {
+            building_structure_type_id: true,
+            building_type_id: true,
+            calculated_employee_payout_max: true,
+            calculated_employee_payout_min: true,
+            date_added_from: true,
+            date_added_to: true,
+            date_modified_from: true,
+            date_modified_to: true,
+            id: true,
+            name: true,
+            project_area_max: true,
+            project_area_min: true,
+            project_class_id: true,
+            project_code: true,
+            project_year: true,
+            project_construction_cost_max: true,
+            project_construction_cost_min: true,
+            project_contract_value_max: true,
+            project_contract_value_min: true,
+            project_rate_adjustment_class_id: true,
+            project_task_type_id: true,
+            project_type_id: true,
+            quality_ratio_class_id: true,
+            sort_by: true,
+            sort_direction: true,
+          }
+        ) {
+          newFilters[key as keyof ProjectQueryParams] = value;
+        }
+      });
+      setFilters(newFilters);
+
+      fetchProjects(currentPage, pageSize, newFilters);
+    }
+  }, [searchParams, currentPage, pageSize, isStaticDataLoaded]);
 
   useEffect(() => {
     const savedColumns = localStorage.getItem(PROJECT_TABLE_SHOWN_COLUMNS_KEY);
@@ -158,11 +162,58 @@ export const Projects = () => {
     }
   }, []);
 
+  const fetchStaticData = async () => {
+    try {
+      const [
+        resBuildingStructureType,
+        resQualityRatioClass,
+        resProjectType,
+        resProjectTaskType,
+      ] = await Promise.all([
+        BuildingStructureTypesService.readBuildingStructureTypes(),
+        QualityRatioClassesService.readQualityRatioClasses(),
+        ProjectTypesService.readProjectTypes(),
+        ProjectTaskTypesService.readProjectTaskTypes(),
+      ]);
+
+      if (resBuildingStructureType.data) {
+        setBuildingStructureType(resBuildingStructureType.data.data);
+      } else {
+        message.error("获取结构形式失败: " + resBuildingStructureType.error.detail);
+      }
+      if (resQualityRatioClass.data) {
+        setQualityRatioClass(resQualityRatioClass.data.data);
+      } else {
+        message.error("获取设计质量系数失败: " + resQualityRatioClass.error.detail);
+      }
+      if (resProjectType.data) {
+        setProjectType(resProjectType.data.data);
+      } else {
+        message.error("获取工程类型失败: " + resProjectType.error.detail);
+      }
+      if (resProjectTaskType.data) {
+        setProjectTaskType(resProjectTaskType.data.data);
+      } else {
+        message.error("获取工程项目类型失败: " + resProjectTaskType.error.detail);
+      }
+
+      setIsStaticDataLoaded(true);
+    } catch (e) {
+      console.error("Error fetching static data:", e);
+      message.error("加载静态数据失败，请刷新页面重试");
+    }
+  };
+
   const fetchProjects = async (
     page: number,
     size: number,
     currentFilters: Partial<ProjectQueryParams>
   ) => {
+    if (!isStaticDataLoaded) {
+      console.log("Static data not loaded yet, skipping project fetch");
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await ProjectsService.getAndFilterProjects({
@@ -182,37 +233,6 @@ export const Projects = () => {
       console.error("Error fetching projects:", e);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchStaticData = async () => {
-    try {
-      const [
-        resBuildingStructureType,
-        resQualityRatioClass,
-        resProjectType,
-        resProjectTaskType,
-      ] = await Promise.all([
-        BuildingStructureTypesService.readBuildingStructureTypes(),
-        QualityRatioClassesService.readQualityRatioClasses(),
-        ProjectTypesService.readProjectTypes(),
-        ProjectTaskTypesService.readProjectTaskTypes(),
-      ]);
-
-      if (resBuildingStructureType.data) {
-        setBuildingStructureType(resBuildingStructureType.data.data);
-      }
-      if (resQualityRatioClass.data) {
-        setQualityRatioClass(resQualityRatioClass.data.data);
-      }
-      if (resProjectType.data) {
-        setProjectType(resProjectType.data.data);
-      }
-      if (resProjectTaskType.data) {
-        setProjectTaskType(resProjectTaskType.data.data);
-      }
-    } catch (e) {
-      console.error("Error fetching static data:", e);
     }
   };
 
@@ -457,7 +477,7 @@ export const Projects = () => {
       }) => (
         <ProjectFilterDropdown
           type="input"
-          placeholder="输入项目工号"
+          placeholder="模糊搜索项目工号"
           value={selectedKeys[0]}
           onChange={setSelectedKeys}
           onConfirm={() => confirm({ closeDropdown: true })}
@@ -479,7 +499,7 @@ export const Projects = () => {
       }) => (
         <ProjectFilterDropdown
           type="input"
-          placeholder="输入项目名称"
+          placeholder="模糊搜索项目名称"
           value={selectedKeys[0]}
           onChange={setSelectedKeys}
           onConfirm={() => confirm({ closeDropdown: true })}
@@ -488,7 +508,7 @@ export const Projects = () => {
       ),
     },
     {
-      title: "民用建筑类别",
+      title: "工程项目类别",
       dataIndex: getProjectPublicOutColumn("project_task_type_id"),
       key: getProjectPublicOutColumn("project_task_type_id"),
       render: (id: number) =>
@@ -649,7 +669,7 @@ export const Projects = () => {
     //   width: 140, //这个不知道
     // },
     {
-      title: "工程级别",
+      title: "结构形式",
       dataIndex: getProjectPublicOutColumn("building_structure_type_id"),
       key: getProjectPublicOutColumn("building_structure_type_id"),
       render: (id: number) =>
@@ -688,7 +708,7 @@ export const Projects = () => {
       ),
     },
     {
-      title: "工程类别",
+      title: "工程类型",
       dataIndex: getProjectPublicOutColumn("project_type_id"),
       key: getProjectPublicOutColumn("project_type_id"),
       render: (id: number) =>

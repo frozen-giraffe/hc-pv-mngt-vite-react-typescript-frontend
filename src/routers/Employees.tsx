@@ -79,6 +79,29 @@ export const Employees: React.FC = () => {
           content: msg,
         });
     };
+
+    const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
+
+    useEffect(() => {
+        fetchStaticData();
+    }, []);
+
+    useEffect(() => {
+        if (isStaticDataLoaded) {
+            const search_current_page = searchParams.get("current_page");
+            const search_page_size = searchParams.get("page_size");
+            if (search_current_page) {
+                setCurrentPage(parseInt(search_current_page));
+            }
+            if (search_page_size) {
+                setPageSize(parseInt(search_page_size));
+            }
+
+            fetchEmployees(currentPage, pageSize);
+        }
+    }, [searchParams, currentPage, pageSize, isStaticDataLoaded]);
+
+    
     const isEditing = (record: EmployeeFullDetails) => record.id === editingKey;
     const showModal = () => {
         handleEditCancel()
@@ -379,24 +402,6 @@ export const Employees: React.FC = () => {
           </td>
         );
     };
-
-    useEffect(() => {
-        fetchStaticData();
-    }, []);
-
-    useEffect(() => {
-        const search_current_page = searchParams.get("current_page");
-        const search_page_size = searchParams.get("page_size");
-        if (search_current_page) {
-            setCurrentPage(parseInt(search_current_page));
-        }
-        if (search_page_size) {
-            setPageSize(parseInt(search_page_size));
-        }
-
-        fetchEmployees(currentPage, pageSize);
-    }, [searchParams, currentPage, pageSize]);
-
     const fetchStaticData = async () => {
         try {
             const [
@@ -418,6 +423,8 @@ export const Employees: React.FC = () => {
             if (responseEmployeeTitles.data) setEmployeeTitles(responseEmployeeTitles.data.data);
             if (responseProfessionalTitles.data) setProfessionalTitles(responseProfessionalTitles.data.data);
             if (responseEmployeeStatuses.data) setEmloyeeStatus(responseEmployeeStatuses.data.data);
+
+            setIsStaticDataLoaded(true);
         } catch (error) {
             console.error("Error fetching static data:", error);
             message.error("加载静态数据失败，请刷新页面重试");
@@ -425,6 +432,11 @@ export const Employees: React.FC = () => {
     };
 
     const fetchEmployees = async (page: number, size: number) => {
+        if (!isStaticDataLoaded) {
+            console.log("Static data not loaded yet, skipping employee fetch");
+            return;
+        }
+
         try {
             handleLoadingChange(true);
             const responseEmployees = await EmployeeService.readEmployees({
@@ -444,11 +456,11 @@ export const Employees: React.FC = () => {
                 const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
                     ...employee,
                     key: employee.id.toString(),
-                    department: departments.find(dept => dept.id === employee.department_id),
-                    workLocation: workLocations.find(location => location.id === employee.work_location_id),
-                    employeeTitle: employeeTitles.find(title => title.id === employee.employee_title_id),
-                    professionalTitle: professionalTitles.find(profTitle => profTitle.id === employee.professional_title_id),
-                    employmentStatus: employeeStatus.find(status => status.id === employee.employ_status_id),
+                    department: departments.find(dept => dept.id === employee.department_id) || { name: 'Unknown' },
+                    workLocation: workLocations.find(location => location.id === employee.work_location_id) || { name: 'Unknown' },
+                    employeeTitle: employeeTitles.find(title => title.id === employee.employee_title_id) || { name: 'Unknown' },
+                    professionalTitle: professionalTitles.find(profTitle => profTitle.id === employee.professional_title_id) || { name: 'Unknown' },
+                    employmentStatus: employeeStatus.find(status => status.id === employee.employ_status_id) || { name: 'Unknown' },
                 }));
 
                 setEmployees(employeeFullDetails);
