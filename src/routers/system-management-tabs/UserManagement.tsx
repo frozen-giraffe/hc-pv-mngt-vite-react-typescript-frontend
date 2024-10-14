@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Table,
@@ -13,11 +13,14 @@ import {
   Typography,
   Switch,
   Popconfirm,
+  Tooltip,
 } from "antd";
 import { UserPublic, UsersService, UserUpdate } from "../../client";
 import { useAuth } from "../../context/AuthContext";
 import { copyToClipboard } from "../../utils/copyToClipboard";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import { CopyOutlined } from "@ant-design/icons";
+import type { InputRef } from "antd";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserPublic[]>([]);
@@ -32,6 +35,7 @@ const UserManagement: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const passwordInputRef = useRef<InputRef>(null);
 
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
@@ -215,25 +219,35 @@ const UserManagement: React.FC = () => {
         open={isResetPasswordModalVisible}
         onOk={handleResetPasswordOk}
         onCancel={() => setIsResetPasswordModalVisible(false)}
+        footer={(_, { OkBtn }) => (
+          <>
+            <OkBtn />
+          </>
+        )}
       >
         <Space direction="vertical" size={16}>
           <Typography.Text>
-            用户 {editingUser?.email}{" "}
-            的密码已重置，请复制下发新密码并发送给用户。此密码只会显示一次。
+            用户 {editingUser?.email} 的密码已重置，请复制下方新密码并发送给用户。
+            <Typography.Text type="warning">此密码只会显示一次。</Typography.Text>
           </Typography.Text>
-          <Space style={{ width: "100%" }}>
-            <Input value={newPassword} disabled={true} size="large" />
-            <Button 
-              type="primary" 
-              onClick={() => {
-                copyToClipboard(newPassword)
-                  .then(() => message.success('密码已复制到剪贴板'))
-                  .catch(() => message.error('复制密码失败'));
-              }}
-            >
-              复制
-            </Button>
-          </Space>
+          <Space.Compact style={{ width: "100%" }}>
+            <Input variant="filled" ref={passwordInputRef} value={newPassword} size="large" style={{fontFamily: "monospace"}} onClick={() => passwordInputRef.current?.focus({cursor: "all"})}/>
+            <Tooltip title="复制密码">
+              <Button 
+                size="large"
+                onClick={() => {
+                  copyToClipboard(newPassword)
+                    .then(() => message.success('密码已复制到剪贴板'))
+                    .catch(() => {
+                      message.error('复制密码失败，请手动复制');
+                      passwordInputRef.current?.focus({cursor: "all"});
+                    });
+                  }}
+                >
+                <CopyOutlined />
+              </Button>
+            </Tooltip>
+          </Space.Compact>
         </Space>
       </Modal>
       <Modal

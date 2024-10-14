@@ -41,6 +41,7 @@ import { ColumnsType } from "antd/es/table";
 import FloatNumberCellRender from '../components/FloatNumberCellRender';
 import { PROJECT_TABLE_SHOWN_COLUMNS_KEY, PROJECT_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
 import FilterDropdown from "../components/FilterDropdown";
+import { FilterFilled, SortAscendingOutlined } from "@ant-design/icons";
 
 // Add this type alias using the correct type from ProjectsService
 type ProjectQueryParams = NonNullable<
@@ -408,6 +409,15 @@ export const Projects = () => {
   //or use
   //const getProjectPublicOutColumn = <T,> (name: keyof T)=> name //usage getProjectPublicOutColumn<ProjectPublicOut>('building_structure_type_id')
 
+  const getSortOrder = (key: string): "ascend" | "descend" | null => {
+    const sort_by = filters?.sort_by;
+    const sort_direction = filters?.sort_direction;
+    if (sort_by === key) {
+      return sort_direction === "asc" ? "ascend" : "descend";
+    }
+    return null;
+  };
+
   // Add this function to get the filtered value for a specific filter
   const getFilteredValue = (key: string): string[] | undefined => {
     const value = filters?.[key as keyof ProjectQueryParams];
@@ -439,6 +449,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("id"),
       width: 60,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("id")),
     },
     {
       title: "年度",
@@ -446,6 +457,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_year"),
       width: 90,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("project_year")),
       filteredValue: getFilteredValue("project_year"),
       filterDropdown: ({
         setSelectedKeys,
@@ -542,6 +554,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_construction_cost"),
       width: 110,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("project_construction_cost")),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_construction_cost"),
       filterDropdown: ({
@@ -566,6 +579,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("project_contract_value")),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_contract_value"),
       filterDropdown: ({
@@ -590,6 +604,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("calculated_employee_payout")),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("calculated_employee_payout"),
       filterDropdown: ({
@@ -615,6 +630,7 @@ export const Projects = () => {
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("date_added")),
       filteredValue: getDateRangeFilteredValue("date_added"),
       filterDropdown: ({
         setSelectedKeys,
@@ -641,6 +657,7 @@ export const Projects = () => {
       width: 140,
       render: (date: string) => convertDateToYYYYMMDDHM(date),
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("date_modified")),
       filteredValue: getDateRangeFilteredValue("date_modified"),
       filterDropdown: ({
         setSelectedKeys,
@@ -689,6 +706,7 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_area"),
       width: 120,
       sorter: true,
+      sortOrder: getSortOrder(getProjectPublicOutColumn("project_area")),
       render: (value: number) => <FloatNumberCellRender value={value}/>,
       filteredValue: getRangeFilteredValue("project_area"),
       filterDropdown: ({
@@ -861,9 +879,6 @@ export const Projects = () => {
                 );
               }}
             />
-            {filters && Object.keys(filters).length > 0 && (
-              <Button onClick={clearFilters}>清空过滤器</Button>
-            )}
           </Space>
         )}
         <Table
@@ -883,9 +898,17 @@ export const Projects = () => {
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total) =>
-              `共 ${total} 个工程 ${
-                filters && Object.keys(filters).length > 0 ? ", 已过滤" : ""
-              }`,
+              <>
+                共 {total} 个工程
+                {filters && Object.keys(filters).length > 0 ? 
+                <>
+                    <Divider type="vertical" /> 
+                    <Space>
+                        <Typography.Text style={{color: "grey"}} >已 <FilterFilled />过滤 / <SortAscendingOutlined />排序</Typography.Text>
+                        <Button onClick={clearFilters} type="dashed" size="small">取消过滤/排序</Button>
+                    </Space>
+                    </> : null}
+              </>
           }}
           scroll={{ x: "max-content" }}
           style={{ height: "100%" }}

@@ -23,7 +23,7 @@ export const copyToClipboard = async (text: string): Promise<void> => {
           throw new Error('Unable to copy text');
         }
       } catch (err) {
-        throw new Error('Unable to copy text');
+        throw new Error('Unable to copy text: ' + err);
       } finally {
         document.body.removeChild(textArea);
       }
