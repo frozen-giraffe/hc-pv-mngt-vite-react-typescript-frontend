@@ -227,8 +227,7 @@ const UserManagement: React.FC = () => {
       >
         <Space direction="vertical" size={16}>
           <Typography.Text>
-            用户 {editingUser?.email} 的密码已重置，请复制下方新密码并发送给用户。
-            <Typography.Text type="warning">此密码只会显示一次。</Typography.Text>
+            用户 {editingUser?.email} 的密码已重置，请复制下方新密码并发送给用户，并提醒用户尽快修改密码。
           </Typography.Text>
           <Space.Compact style={{ width: "100%" }}>
             <Input variant="filled" ref={passwordInputRef} value={newPassword} size="large" style={{fontFamily: "monospace"}} onClick={() => passwordInputRef.current?.focus({cursor: "all"})}/>
@@ -248,6 +247,7 @@ const UserManagement: React.FC = () => {
               </Button>
             </Tooltip>
           </Space.Compact>
+          <Typography.Text type="warning">此密码只会显示一次。</Typography.Text>
         </Space>
       </Modal>
       <Modal
