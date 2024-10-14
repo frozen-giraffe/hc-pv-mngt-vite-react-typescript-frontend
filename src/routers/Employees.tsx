@@ -1,18 +1,18 @@
-import React, { Key, useCallback, useEffect, useState } from 'react'
-import { Button, Divider, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
-import { SearchOutlined, PlusOutlined, FilePdfOutlined } from '@ant-design/icons';
-import type { TableColumnsType, TableColumnType, TableProps } from 'antd';
-import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, ReportsService, WorkLocationPublicOut, WorkLocationsService } from '../client';
+import React, { useCallback, useEffect, useState } from 'react'
+import { Button, DatePicker, Divider, Form, Input, message, Modal, Select, Space, Table, Tooltip, Typography} from 'antd';
+import { PlusOutlined, FilePdfOutlined } from '@ant-design/icons';
+import type { TableProps } from 'antd';
+import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployeeUpdateIn, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, ReportsService, WorkLocationPublicOut, WorkLocationsService } from '../client';
 import { useAuth } from '../context/AuthContext';
-import { ColumnsType, FilterDropdownProps } from 'antd/es/table/interface';
-import pinyin from 'chinese-to-pinyin';
-import MySelectComponent from '../components/Dropdown';
-import { downloadReport, useDownloadReport } from '../utils/ReportFileDownload';
+import { ColumnsType } from 'antd/es/table/interface';
+import { downloadReport } from '../utils/ReportFileDownload';
 import EmployeeReportModal from '../components/EmployeeReportModal';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
 import { GetColumnNames } from '../helper';
 import FilterDropdown from '../components/FilterDropdown';
+import dayjs from 'dayjs';
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 type EmployeeQueryParams = NonNullable<
   Parameters<typeof EmployeeService.readEmployees>[0]
@@ -26,40 +26,19 @@ type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_locat
     professionalTitle: Pick<ProfessionalTitlePublicOut, 'name'>;
     employmentStatus: Pick<EmployStatusPublicOut, 'name'>;
 };
-// interface EditableColumnType<T> extends TableColumnsType<T>{
-//     editable?: boolean;
-//     inputType?: 'text' | 'number' | 'dropdown';
-// }
-interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
-    editing: boolean;
-    editable?: boolean;
-    dataIndex: string;
-    title: any;
-    inputType: 'number' | 'text' | 'dropdown';
-    record: EmployeeFullDetails;
-    index: number;
-    options?: any[]; // dropdown options
-}
-
-
-const onChange: TableProps<EmployeeFullDetails>['onChange'] = (pagination, filters, sorter, extra) => {
-    console.log('params', pagination, filters, sorter, extra);
-};
 
 export const Employees: React.FC = () => {
-    
     const {user} = useAuth()
     const [form] = Form.useForm();
-    const [editingKey, setEditingKey] = useState<number | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [employees, setEmployees] = useState<EmployeeFullDetails[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
-    const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
-    const [employeeTitles, setEmployeeTitles] = useState<EmployeeTitlePublicOut[]>([])//use for dropdown while editing
-    const [professionalTitles, setProfessionalTitles] = useState<ProfessionalTitlePublicOut[]>([])//use for dropdown while editing
-    const [employeeStatus, setEmloyeeStatus] = useState<EmployStatusPublicOut[]>([])//use for dropdown while editing
+    const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])
+    const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])
+    const [employeeTitles, setEmployeeTitles] = useState<EmployeeTitlePublicOut[]>([])
+    const [professionalTitles, setProfessionalTitles] = useState<ProfessionalTitlePublicOut[]>([])
+    const [employeeStatus, setEmloyeeStatus] = useState<EmployStatusPublicOut[]>([])
     const [isEmployeeReportModalVisible, setIsEmployeeReportModalVisible] = useState(false);
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
@@ -70,31 +49,17 @@ export const Employees: React.FC = () => {
     const [filters, setFilters] = useState<Partial<EmployeeQueryParams>>({});
     const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
-
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     
-    const successMessage = (msg:string) => {
-        messageApi.open({
-        type: 'success',
-        content: msg,
-        });
-    };
-    const errorMessage = (msg:string) => {
-        messageApi.open({
-          type: 'error',
-          content: msg,
-        });
-    };
-
     const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
+    const [editingEmployee, setEditingEmployee] = useState<EmployeeFullDetails | null>(null);
 
     const getEmployeePublicOutColumn = GetColumnNames<EmployeePublicOut>();
 
     useEffect(() => {
         fetchStaticData();
     }, []);
-
 
     const fetchEmployees = useCallback(async (page: number, size: number, filters: Partial<EmployeeQueryParams>) => {
         if (!isStaticDataLoaded) {
@@ -103,7 +68,7 @@ export const Employees: React.FC = () => {
         }
 
         try {
-            handleLoadingChange(true);
+            setLoading(true);
             const responseEmployees = await EmployeeService.readEmployees({
                 query: {
                     skip: (page - 1) * size,
@@ -136,10 +101,9 @@ export const Employees: React.FC = () => {
             console.error("Error fetching employees:", error);
             message.error("获取员工数据失败，请重试");
         } finally {
-            handleLoadingChange(false);
+            setLoading(false);
         }
     }, [isStaticDataLoaded, departments, workLocations, employeeTitles, professionalTitles, employeeStatus]);
-
 
     useEffect(() => {
         if (isStaticDataLoaded) {
@@ -177,13 +141,11 @@ export const Employees: React.FC = () => {
         }
     }, [searchParams, currentPage, pageSize, isStaticDataLoaded, fetchEmployees]);
 
-      // Add this function to get the filtered value for a specific filter
     const getFilteredValue = (key: string): string[] | undefined => {
         const value = filters?.[key as keyof EmployeeQueryParams];
         return value ? [value] : undefined;
     };
 
-    // Add this function to get the filtered value for date range filters
     const getDateRangeFilteredValue = (key: string): string[] | undefined => {
         const fromValue = filters?.[`${key}_from` as keyof EmployeeQueryParams];
         const toValue = filters?.[`${key}_to` as keyof EmployeeQueryParams];
@@ -192,119 +154,105 @@ export const Employees: React.FC = () => {
         : undefined;
     };
     
-    const isEditing = (record: EmployeeFullDetails) => record.id === editingKey;
-    const showModal = () => {
-        handleEditCancel()
-        form.resetFields()
-        setIsModalVisible(true);
-    }
-    const handleModalCancel = () => setIsModalVisible(false);
-    const handleAddEmployee = async (values: any) => {
-        try {
-            console.log(values);
-            form.validateFields(['name','department','workLocation','employeeTitle','professionalTitle','employmentStatus'])
-            const requestBody:EmployeeData['CreateEmployee']={
-                requestBody:{
-                    name: values.name,
-                    gov_id: null,
-                    gender: values.gender,
-                    department_id: departments.find(d => d.name===values.department)!!.id,
-                    work_location_id: workLocations.find(d => d.name===values.workLocation)!!.id,
-                    employee_title_id: employeeTitles.find(d => d.name===values.employeeTitle)!!.id,
-                    professional_title_id: professionalTitles.find(d => d.name===values.professionalTitle)!!.id,
-                    employ_status_id: employeeStatus.find(d => d.name===values.employmentStatus)!!.id,
-                    birth_date: values.birth_date,
-                }
-            }
-            console.log(requestBody);
-            
-            const repsonseCreateEmployee = await EmployeeService.createEmployee(requestBody)
-            if(repsonseCreateEmployee.data){
-                fetchEmployees(currentPage, pageSize, filters)
-                successMessage('创建成功')
-                handleModalCancel()
-            }else{
-                errorMessage('创建失败')
-            }
-            //   const newEmployee = { ...values }; // 处理输入的表单数据
-            //   await EmployeeService.addEmployee(newEmployee); // 假设这是添加人员的 API 请求
-            //   fetchEmployees(); // 更新人员列表
-            //   setIsAddEmployeeModalVisible(false); // 关闭模态框
-            //   form.resetFields(); // 重置表单
-        } catch (error) {
-           console.error('Error adding employee:', error);
-         }
-    };
-    const handleEdit = (record: EmployeeFullDetails) => {
-        //display data in edit input
-        form.setFieldsValue({ 
-            ...record,
-        });
-        setEditingKey(record.id);
-        
-    };
-    const handleEditSave = async (data: EmployeeFullDetails) =>{
-        console.log(data);
-        try{
-            await form.validateFields(['name']); // This line needs to be inside an async function
-
-            const updatedData = await form.getFieldsValue();
-            console.log(updatedData);
-            const requestBody:EmployeeData['UpdateEmployee'] = {
-                id:data.id,
-                requestBody:{
-                    name: updatedData.name,
-                    gov_id:null,
-                    gender:null,
-                    department_id:departments.find(d => d.name===updatedData.department.name)!!.id,
-                    work_location_id:workLocations.find(d => d.name===updatedData.workLocation.name)!!.id,
-                    employee_title_id:employeeTitles.find(d => d.name===updatedData.employeeTitle.name)!!.id,
-                    professional_title_id:professionalTitles.find(d => d.name===updatedData.professionalTitle.name)!!.id,
-                    employ_status_id:employeeStatus.find(d => d.name===updatedData.employmentStatus.name)!!.id,
-                    birth_date: updatedData.birth_date,
-                    initial:pinyin(updatedData.name,{ keepRest: true, firstCharacter: true }),// 获取中文首字母时，保留未翻译的非中文字符
-                    pinyin:pinyin(updatedData.name, {removeTone: true})
-                }
-            }
-            console.log(requestBody.requestBody);
-            console.log(pinyin(updatedData.name, {removeTone: true}));
-            
-            const repsonseUpdateEmployee = await EmployeeService.updateEmployee(requestBody)
-            if(repsonseUpdateEmployee.data){
-                successMessage('创建成功')
-                fetchEmployees(currentPage, pageSize, filters)
-            }else{
-                errorMessage('创建失败：'+repsonseUpdateEmployee.error.detail)
-            }
-            
-        }catch (error) {
-            console.error('Error saving data:', error);
-            errorMessage('创建失败')
+    const showModal = (employee?: EmployeeFullDetails) => {
+        if (employee) {
+            setEditingEmployee(employee);
+            form.setFieldsValue({
+                ...employee,
+                department: employee.department.name,
+                workLocation: employee.workLocation.name,
+                employeeTitle: employee.employeeTitle.name,
+                professionalTitle: employee.professionalTitle.name,
+                employmentStatus: employee.employmentStatus.name,
+                birth_date: employee.birth_date ? new dayjs(employee.birth_date) : null,
+            });
+        } else {
+            setEditingEmployee(null);
+            form.resetFields();
         }
-        setEditingKey(null);
-
-    }
-    const handleEditCancel = () => {
-        setEditingKey(null);
-    };
-    
-    const handleLoadingChange = (enable: boolean) => {
-        setLoading(enable);
+        setIsModalVisible(true);
     };
 
-    // Delete function
-    const handleDelete = async (id: number) => {
-        console.log('Delete employee id:', id);
+    const handleModalCancel = () => {
+        setIsModalVisible(false);
+        setEditingEmployee(null);
+        form.resetFields();
     };
-    
+
+    const handleAddOrUpdateEmployee = async (values: any) => {
+        try {
+            form.validateFields(['name', 'department', 'workLocation', 'employeeTitle', 'professionalTitle', 'employmentStatus'])
+            const employeeData: Partial<EmployeeCreateIn | EmployeeUpdateIn> = {
+                name: values.name,
+                gov_id: values.gov_id,
+                gender: values.gender,
+                department_id: values.department_id,
+                work_location_id: values.work_location_id,
+                employee_title_id: values.employee_title_id,
+                professional_title_id: values.professional_title_id,
+                employ_status_id: values.employ_status_id,
+                birth_date: values.birth_date ? values.birth_date.format('YYYY-MM-DD') : undefined,
+                initial: values.initial,
+                pinyin: values.pinyin,
+            };
+
+            if (editingEmployee) {
+                const changedData: Partial<EmployeeUpdateIn> = {};
+                Object.keys(employeeData).forEach(key => {
+                    const typedKey = key as keyof EmployeeUpdateIn;
+                    if (employeeData[typedKey] !== editingEmployee[typedKey]) {
+                        changedData[typedKey] = employeeData[typedKey] as any;
+                    }
+                });
+                // 如果姓名发生变化，且初始和拼音为空，删除以由后端生成
+                if (changedData.name) {
+                    if (changedData.initial === '') {
+                        delete changedData.initial;
+                    }
+                    if (changedData.pinyin === '') {
+                        delete changedData.pinyin;
+                    }
+                }
+
+                const response = await EmployeeService.updateEmployee({
+                    path: {
+                        id: editingEmployee.id,
+                    },
+                    body: changedData,
+                });
+                if (response.data) {
+                    message.success('更新成功');
+                    handleModalCancel();
+                } else {
+                    message.error('更新失败: ' + response.error?.detail);
+                }
+            } else {
+                const response = await EmployeeService.createEmployee({
+                    body: employeeData as EmployeeCreateIn,
+                });
+                if (response.data) {
+                    message.success('创建成功');
+                    handleModalCancel();
+                } else {
+                    message.error('创建失败: ' + response.error?.detail);
+                }
+            }
+
+            fetchEmployees(currentPage, pageSize, filters);
+        } catch (error) {
+            console.error('Error adding/updating employee:', error);
+            message.error('操作失败，请重试');
+        }
+    };
+
     const columns: ColumnsType<EmployeeFullDetails> = [
         {
-            title: 'ID', dataIndex: 'id',  editable: false, inputType: 'text',width: 50,
+            title: 'ID', dataIndex: 'id', width: 50,
             key: getEmployeePublicOutColumn('id'),
             sorter: true,
         },
         {
-            title: '姓名', dataIndex: 'name', editable: true, inputType: 'text', width: 100,
+            title: '姓名', dataIndex: 'name', width: 100,
             key: getEmployeePublicOutColumn('name'),
             sorter: true,
             filteredValue: getFilteredValue('name'),
@@ -325,12 +273,12 @@ export const Employees: React.FC = () => {
             )
         },
         {
-            title: '性别', dataIndex: 'gender',editable: true, inputType: 'text',width: 50,
+            title: '性别', dataIndex: 'gender', width: 50,
             key: getEmployeePublicOutColumn('gender'),
             onCell: () => ({ style: { minWidth: 500 } }),
         },
         {
-            title: '身份证号', dataIndex: 'gov_id', editable: false, inputType: 'text',width: 100,
+            title: '身份证号', dataIndex: 'gov_id', width: 100,
             key: getEmployeePublicOutColumn('gov_id'),
             filteredValue: getFilteredValue('gov_id'),
             filterDropdown: ({
@@ -350,7 +298,7 @@ export const Employees: React.FC = () => {
             )
         },
         {
-            title: '生日', dataIndex: 'birth_date', editable: true, inputType: 'text', width: 100,
+            title: '生日', dataIndex: 'birth_date', width: 100,
             render:(text:string | null) => text!==null && convertDateToYYYYMMDD(text),
             key: getEmployeePublicOutColumn('birth_date'),
             sorter: true,
@@ -374,129 +322,61 @@ export const Employees: React.FC = () => {
             )
         },
         {
-            title: '部门', dataIndex: ['department', 'name'], editable: true, inputType: 'dropdown', options: departments,width: 100,
+            title: '部门', dataIndex: ['department', 'name'],width: 100,
             filters: departments.map(dept => ({ text: dept.name, value: dept.id })),
             key: getEmployeePublicOutColumn('department_id'),
             filterMultiple: false,
             sorter: true,
         },
         {
-            title: '工作地点',dataIndex: ['workLocation', 'name'],editable: true,inputType: 'dropdown',options: workLocations,width: 100,
+            title: '工作地点',dataIndex: ['workLocation', 'name'],width: 100,
             filters: workLocations.map(location => ({ text: location.name, value: location.id })),
             key: getEmployeePublicOutColumn('work_location_id'),
             filterMultiple: false,
             sorter: true,
         },
         {
-            title: '职位',dataIndex: ['employeeTitle', 'name'],editable: true,inputType: 'dropdown',options: employeeTitles,width: 100,
+            title: '职位',dataIndex: ['employeeTitle', 'name'],width: 100,
             filters: employeeTitles.map(title => ({ text: title.name, value: title.id })),
             key: getEmployeePublicOutColumn('employee_title_id'),
             filterMultiple: false,
             sorter: true,
         },
         {
-            title: '职称', dataIndex: ['professionalTitle', 'name'],editable: true,inputType: 'dropdown',options: professionalTitles,width: 100,
+            title: '职称', dataIndex: ['professionalTitle', 'name'],width: 100,
             filters: professionalTitles.map(title => ({ text: title.name, value: title.id })),
             key: getEmployeePublicOutColumn('professional_title_id'),
             filterMultiple: false,
             sorter: true,
         },
         {
-            title: '员工状态',dataIndex: ['employmentStatus', 'name'],editable: true,inputType: 'dropdown',options: employeeStatus, width: 100,
+            title: '员工状态',dataIndex: ['employmentStatus', 'name'], width: 100,
             filters: employeeStatus.map(status => ({ text: status.name, value: status.id })),
             key: getEmployeePublicOutColumn('employ_status_id'),
             filterMultiple: false,
             sorter: true,
         },
-        user?.is_superuser ? 
         {
-            title: '操作',key: 'action', fixed: 'right', width: 100,
-            render: (_:any, record:EmployeeFullDetails) => 
-            {
-            const editable = isEditing(record);
-            return editable ? (
-            <span>
-                <Typography.Link onClick={() => handleEditSave(record)}>
-                    保存
-                </Typography.Link>
-                <Typography.Link onClick={() => handleEditCancel()}>
-                    取消
-                </Typography.Link>
-            </span>
-            ) : (
-            <span>
+            title: '操作',
+            key: 'action',
+            fixed: 'right',
+            width: 100,
+            render: (_, record: EmployeeFullDetails) => (
                 <Space>
-                    <Typography.Link disabled={false} onClick={() => handleEdit(record)}>
-                        修改
+                    <Typography.Link onClick={() => showModal(record)}>
+                        编辑
                     </Typography.Link>
-                    {/* <Popconfirm title="确定要删除这行吗?" onConfirm={() => handleDelete(record.id)} okText='是' cancelText='否'>
-                        
-                        <a>删除</a>
-                    </Popconfirm> */}
-                    <Typography.Link disabled={false} onClick={() => {
+                    <Typography.Link onClick={() => {
                         setSelectedEmployeeId(record.id);
                         setIsEmployeeReportModalVisible(true);
                     }}>
                         报告
                     </Typography.Link>
                 </Space>
-                
-            </span>
-            );
+            ),
         },
-        }: {},
     ];
-    const mergedColumns: TableColumnsType<EmployeeFullDetails> = columns.map((col) => {
-        //if editable: true in columns, use original col
-        if (!col.editable) {
-          return col;
-        }
-        return {
-          ...col,
-          onCell: (record: EmployeeFullDetails) => ({
-            record,
-            inputType: col.inputType || 'text',
-            dataIndex: col.dataIndex,
-            title: col.title,
-            editing: isEditing(record),
-            options: col.options, // 下拉框选项
-            
-          }),
-        };
-      });
-    const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
-        editing,
-        dataIndex,
-        title,
-        inputType,
-        record,
-        index,
-        children,
-        options = [],
-        ...restProps
-      }) => {
-        
-        let inputNode = <Input />;
-        if (inputType === 'dropdown') {
-        inputNode = <MySelectComponent options={employeeStatus}/>
 
-        } else if (inputType === 'number') {
-            inputNode = <InputNumber />;
-        }
-        return (
-          <td {...restProps}>
-            {editing ? (
-                <Form.Item name={dataIndex} style={{ margin: 0}} rules={[
-                    {required: true, message: `Please Input ${title}!`,},
-                ]}>
-                    {inputNode}
-                </Form.Item>
-            ) : (
-              children
-            )}
-          </td>
-        );
-    };
     const fetchStaticData = async () => {
         try {
             const [
@@ -620,16 +500,30 @@ export const Employees: React.FC = () => {
         navigate("/employees", { replace: true });
         fetchEmployees(1, pageSize, {});
         setTableRefreshKey(tableRefreshKey + 1);
-      };
+    };
+
+    const handleFormNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        if (editingEmployee && newName !== editingEmployee.name) {
+            form.setFieldsValue({
+                initial: '',
+                pinyin: ''
+            });
+        } else {
+            form.setFieldsValue({
+                initial: editingEmployee?.initial,
+                pinyin: editingEmployee?.pinyin
+            });
+        }
+    };
 
     return (
         <div>
             {contextHolder}
             <Space direction="vertical" style={{width: '100%'}}>
-
                 {user?.is_superuser &&
                 <Space>
-                    <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
+                    <Button onClick={() => showModal()} type="primary" icon={<PlusOutlined />}>
                         添加
                     </Button>
                     <Divider type="vertical" />
@@ -644,80 +538,106 @@ export const Employees: React.FC = () => {
                     )}
                 </Space>
                 }
-                <Form form={form} component={false}>
-                    <Table
-                        components={{
-                            body: {
-                            cell: EditableCell,
-                            },
-                        }}
-                        rowClassName="editable-row"
-                        rowKey='id'
-                        size='small'
-                        key={tableRefreshKey}
-                        loading={loading}
-                        columns={mergedColumns}
-                        dataSource={employees}
-                        onChange={handleTableChange}
-                        showSorterTooltip={{ target: 'sorter-icon' }}
-                        pagination={{
-                            position: ["topRight"],
-                            current: currentPage,
-                            pageSize: pageSize,
-                            pageSizeOptions: ["10", "20", "50", "100"],
-                            total: totalEmployees,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
-                            showTotal: (total) => `共 ${total} 个员工 ${
-                                filters && Object.keys(filters).length > 0 ? ", 已过滤" : ""
-                            }`,
-                        }}
-                        scroll={{ x:500 }}
-                    />
-                </Form>
-            
+                <Table
+                    rowKey='id'
+                    size='small'
+                    key={tableRefreshKey}
+                    loading={loading}
+                    columns={columns}
+                    dataSource={employees}
+                    onChange={handleTableChange}
+                    pagination={{
+                        position: ["topRight"],
+                        current: currentPage,
+                        pageSize: pageSize,
+                        pageSizeOptions: ["10", "20", "50", "100"],
+                        total: totalEmployees,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total) => `共 ${total} 个员工 ${
+                            filters && Object.keys(filters).length > 0 ? ", 已过滤" : ""
+                        }`,
+                    }}
+                    scroll={{ x: 500 }}
+                />
             </Space>
             <Modal
-                title="添加新人员"
+                title={editingEmployee ? "编辑员工：" + editingEmployee.name : "添加新员工"}
                 open={isModalVisible}
                 onCancel={handleModalCancel}
                 onOk={() => form.submit()}
-                okText="添加"
+                okText={editingEmployee ? "更新" : "添加"}
                 cancelText="取消"
             >
-                <Form form={form} layout="vertical" onFinish={handleAddEmployee}>
+                <Form form={form} layout="vertical" onFinish={handleAddOrUpdateEmployee}>
                     <Form.Item name="name" label="姓名" rules={[{ required: true, message: '请输入姓名!' }]}>
-                        <Input />
+                        <Input onChange={handleFormNameChange}/>
                     </Form.Item>
-                    <Form.Item name="gender" label="性别" rules={[{ message: '请选择性别!' }]}>
+                    <Form.Item name="gender" label="性别" >
                         <Select>
                             <Select.Option value="男">男</Select.Option>
                             <Select.Option value="女">女</Select.Option>
                         </Select>
                     </Form.Item>
-                    <Form.Item name="birth_date" label="生日" rules={[{ message: '请输入生日!' }]}>
+                    <Form.Item name="gov_id" label="身份证号" >
                         <Input />
                     </Form.Item>
-                    <Form.Item name="department" label="部门" rules={[{ required: true, message: '请选择部门!' }]}>
-                    <MySelectComponent options={departments}/>
-
+                    <Form.Item name="birth_date" label="生日" >
+                        <DatePicker picker="date" style={{width: '100%'}} defaultPickerValue={dayjs("1990-01-01")}/>
                     </Form.Item>
-                    <Form.Item name="workLocation" label="工作地点" rules={[{ required: true, message: '请选择工作地点!' }]}>
-                    <MySelectComponent options={workLocations}/>
-
+                    <Form.Item name="department_id" label="部门" rules={[{ required: true, message: '请选择部门!' }]}>
+                        <Select>
+                            {departments.map(dept => (
+                                <Select.Option key={dept.id} value={dept.id}>{dept.name}</Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
-                    <Form.Item name="employeeTitle" label="职位" rules={[{ required: true,message: '请选择职位!' }]}>
-                    <MySelectComponent options={employeeTitles}/>
-
+                    <Form.Item name="work_location_id" label="工作地点" rules={[{ required: true, message: '请选择工作地点!' }]}>
+                        <Select>
+                            {workLocations.map(location => (
+                                <Select.Option key={location.id} value={location.id}>{location.name}</Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
-                    <Form.Item name="professionalTitle" label="职称" rules={[{ required: true,message: '请选择职称!' }]}>
-                    <MySelectComponent options={professionalTitles}/>
-
+                    <Form.Item name="employee_title_id" label="职位" rules={[{ required: true, message: '请选择职位!' }]}>
+                        <Select>
+                            {employeeTitles.map(title => (
+                                <Select.Option key={title.id} value={title.id}>{title.name}</Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
-                    <Form.Item name="employmentStatus" label="员工状态" rules={[{ required: true,message: '请选择员工状态!' }]}>
-                        {/* {renderDropdown(employeeStatus)} */}
-                        <MySelectComponent options={employeeStatus}/>
+                    <Form.Item name="professional_title_id" label="职称" rules={[{ required: true, message: '请选择职称!' }]}>
+                        <Select>
+                            {professionalTitles.map(title => (
+                                <Select.Option key={title.id} value={title.id}>{title.name}</Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
+                    <Form.Item name="employ_status_id" label="员工状态" rules={[{ required: true, message: '请选择员工状态!' }]}>
+                        <Select>
+                            {employeeStatus.map(status => (
+                                <Select.Option key={status.id} value={status.id}>{status.name}</Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    {editingEmployee ? (
+                        <>
+                            <Divider plain orientation="left" style={{color: "grey"}}>
+                                进阶设置
+                                <Tooltip title="下方数据用于系统内员工拼音搜索，如果不准确，请手动修改" >
+                                    <InfoCircleOutlined
+                                        style={{ marginLeft: "8px", cursor: "pointer", color: "grey"}}
+                                />
+                                </Tooltip>
+                            </Divider>
+                            <Form.Item name="initial" label="姓名首字母" >
+                                <Input placeholder="留空自动生成"/>
+                            </Form.Item>
+                            <Form.Item name="pinyin" label="姓名拼音" >
+                                <Input placeholder="留空自动生成"/>
+                            </Form.Item>
+                        </>
+                    ) : null}
                 </Form>
             </Modal>
             <EmployeeReportModal
@@ -727,5 +647,5 @@ export const Employees: React.FC = () => {
                 employeeName={employees.find(employee => employee.id === selectedEmployeeId)?.name ?? ''}
             />
         </div>
-  )
-}
+    );
+};
