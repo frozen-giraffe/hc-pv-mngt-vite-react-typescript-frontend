@@ -9,14 +9,6 @@ export type Body_Login_login_access_token = {
     client_secret?: (string | null);
 };
 
-export type Body_______employee_read_employees = {
-    department_ids?: (Array<(number)> | null);
-    work_location_ids?: (Array<(number)> | null);
-    employee_title_ids?: (Array<(number)> | null);
-    professional_title_ids?: (Array<(number)> | null);
-    employ_status_ids?: (Array<(number)> | null);
-};
-
 export type BuildingStructureTypeCreateIn = {
     name: string;
 };
@@ -1660,18 +1652,22 @@ export type UpdateDepartmentPayoutRatioByComboResponse = (DepartmentPayoutRatioP
 export type UpdateDepartmentPayoutRatioByComboError = (ErrorResponse | HTTPValidationError);
 
 export type ReadEmployeesData = {
-    body?: Body_______employee_read_employees;
     query?: {
         birth_date_from?: (string | null);
         birth_date_to?: (string | null);
+        department_id?: (number | null);
+        employ_status_id?: (number | null);
+        employee_title_id?: (number | null);
         gender?: (string | null);
         gov_id?: (string | null);
         limit?: number;
         name?: (string | null);
+        professional_title_id?: (number | null);
         show_disabled?: (boolean | null);
         skip?: number;
         sort_by?: (string | null);
         sort_direction?: SortDirection;
+        work_location_id?: (number | null);
     };
 };
 

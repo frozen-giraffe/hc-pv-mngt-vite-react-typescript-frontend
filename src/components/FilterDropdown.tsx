@@ -13,7 +13,7 @@ interface FilterDropdownProps {
   onClear: () => void;
 }
 
-const ProjectFilterDropdown: React.FC<FilterDropdownProps> = ({
+const FilterDropdown: React.FC<FilterDropdownProps> = ({
   type,
   placeholder,
   value,
@@ -93,4 +93,4 @@ const ProjectFilterDropdown: React.FC<FilterDropdownProps> = ({
   );
 };
 
-export default ProjectFilterDropdown;
+export default FilterDropdown;

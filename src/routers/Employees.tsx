@@ -1,17 +1,22 @@
-import React, { Key, useEffect, useState } from 'react'
+import React, { Key, useCallback, useEffect, useState } from 'react'
 import { Button, Divider, Form, Input, InputNumber, message, Modal, Popconfirm, Select, Space, Table, Typography} from 'antd';
 import { SearchOutlined, PlusOutlined, FilePdfOutlined } from '@ant-design/icons';
-import type { TableColumnsType, TableProps } from 'antd';
+import type { TableColumnsType, TableColumnType, TableProps } from 'antd';
 import { DepartmentPublicOut, DepartmentsService, EmployeeCreateIn, EmployeeData, EmployeePublicOut, EmployeeService, EmployeeStatusesService, EmployeeTitlePublicOut, EmployeeTitlesService, EmployStatusPublicOut, ProfessionalTitlePublicOut, ProfessionalTitlesService, ReportsService, WorkLocationPublicOut, WorkLocationsService } from '../client';
 import { useAuth } from '../context/AuthContext';
-import { FilterDropdownProps } from 'antd/es/table/interface';
+import { ColumnsType, FilterDropdownProps } from 'antd/es/table/interface';
 import pinyin from 'chinese-to-pinyin';
 import MySelectComponent from '../components/Dropdown';
 import { downloadReport, useDownloadReport } from '../utils/ReportFileDownload';
 import EmployeeReportModal from '../components/EmployeeReportModal';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
+import { GetColumnNames } from '../helper';
+import FilterDropdown from '../components/FilterDropdown';
 
+type EmployeeQueryParams = NonNullable<
+  Parameters<typeof EmployeeService.readEmployees>[0]
+>["query"];
 
 type EmployeeFullDetails = Omit<EmployeePublicOut, 'department_id' | 'work_location_id' | 'employee_title_id' | 'professional_title_id' | 'employ_status_id'> & {
     key:string;
@@ -45,8 +50,6 @@ export const Employees: React.FC = () => {
     
     const {user} = useAuth()
     const [form] = Form.useForm();
-    const [searchText, setSearchText] = useState<number | Key>('');
-    const [searchedColumn, setSearchedColumn] = useState('');
     const [editingKey, setEditingKey] = useState<number | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [employees, setEmployees] = useState<EmployeeFullDetails[]>([]);
@@ -63,6 +66,10 @@ export const Employees: React.FC = () => {
     const [totalEmployees, setTotalEmployees] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE);
+    
+    const [filters, setFilters] = useState<Partial<EmployeeQueryParams>>({});
+    const [tableRefreshKey, setTableRefreshKey] = useState(0);
+
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -82,9 +89,57 @@ export const Employees: React.FC = () => {
 
     const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
 
+    const getEmployeePublicOutColumn = GetColumnNames<EmployeePublicOut>();
+
     useEffect(() => {
         fetchStaticData();
     }, []);
+
+
+    const fetchEmployees = useCallback(async (page: number, size: number, filters: Partial<EmployeeQueryParams>) => {
+        if (!isStaticDataLoaded) {
+            console.log("Static data not loaded yet, skipping employee fetch");
+            return;
+        }
+
+        try {
+            handleLoadingChange(true);
+            const responseEmployees = await EmployeeService.readEmployees({
+                query: {
+                    skip: (page - 1) * size,
+                    limit: size,
+                    show_disabled: true,
+                    ...filters,
+                }
+            });
+
+            if (responseEmployees.error) {
+                message.error("获取员工失败: " + responseEmployees.error.detail);
+                return;
+            }
+
+            if (responseEmployees.data) {
+                const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
+                    ...employee,
+                    key: employee.id.toString(),
+                    department: departments.find(dept => dept.id === employee.department_id) || { name: 'Unknown' },
+                    workLocation: workLocations.find(location => location.id === employee.work_location_id) || { name: 'Unknown' },
+                    employeeTitle: employeeTitles.find(title => title.id === employee.employee_title_id) || { name: 'Unknown' },
+                    professionalTitle: professionalTitles.find(profTitle => profTitle.id === employee.professional_title_id) || { name: 'Unknown' },
+                    employmentStatus: employeeStatus.find(status => status.id === employee.employ_status_id) || { name: 'Unknown' },
+                }));
+
+                setEmployees(employeeFullDetails);
+                setTotalEmployees(responseEmployees.data.count);
+            }
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+            message.error("获取员工数据失败，请重试");
+        } finally {
+            handleLoadingChange(false);
+        }
+    }, [isStaticDataLoaded, departments, workLocations, employeeTitles, professionalTitles, employeeStatus]);
+
 
     useEffect(() => {
         if (isStaticDataLoaded) {
@@ -97,10 +152,45 @@ export const Employees: React.FC = () => {
                 setPageSize(parseInt(search_page_size));
             }
 
-            fetchEmployees(currentPage, pageSize);
-        }
-    }, [searchParams, currentPage, pageSize, isStaticDataLoaded]);
+            const newFilters: Partial<EmployeeQueryParams> = {};
+            for (const [key, value] of searchParams.entries()) {
+                if (key in {
+                    name: true,
+                    gender: true,
+                    gov_id: true,
+                    department_id: true,
+                    work_location_id: true,
+                    employee_title_id: true,
+                    employ_status_id: true,
+                    professional_title_id: true,
+                    birth_date_from: true,
+                    birth_date_to: true,
+                    sort_by: true,
+                    sort_direction: true,
+                }) {
+                    newFilters[key as keyof EmployeeQueryParams] = value;
+                }
+            }
+            setFilters(newFilters);
 
+            fetchEmployees(currentPage, pageSize, newFilters);
+        }
+    }, [searchParams, currentPage, pageSize, isStaticDataLoaded, fetchEmployees]);
+
+      // Add this function to get the filtered value for a specific filter
+    const getFilteredValue = (key: string): string[] | undefined => {
+        const value = filters?.[key as keyof EmployeeQueryParams];
+        return value ? [value] : undefined;
+    };
+
+    // Add this function to get the filtered value for date range filters
+    const getDateRangeFilteredValue = (key: string): string[] | undefined => {
+        const fromValue = filters?.[`${key}_from` as keyof EmployeeQueryParams];
+        const toValue = filters?.[`${key}_to` as keyof EmployeeQueryParams];
+        return fromValue || toValue
+        ? ([fromValue, toValue].filter(Boolean) as string[])
+        : undefined;
+    };
     
     const isEditing = (record: EmployeeFullDetails) => record.id === editingKey;
     const showModal = () => {
@@ -130,7 +220,7 @@ export const Employees: React.FC = () => {
             
             const repsonseCreateEmployee = await EmployeeService.createEmployee(requestBody)
             if(repsonseCreateEmployee.data){
-                fetchEmployees()
+                fetchEmployees(currentPage, pageSize, filters)
                 successMessage('创建成功')
                 handleModalCancel()
             }else{
@@ -150,7 +240,7 @@ export const Employees: React.FC = () => {
         form.setFieldsValue({ 
             ...record,
         });
-        setEditingKey(record.id!!);
+        setEditingKey(record.id);
         
     };
     const handleEditSave = async (data: EmployeeFullDetails) =>{
@@ -182,15 +272,9 @@ export const Employees: React.FC = () => {
             const repsonseUpdateEmployee = await EmployeeService.updateEmployee(requestBody)
             if(repsonseUpdateEmployee.data){
                 successMessage('创建成功')
-                setEmployees(prevEmployees => 
-                    prevEmployees.map(emp => 
-                        emp.id === data.id 
-                        ? { ...emp, ...updatedData } // combining all properties of emp and updatedData. If both objects have properties with the same keys (like name or department), the values from updatedData will override the values from emp
-                        : emp // Keep the other employees unchanged
-                    )
-                );
+                fetchEmployees(currentPage, pageSize, filters)
             }else{
-                errorMessage('创建失败')
+                errorMessage('创建失败：'+repsonseUpdateEmployee.error.detail)
             }
             
         }catch (error) {
@@ -212,106 +296,117 @@ export const Employees: React.FC = () => {
     const handleDelete = async (id: number) => {
         console.log('Delete employee id:', id);
     };
-
-    const handleSearch = (selectedKeys: React.Key[], confirm: FilterDropdownProps['confirm'], dataIndex: string) => {
-        
-        
-        confirm();
-        setSearchText(selectedKeys[0]);
-        setSearchedColumn(dataIndex);
-      };
     
-    const handleReset = (clearFilters: (() => void)) => {
-        clearFilters();
-        setSearchText('');
-    };
-
-    const getColumnSearchProps = (dataIndex: string): any => ({
-        filterDropdown: ({
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-        }: FilterDropdownProps) => (
-            <div style={{ padding: 8 }}>
-            <Input
-                placeholder={`Search ${dataIndex}`}
-                value={selectedKeys[0] as string}
-                onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                style={{ width: 188, marginBottom: 8, display: 'block' }}
-            />
-            <Space>
-                <Button
-                type="primary"
-                onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 90 }}
-                >
-                搜索
-                </Button>
-                <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
-                重置
-                </Button>
-            </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1890ff' : undefined }} />,
-        onFilter: (value: string | number | boolean, record: EmployeeFullDetails) =>
-            record['name'].toString().toLowerCase().includes((value as string).toLowerCase()),
-        render: (text: string) =>
-            searchedColumn === dataIndex ? (
-            <span style={{ fontWeight: 'bold'}}>{text}</span>
-            ) : (
-            text
-            ),
-    });
-    
-    const columns = [
+    const columns: ColumnsType<EmployeeFullDetails> = [
         {
             title: 'ID', dataIndex: 'id',  editable: false, inputType: 'text',width: 50,
+            key: getEmployeePublicOutColumn('id'),
+            sorter: true,
         },
         {
             title: '姓名', dataIndex: 'name', editable: true, inputType: 'text', width: 100,
-            filterSearch: true,...getColumnSearchProps('name'),
+            key: getEmployeePublicOutColumn('name'),
+            sorter: true,
+            filteredValue: getFilteredValue('name'),
+            filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+              }) => (
+                <FilterDropdown
+                    type="input"
+                    placeholder="模糊搜索姓名"
+                    value={selectedKeys[0]}
+                    onChange={setSelectedKeys}
+                    onConfirm={() => confirm({ closeDropdown: true })}
+                    onClear={clearFilters || (() => {})}
+                />
+            )
         },
         {
             title: '性别', dataIndex: 'gender',editable: true, inputType: 'text',width: 50,
+            key: getEmployeePublicOutColumn('gender'),
             onCell: () => ({ style: { minWidth: 500 } }),
         },
         {
             title: '身份证号', dataIndex: 'gov_id', editable: false, inputType: 'text',width: 100,
+            key: getEmployeePublicOutColumn('gov_id'),
+            filteredValue: getFilteredValue('gov_id'),
+            filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+              }) => (
+                <FilterDropdown
+                    type="input"
+                    placeholder="模糊搜索身份证号"
+                    value={selectedKeys[0]}
+                    onChange={setSelectedKeys}
+                    onConfirm={() => confirm({ closeDropdown: true })}
+                    onClear={clearFilters || (() => {})}
+                />
+            )
         },
         {
             title: '生日', dataIndex: 'birth_date', editable: true, inputType: 'text', width: 100,
-            render:(text:string | null) => text!==null && convertDateToYYYYMMDD(text)
-            
+            render:(text:string | null) => text!==null && convertDateToYYYYMMDD(text),
+            key: getEmployeePublicOutColumn('birth_date'),
+            sorter: true,
+            filteredValue: getDateRangeFilteredValue('birth_date'),
+            filterDropdown: ({
+                setSelectedKeys,
+                selectedKeys,
+                confirm,
+                clearFilters,
+              }) => (
+                <FilterDropdown
+                    type="date_range"
+                    placeholder={["开始日期", "结束日期"]}
+                    value={selectedKeys}
+                    onChange={(values) => {
+                        setSelectedKeys([values[0], values[1]]);
+                    }}
+                    onConfirm={() => confirm({ closeDropdown: true })}
+                    onClear={clearFilters || (() => {})}
+                />
+            )
         },
         {
             title: '部门', dataIndex: ['department', 'name'], editable: true, inputType: 'dropdown', options: departments,width: 100,
+            filters: departments.map(dept => ({ text: dept.name, value: dept.id })),
+            key: getEmployeePublicOutColumn('department_id'),
+            filterMultiple: false,
+            sorter: true,
         },
         {
             title: '工作地点',dataIndex: ['workLocation', 'name'],editable: true,inputType: 'dropdown',options: workLocations,width: 100,
+            filters: workLocations.map(location => ({ text: location.name, value: location.id })),
+            key: getEmployeePublicOutColumn('work_location_id'),
+            filterMultiple: false,
+            sorter: true,
         },
         {
             title: '职位',dataIndex: ['employeeTitle', 'name'],editable: true,inputType: 'dropdown',options: employeeTitles,width: 100,
+            filters: employeeTitles.map(title => ({ text: title.name, value: title.id })),
+            key: getEmployeePublicOutColumn('employee_title_id'),
+            filterMultiple: false,
+            sorter: true,
         },
         {
             title: '职称', dataIndex: ['professionalTitle', 'name'],editable: true,inputType: 'dropdown',options: professionalTitles,width: 100,
+            filters: professionalTitles.map(title => ({ text: title.name, value: title.id })),
+            key: getEmployeePublicOutColumn('professional_title_id'),
+            filterMultiple: false,
+            sorter: true,
         },
         {
             title: '员工状态',dataIndex: ['employmentStatus', 'name'],editable: true,inputType: 'dropdown',options: employeeStatus, width: 100,
-            filters: employeeStatus.map(status => ({ text: status.name, value: status.name })),
-            //filteredValue: employeeStatus.map(status => status.name),//默认全部
-            //filteredValue:[],
-            filterSearch: true,
-            onFilter: (value:any, record:EmployeeFullDetails) => {
-                if (value === null) {
-                    return true; // 当选择 "全部" 时，不过滤任何数据
-                  }
-                return record?.employmentStatus?.name === value;
-            },
+            filters: employeeStatus.map(status => ({ text: status.name, value: status.id })),
+            key: getEmployeePublicOutColumn('employ_status_id'),
+            filterMultiple: false,
+            sorter: true,
         },
         user?.is_superuser ? 
         {
@@ -431,49 +526,6 @@ export const Employees: React.FC = () => {
         }
     };
 
-    const fetchEmployees = async (page: number, size: number) => {
-        if (!isStaticDataLoaded) {
-            console.log("Static data not loaded yet, skipping employee fetch");
-            return;
-        }
-
-        try {
-            handleLoadingChange(true);
-            const responseEmployees = await EmployeeService.readEmployees({
-                query: {
-                    skip: (page - 1) * size,
-                    limit: size,
-                    showDisabled: true,
-                }
-            });
-
-            if (responseEmployees.error) {
-                message.error("获取员工失败: " + responseEmployees.error.detail);
-                return;
-            }
-
-            if (responseEmployees.data) {
-                const employeeFullDetails: EmployeeFullDetails[] = responseEmployees.data.data.map(employee => ({
-                    ...employee,
-                    key: employee.id.toString(),
-                    department: departments.find(dept => dept.id === employee.department_id) || { name: 'Unknown' },
-                    workLocation: workLocations.find(location => location.id === employee.work_location_id) || { name: 'Unknown' },
-                    employeeTitle: employeeTitles.find(title => title.id === employee.employee_title_id) || { name: 'Unknown' },
-                    professionalTitle: professionalTitles.find(profTitle => profTitle.id === employee.professional_title_id) || { name: 'Unknown' },
-                    employmentStatus: employeeStatus.find(status => status.id === employee.employ_status_id) || { name: 'Unknown' },
-                }));
-
-                setEmployees(employeeFullDetails);
-                setTotalEmployees(responseEmployees.data.count);
-            }
-        } catch (error) {
-            console.error("Error fetching employees:", error);
-            message.error("获取员工数据失败，请重试");
-        } finally {
-            handleLoadingChange(false);
-        }
-    };
-
     const convertDateToYYYYMMDD = (dateStr:string) => {
         const date = new Date(dateStr); 
         const formattedDate = date.toLocaleDateString('en-CA', {
@@ -526,6 +578,21 @@ export const Employees: React.FC = () => {
         filters,
         sorter
     ) => {
+        const newFilters: Partial<EmployeeQueryParams> = {...filters};
+
+        for (const [key, value] of Object.entries(filters)) {
+            // handle date range filters
+            if (["birth_date"].includes(key)) {
+                if (Array.isArray(value) && value.length === 2) {
+                    const [from, to] = value as [string, string];
+                    newFilters["birth_date_from"] = from;
+                    newFilters["birth_date_to"] = to;
+                }
+                delete newFilters[key as keyof EmployeeQueryParams];
+            }
+        }
+        setFilters(newFilters);
+
         const queryParams = new URLSearchParams();
         if (pagination.current) {
             queryParams.set("current_page", pagination.current.toString());
@@ -534,51 +601,82 @@ export const Employees: React.FC = () => {
             queryParams.set("page_size", pagination.pageSize.toString());
         }
         // Add any other filters or sorting parameters here if needed
+        if (sorter && !Array.isArray(sorter) && sorter.order) {
+            queryParams.set("sort_by", sorter.field as string);
+            queryParams.set("sort_direction", sorter.order === "ascend" ? "asc" : "desc");
+        }
+        Object.entries(newFilters).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                queryParams.set(key, value.toString());
+            }
+        });
 
         navigate(`/employees?${queryParams.toString()}`, { replace: true });
     };
 
+    const clearFilters = () => {
+        setFilters({});
+        setCurrentPage(1);
+        navigate("/employees", { replace: true });
+        fetchEmployees(1, pageSize, {});
+        setTableRefreshKey(tableRefreshKey + 1);
+      };
+
     return (
         <div>
             {contextHolder}
-            {user?.is_superuser &&
-            <Space>
-                <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
-                    添加
-                </Button>
-                <Divider type="vertical" />
-                <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
-                    导出人员列表
-                </Button>
+            <Space direction="vertical" style={{width: '100%'}}>
+
+                {user?.is_superuser &&
+                <Space>
+                    <Button onClick={showModal} type="primary" icon={<PlusOutlined />}>
+                        添加
+                    </Button>
+                    <Divider type="vertical" />
+                    <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
+                        导出人员列表
+                    </Button>
+                    <Divider type="vertical" />
+                    {filters && Object.keys(filters).length > 0 && (
+                        <Button onClick={clearFilters}>
+                            清空过滤器
+                        </Button>
+                    )}
+                </Space>
+                }
+                <Form form={form} component={false}>
+                    <Table
+                        components={{
+                            body: {
+                            cell: EditableCell,
+                            },
+                        }}
+                        rowClassName="editable-row"
+                        rowKey='id'
+                        size='small'
+                        key={tableRefreshKey}
+                        loading={loading}
+                        columns={mergedColumns}
+                        dataSource={employees}
+                        onChange={handleTableChange}
+                        showSorterTooltip={{ target: 'sorter-icon' }}
+                        pagination={{
+                            position: ["topRight"],
+                            current: currentPage,
+                            pageSize: pageSize,
+                            pageSizeOptions: ["10", "20", "50", "100"],
+                            total: totalEmployees,
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total) => `共 ${total} 个员工 ${
+                                filters && Object.keys(filters).length > 0 ? ", 已过滤" : ""
+                            }`,
+                        }}
+                        scroll={{ x:500 }}
+                    />
+                </Form>
+            
             </Space>
-            }
-            <Form form={form} component={false}>
-                <Table
-                    components={{
-                        body: {
-                        cell: EditableCell,
-                        },
-                    }}
-                    rowClassName="editable-row"
-                    rowKey='id'
-                    loading={loading}
-                    columns={mergedColumns}
-                    dataSource={employees}
-                    onChange={handleTableChange}
-                    showSorterTooltip={{ target: 'sorter-icon' }}
-                    pagination={{
-                        position: ["topRight"],
-                        current: currentPage,
-                        pageSize: pageSize,
-                        pageSizeOptions: ["10", "20", "50", "100"],
-                        total: totalEmployees,
-                        showSizeChanger: true,
-                        showQuickJumper: true,
-                        showTotal: (total) => `共 ${total} 个员工`,
-                    }}
-                    scroll={{ x:500 }}
-                />
-            </Form>
             <Modal
                 title="添加新人员"
                 open={isModalVisible}

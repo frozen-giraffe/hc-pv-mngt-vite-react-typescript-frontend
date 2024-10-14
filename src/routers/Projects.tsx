@@ -38,9 +38,9 @@ import ProjectReportModal from "../components/ProjectReportModal";
 import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
 import { ColumnsType } from "antd/es/table";
-import ProjectFilterDropdown from "../components/ProjectFilterDropdown";
 import FloatNumberCellRender from '../components/FloatNumberCellRender';
 import { PROJECT_TABLE_SHOWN_COLUMNS_KEY, PROJECT_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
+import FilterDropdown from "../components/FilterDropdown";
 
 // Add this type alias using the correct type from ProjectsService
 type ProjectQueryParams = NonNullable<
@@ -453,7 +453,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="year"
           placeholder="选择年份"
           value={selectedKeys[0]}
@@ -475,7 +475,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="input"
           placeholder="模糊搜索项目工号"
           value={selectedKeys[0]}
@@ -497,7 +497,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="input"
           placeholder="模糊搜索项目名称"
           value={selectedKeys[0]}
@@ -550,7 +550,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="number_range"
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
@@ -574,7 +574,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="number_range"
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
@@ -598,7 +598,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="number_range"
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}
@@ -622,7 +622,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="date_range"
           placeholder={["开始日期", "结束日期"]}
           value={selectedKeys}
@@ -648,7 +648,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="date_range"
           placeholder={["开始日期", "结束日期"]}
           value={selectedKeys}
@@ -697,7 +697,7 @@ export const Projects = () => {
         confirm,
         clearFilters,
       }) => (
-        <ProjectFilterDropdown
+        <FilterDropdown
           type="number_range"
           placeholder={["最小值", "最大值"]}
           value={selectedKeys}

@@ -55,83 +55,6 @@ export const Body_Login_login_access_tokenSchema = {
     title: 'Body_Login-login_access_token'
 } as const;
 
-export const Body_______employee_read_employeesSchema = {
-    properties: {
-        department_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Department Ids'
-        },
-        work_location_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Work Location Ids'
-        },
-        employee_title_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Employee Title Ids'
-        },
-        professional_title_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Professional Title Ids'
-        },
-        employ_status_ids: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Employ Status Ids'
-        }
-    },
-    type: 'object',
-    title: 'Body_员工 - /employee-read_employees'
-} as const;
-
 export const BuildingStructureTypeCreateInSchema = {
     properties: {
         name: {
@@ -607,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-13T17:58:47.217479'
+            default: '2024-10-13T19:02:10.234012'
         }
     },
     type: 'object',
