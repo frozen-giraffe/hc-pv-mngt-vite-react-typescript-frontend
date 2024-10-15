@@ -25,11 +25,14 @@ import {
   FormInstance,
   message,
   TableProps,
+  Tooltip,
+  Space,
+  Tag,
+  Popconfirm,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
-  ProjectsData,
   ProjectsPublicOut,
   ProjectsService,
   ProjectTaskTypesPublicOut,
@@ -57,8 +60,13 @@ import {
   ProdValueCalcRatiosPublicOut,
   ProdValueCalcRatiosService,
   ProdValueCalcRatioPublicOut,
+  JobPayoutRatioProfilePublicOut,
+  JobPayoutRatioProfilesService,
+  WorkLocationPublicOut,
+  WorkLocationsService,
 } from "../client";
 import MySelectComponent from "../components/Dropdown";
+import { PayoutTable } from "../components/PayoutTable";
 
 const { Text, Link } = Typography;
 
@@ -93,126 +101,13 @@ const DecimalInput: React.FC<any> = ({
   );
 };
 
-//下发产值表相关数据
-interface DataType {
-    key: string;
-    name: string;
-    age: number;
-    tel: string;
-    phone: number;
-    address: string;
-  }
-  
-  // In the fifth row, other columns are merged into first column
-  // by setting it's colSpan to be 0
-  const sharedOnCell = (_: DataType, index?: number) => {
-    if (index === 1) {
-      return { colSpan: 0 };
-    }
-  
-    return {};
-  };
-  
-  const columnsTable: TableProps<DataType>['columns'] = [
-    {
-      title: 'RowHead',
-      dataIndex: 'key',
-      rowScope: 'row',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      render: (text) => <a>{text}</a>,
-      onCell: (_, index) => ({
-        colSpan: index === 1 ? 5 : 1,
-      }),
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      onCell: sharedOnCell,
-    },
-    {
-      title: 'Home phone',
-      colSpan: 2,
-      dataIndex: 'tel',
-      onCell: (_, index) => {
-        if (index === 3) {
-          return { rowSpan: 2 };
-        }
-        // These two are merged into above cell
-        if (index === 4) {
-          return { rowSpan: 0 };
-        }
-        if (index === 1) {
-          return { colSpan: 0 };
-        }
-  
-        return {};
-      },
-    },
-    {
-      title: 'Phone',
-      colSpan: 0,
-      dataIndex: 'phone',
-      onCell: sharedOnCell,
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      onCell: sharedOnCell,
-    },
-  ];
-  
-  const tableData: DataType[] = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      tel: '0571-22098909',
-      phone: 18889898989,
-      address: 'New York No. 1 Lake Park',
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      tel: '0571-22098333',
-      phone: 18889898888,
-      age: 42,
-      address: 'London No. 1 Lake Park',
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      tel: '0575-22098909',
-      phone: 18900010002,
-      address: 'Sydney No. 1 Lake Park',
-    },
-    {
-      key: '4',
-      name: 'Jim Red',
-      age: 18,
-      tel: '0575-22098909',
-      phone: 18900010002,
-      address: 'London No. 2 Lake Park',
-    },
-    {
-      key: '5',
-      name: 'Jake White',
-      age: 18,
-      tel: '0575-22098909',
-      phone: 18900010002,
-      address: 'Dublin No. 2 Lake Park',
-    },
-  ];
-  
 
 export const ProjectDetail = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [silderValue, setSilderValue] = useState(1);
+  
 
   const [projectTypes, setProjectTypes] = useState<ProjectTypePublicOut[]>([]);
   const [projectClasses, setProjectClasses] = useState<ProjectClassPublicOut[]>(
@@ -237,15 +132,17 @@ export const ProjectDetail = () => {
   >([]);
   const [defaultProdValCalcRatio, setDefaultProdValCalcRatio] =
     useState<ProdValueCalcRatioPublicOut>();
+
   const [
     departmentPayoutRatioRelatedToProjectClassId,
     setDepartmentPayoutRatioRelatedToProjectClassId,
   ] = useState<DepartmentPayoutRatioPublicOut[]>([]); //this one is based on which projectClass picked and project-class is based on which projectType picked
 
-
+  
   
   useEffect(() => {
     fetchData();
+
   }, []);
 
   const fetchData = async () => {
@@ -260,7 +157,8 @@ export const ProjectDetail = () => {
         resProjectRateAdjustmentClass,
         resQualityRatioClass,
         resProdValCalcRatios,
-        redDefaultProdValCalcRatios,
+        resDefaultProdValCalcRatios,
+        resWorkLocations,
       ] = await Promise.all([
         ProjectTypesService.readProjectTypes(),
         ProjectClassesService.readProjectClasses(),
@@ -271,9 +169,11 @@ export const ProjectDetail = () => {
         QualityRatioClassesService.readQualityRatioClasses(),
         ProdValueCalcRatiosService.readProdValueCalcRatios(),
         ProdValueCalcRatiosService.readProdValueCalcRatiosDefault(),
+        WorkLocationsService.readWorkLocations(),
+        
       ]);
-      if (resProjectType.error || resProjectClass.error || resBuildingType.error || resProjectTaskType.error || resBuildingStructureType.error || resProjectRateAdjustmentClass.error || resQualityRatioClass.error || resProdValCalcRatios.error || redDefaultProdValCalcRatios.error) {
-        message.error("项目基本信息类获取失败: "+resProjectType.error?.detail || resProjectClass.error?.detail || resBuildingType.error?.detail || resProjectTaskType.error?.detail || resBuildingStructureType.error?.detail || resProjectRateAdjustmentClass.error?.detail || resQualityRatioClass.error?.detail || resProdValCalcRatios.error?.detail || redDefaultProdValCalcRatios.error?.detail)
+      if (resProjectType.error || resProjectClass.error || resBuildingType.error || resProjectTaskType.error || resBuildingStructureType.error || resProjectRateAdjustmentClass.error || resQualityRatioClass.error || resProdValCalcRatios.error || resDefaultProdValCalcRatios.error || resWorkLocations.error) {
+        message.error("项目基本信息类获取失败: "+resProjectType.error?.detail || resProjectClass.error?.detail || resBuildingType.error?.detail || resProjectTaskType.error?.detail || resBuildingStructureType.error?.detail || resProjectRateAdjustmentClass.error?.detail || resQualityRatioClass.error?.detail || resProdValCalcRatios.error?.detail || resDefaultProdValCalcRatios.error?.detail || resWorkLocations.error?.detail)
       } else {
         setProjectTypes(resProjectType.data.data);
         setProjectClasses(resProjectClass.data.data);
@@ -283,30 +183,21 @@ export const ProjectDetail = () => {
         setProjectRateAdjustmentClasses(resProjectRateAdjustmentClass.data.data);
         setQualityRatioClasses(resQualityRatioClass.data.data);
         setProdValCalcRatios(resProdValCalcRatios.data.data);
-        setDefaultProdValCalcRatio(redDefaultProdValCalcRatios.data);
+        setDefaultProdValCalcRatio(resDefaultProdValCalcRatios.data);
         //set default option highlighted
-        setSegmentedValue(redDefaultProdValCalcRatios.data.ratio.toString())
+        setSegmentedValue(resDefaultProdValCalcRatios.data.ratio.toString())
         //set default silder position
-        setSilderValue(redDefaultProdValCalcRatios.data.ratio*100)
+        setSilderValue(resDefaultProdValCalcRatios.data.ratio*100)
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      message.error("项目基本信息类获取失败: "+ error);
+      //console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
+  
 
-  // 列表数据示例
-  const columns = [
-    { title: "名称", dataIndex: "name", key: "name" },
-    { title: "数量", dataIndex: "quantity", key: "quantity" },
-    { title: "状态", dataIndex: "status", key: "status" },
-  ];
-
-  const tableData1 = [
-    { key: 1, name: "商品 A", quantity: 12, status: "正常" },
-    { key: 2, name: "商品 B", quantity: 5, status: "缺货" },
-  ];
   const handleProjectTypeSelectChange = async (value: number) => {
     const selected = projectTypes.find((option) => option.id === value) || null;
     const relatedProjectClassName = projectClasses.find(
@@ -337,6 +228,7 @@ export const ProjectDetail = () => {
     // console.log(res);
     // console.log(projectRateAdjustmentClasses);
   };
+  
   const calculateIssuedValue = () => {
     console.log("计算下发产值...");
     const preValue=form.getFieldValue('calculatedEmployeePayout')
@@ -464,9 +356,7 @@ const errorMessage = (msg:string) => {
       style={{ overflow: "hidden", position: "relative" }}
     >
       <h2 style={{ marginTop: 0 }}>新建工程</h2>
-      <Button type="primary" onClick={showDrawer}>
-        Open
-      </Button>
+      
       <Affix offsetTop={0}>
         <Drawer
           title="Basic Drawer"
@@ -628,8 +518,69 @@ const errorMessage = (msg:string) => {
         </Form.Item>
 
         <Form.Item label="下发产值(元)" required>
-          <Collapse activeKey={isPanelOpen ? ["1"] : []}>
-            <Panel
+          <Collapse 
+            activeKey={isPanelOpen ? ["1"] : []}
+            items={[{
+              key:'1',
+              label: (
+                <Form.Item label="下发产值(元)" name="calculatedEmployeePayout" noStyle rules={[{ required: true }]}>
+                  <Input
+                    className="panel-header-input"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                  />
+                </Form.Item>
+              ),
+              children:(
+                <div
+                  className="panel-content"
+                  onFocus={handleFocus} // Expand when any child gets focus
+                  onBlur={handleBlur}   // Collapse when all children lose focus
+                >
+                  <Row align="middle" justify="start">
+                    <Col>
+                      <Text style={{ marginRight: 10 }}>预设百分比:</Text>
+                    </Col>
+                    <Col>
+                      <Segmented
+                        options={prodValCalcRatios.map((value) => `${value.ratio}`)}
+                        value={segmentedValue}
+                        onChange={handleSegmentedChange}
+                      />
+                    </Col>
+                  </Row>
+        
+                  <Row>
+                    <Col span={12}>
+                      <Slider
+                        min={1}
+                        max={100}
+                        step={1}
+                        onChange={handleSlideronChange}
+                        value={typeof silderValue === "number" ? silderValue : 0}
+                        tooltip={{
+                          formatter: (value) => `${value}%`, // Append % after value
+                        }}
+                      />
+                    </Col>
+                    <Col span={4}>
+                      <InputNumber
+                        style={{ margin: "0 16px" }}
+                        value={silderValue}
+                        onChange={handleSlideronChange}
+                        formatter={(value) => `${value}%`}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              ),
+              showArrow:false,
+            }]}
+                
+          >
+            {/* <Panel
               header={
                 <Form.Item label="下发产值(元)" name="calculatedEmployeePayout" noStyle rules={[{ required: true }]}>
                   <Input
@@ -685,94 +636,24 @@ const errorMessage = (msg:string) => {
                   </Col>
                 </Row>
               </div>
-            </Panel>
+            </Panel> */}
           </Collapse>
         </Form.Item>
-        <Row justify='end'>
-            <Form.Item>
-            <Button type="primary" htmlType="submit">
-                提交
-            </Button>
-            </Form.Item>
-        </Row>
+        
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+              提交工程
+          </Button>
+        </Form.Item>
       </Form>
-
-      <Divider />
       {/* 下发产值表 */}
-      <Form>
-        <Table<DataType> columns={columnsTable} dataSource={tableData} bordered />
-      </Form>
-      {/* 顶部统计数据展示 */}
-      <Row gutter={16}>
-        <Col span={6}>
-          <Card>
-            <Statistic title="项目总数" value={1128} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="已完成任务" value={93} suffix="/ 100" />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="进行中任务" value={21} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="参与人员" value={50} />
-          </Card>
-        </Col>
-      </Row>
-
-      <Divider />
-
-      {/* 详细信息展示 */}
-      <Card title="项目信息" style={{ marginBottom: "20px" }}>
-        <Descriptions bordered column={2}>
-          <Descriptions.Item label="项目名称">
-            {data.projectName || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="项目编号">
-            {data.projectCode || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="负责人">
-            {data.projectManager || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="创建时间">
-            {data.createdAt || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="状态">
-            {data.status || "N/A"}
-          </Descriptions.Item>
-          <Descriptions.Item label="描述">
-            {data.description || "N/A"}
-          </Descriptions.Item>
-        </Descriptions>
-      </Card>
-
-      <Divider />
-
-      {/* 标签页，展示更多数据 */}
-      <Tabs defaultActiveKey="1">
-        <TabPane tab="商品列表" key="1">
-          <Table
-            columns={columns}
-            dataSource={tableData}
-            loading={loading}
-            pagination={{ pageSize: 5 }}
-          />
-        </TabPane>
-        <TabPane tab="其他信息" key="2">
-          <p>这里可以展示其他信息，如图表、文件等。</p>
-        </TabPane>
-      </Tabs>
-
+      <Divider/>
+      <h2 style={{ marginTop: 0 }}>下发产值表</h2>
+      <PayoutTable></PayoutTable>
       <Divider />
 
       {/* 操作按钮 */}
-      <Row justify="end">
+      {/* <Row justify="end">
         <Form.Item>
           <Button type="primary" htmlType="submit">
             提交
@@ -785,7 +666,7 @@ const errorMessage = (msg:string) => {
       </Row>
       <Button type="primary" onClick={showDrawer}>
         Open
-      </Button>
+      </Button> */}
     </div>
   );
 };
