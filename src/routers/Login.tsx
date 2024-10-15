@@ -1,12 +1,11 @@
-import React, {useEffect, useState} from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from './../assets/Logo.png'
-import { Button, Input,Alert  } from "antd";
+import { Button, Input, Alert, message } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
-import { LoginService, type Body_Login_login_access_token as AccessToken } from '../client';
-
+import { REDIRECT_LOGIN_REASON_KEY, REDIRECT_LOGIN_TOKEN_EXPIRED } from '../client/const';
 
 export const Login = () => {
   const [username, setUsername] = useState<string>('');
@@ -14,60 +13,45 @@ export const Login = () => {
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errorMsgVisible, setErrorMsgVisible] = useState(false);
-  const { isAuthenticated,login } = useAuth();
-  const history = useNavigate();
-  
-  useEffect(()=>{
-    console.log("useEffect"+isAuthenticated)
-    if(isAuthenticated){
-      history('/dashboard');
+  const { isAuthenticated, login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const from = (location.state as { from?: string })?.from || '/dashboard';
+  const redirectUrl = searchParams.get('redirect');
+
+  const navigateAfterLogin = useCallback(() => {
+    if (redirectUrl) {
+      navigate(redirectUrl);
+    } else {
+      navigate(from);
     }
-  },[isAuthenticated])
-  const loginFetch = async (username: string, password: string) => {
-    
-    const a = {'username': username, 'password':password} as AccessToken
-    LoginService.loginAccessToken({body: a}).then(({data, error})=>{
-      if(data){
-        login(data.access_token)
-        history('/dashboard');
-      }else{
-        console.log(error)
-        setErrorMsg(error?.detail || '未知错误')
-        setErrorMsgVisible(true)
-      }
-    }).catch((reason)=>{
-      console.log(reason)
-    })
-    //const data = await response.json();
-  
-    // if (response.ok) {
-    //   // Handle the successful login and save the token if needed
-    //   console.log('Login successful:', data.access_token);
-    //   login(data.access_token);
-    //   history('/dashboard');
+  }, [navigate, redirectUrl, from]);
 
-    // } else {
-    //   setErrorMsg(data.detail)
-    //   setErrorMsgVisible(true)
-    //   return false;
-    // }
-  };
-
-  const handleLogin = () => {
-    // Perform login API call className='background-wrap'
-    console.log(isAuthenticated)
-    if(isAuthenticated){
-      history('/dashboard');
+  useEffect(() => {
+    const loginReason = localStorage.getItem(REDIRECT_LOGIN_REASON_KEY);
+    if (loginReason === REDIRECT_LOGIN_TOKEN_EXPIRED) {
+      message.error('登录已过期，请重新登录');
+      localStorage.removeItem(REDIRECT_LOGIN_REASON_KEY);
     }
-    loginFetch(username, password);
+    if (isAuthenticated) {
+      navigateAfterLogin();
+    }
+  }, [isAuthenticated, navigateAfterLogin]);
+
+  const handleLogin = async () => {
+    try {
+      await login(username, password);
+      navigateAfterLogin();
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrorMsg((error as Error).message || '未知错误');
+      setErrorMsgVisible(true);
+    }
   };
-
-  
-
   return (
     <div className='login-page-wrap'>
       <div className='login-page-left'>
-        {/* <img className='login-page-left-img' src={Image}></img> */}
         <div></div>
         <div className='text'>新疆昊辰产值管理系统</div>
       </div>
@@ -80,7 +64,6 @@ export const Login = () => {
           message="Error"
           description={errorMsg}
           type="error"
-
           showIcon
         />
         <Input 
@@ -92,6 +75,10 @@ export const Login = () => {
           size='large'
           placeholder="Password"
           value={password}
+          visibilityToggle={{
+            visible: passwordVisible,
+            onVisibleChange: setPasswordVisible,
+          }}
           iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -104,3 +91,4 @@ export const Login = () => {
     </div>
   )
 }
+

@@ -1,63 +1,85 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { LoginService, UserCreate, UserPublic, UsersService } from '../client';
-import { useNavigate } from 'react-router-dom';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { UserPublic, UsersService, LoginService } from '../client';
 import { message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-const LOCALSTORAGE_ACCESS_TOKEN_NAME='access_token'
+export const LOCALSTORAGE_ACCESS_TOKEN_NAME = 'access_token';
+
 interface AuthContextType {
-  isAuthenticated: boolean;
-  login: (token: string) => void;
+  isAuthenticated: boolean | null;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  user: UserPublic | undefined,
-  setUser: React.Dispatch<React.SetStateAction<UserPublic | undefined>>
+  user: UserPublic | undefined;
+  setUser: React.Dispatch<React.SetStateAction<UserPublic | undefined>>;
+  checkAuth: () => Promise<void>;
 }
-//const url = 'http://alang-main.griffin-vibes.ts.net/api/v1/login/access-token';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-//implement things in AuthContextType and add to AuthContext, so return of useAuth has access to these things in whole project
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [user, setUser] = useState<UserPublic>();
-  useEffect(() => {
-     getUser()
+  const navigate = useNavigate();
+
+  const checkAuth = useCallback(async () => {
     const token = localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
     if (token) {
-      setIsAuthenticated(true);
+      try {
+        await getUser();
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Failed to authenticate:', error);
+        logout();
+      }
+    } else {
+      setIsAuthenticated(false);
     }
-    // setInterval(()=>{
-    //   console.log("ppp");
-      
-    // },10)
-    console.log("AuthProvider useEffect");
-    
   }, []);
-  const getUser = async() =>{
-    const {data, error} = await UsersService.readUserMe()
-    if(error){
-      message.error("获取用户信息失败: " + error);
-    }
-    setUser(data)
-  }
-  // const checkTOkenValidation=async()=>{
-  //   const res:UserPublic = await LoginService.testToken()
-  //   if(!res.is_active){
-  //     navigate('/login')
-  //   }
 
-  // }
-  const login = (token: string) => {
-    localStorage.setItem(LOCALSTORAGE_ACCESS_TOKEN_NAME, token);
-    setIsAuthenticated(true);
-    
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  const getUser = async () => {
+    if (!localStorage.getItem(LOCALSTORAGE_ACCESS_TOKEN_NAME)) {
+      console.log("getUserMe失败: 没有Token");
+      throw new Error("No token available");
+    }
+    const { data, error } = await UsersService.readUserMe();
+    if (error) {
+      message.error("获取用户信息失败: " + error);
+      throw error;
+    }
+    if (!data?.is_active) {
+      throw new Error("User is not active");
+    }
+    setUser(data);
+  };
+
+  const login = async (username: string, password: string) => {
+    try {
+      const { data, error } = await LoginService.loginAccessToken({ body: { username, password } });
+      if (error) throw error;
+      if (!data) throw new Error("No data received from login");
+      
+      localStorage.setItem(LOCALSTORAGE_ACCESS_TOKEN_NAME, data.access_token);
+      await getUser();
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   };
 
   const logout = () => {
     localStorage.removeItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
     setIsAuthenticated(false);
+    setUser(undefined);
+    navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, user, setUser }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, user, setUser, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

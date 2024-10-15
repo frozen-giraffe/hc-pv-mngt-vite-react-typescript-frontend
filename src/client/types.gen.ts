@@ -978,6 +978,13 @@ export type QualityRatioClassesPublicOut = {
     count: number;
 };
 
+export type SortDirection = 'asc' | 'desc';
+
+export const SortDirection = {
+    ASC: 'asc',
+    DESC: 'desc'
+} as const;
+
 export type Token = {
     access_token: string;
     token_type?: string;
@@ -993,6 +1000,7 @@ export type UserCreate = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     password: string;
 };
 
@@ -1001,6 +1009,7 @@ export type UserPublic = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     id: number;
 };
 
@@ -1015,6 +1024,7 @@ export type UserUpdate = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    password_reset_by_admin?: boolean;
     password?: (string | null);
 };
 
@@ -1181,6 +1191,16 @@ export type DeleteUserResponse = (Message);
 
 export type DeleteUserError = (HTTPValidationError);
 
+export type AdminResetPasswordData = {
+    path: {
+        user_id: number;
+    };
+};
+
+export type AdminResetPasswordResponse = (Message);
+
+export type AdminResetPasswordError = (HTTPValidationError);
+
 export type GetAndFilterProjectsData = {
     query?: {
         building_structure_type_id?: (number | null);
@@ -1189,6 +1209,8 @@ export type GetAndFilterProjectsData = {
         calculated_employee_payout_min?: (number | null);
         date_added_from?: (string | null);
         date_added_to?: (string | null);
+        date_modified_from?: (string | null);
+        date_modified_to?: (string | null);
         id?: (number | null);
         limit?: number;
         name?: (string | null);
@@ -1203,8 +1225,11 @@ export type GetAndFilterProjectsData = {
         project_rate_adjustment_class_id?: (number | null);
         project_task_type_id?: (number | null);
         project_type_id?: (number | null);
+        project_year?: (number | null);
         quality_ratio_class_id?: (number | null);
         skip?: number;
+        sort_by?: (string | null);
+        sort_direction?: SortDirection;
     };
 };
 
@@ -1628,9 +1653,21 @@ export type UpdateDepartmentPayoutRatioByComboError = (ErrorResponse | HTTPValid
 
 export type ReadEmployeesData = {
     query?: {
+        birth_date_from?: (string | null);
+        birth_date_to?: (string | null);
+        department_id?: (number | null);
+        employ_status_id?: (number | null);
+        employee_title_id?: (number | null);
+        gender?: (string | null);
+        gov_id?: (string | null);
         limit?: number;
+        name?: (string | null);
+        professional_title_id?: (number | null);
         show_disabled?: (boolean | null);
         skip?: number;
+        sort_by?: (string | null);
+        sort_direction?: SortDirection;
+        work_location_id?: (number | null);
     };
 };
 
@@ -1662,6 +1699,9 @@ export type SearchEmployeeResponse = (EmployeesPublicOut);
 export type SearchEmployeeError = (ErrorResponse | HTTPValidationError);
 
 export type ReadEmployeesByDepartmentData = {
+    path: {
+        id: number;
+    };
     query?: {
         limit?: number;
         skip?: number;
@@ -1972,11 +2012,11 @@ export type GetProjectListReportData = {
     };
 };
 
-export type GetProjectListReportResponse = (unknown);
+export type GetProjectListReportResponse = (string);
 
 export type GetProjectListReportError = (ErrorResponse | HTTPValidationError);
 
-export type GetEmployeeListReportResponse = (unknown);
+export type GetEmployeeListReportResponse = (string);
 
 export type GetEmployeeListReportError = (ErrorResponse);
 
@@ -1988,7 +2028,7 @@ export type GetContractPaymentListReportData = {
     };
 };
 
-export type GetContractPaymentListReportResponse = (unknown);
+export type GetContractPaymentListReportResponse = (string);
 
 export type GetContractPaymentListReportError = (ErrorResponse | HTTPValidationError);
 
@@ -1999,7 +2039,7 @@ export type GetEmployeeProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetEmployeeProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetEmployeeProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetEmployeeProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2010,7 +2050,7 @@ export type GetEmployeeProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetEmployeeProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetEmployeeProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetEmployeeProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2021,7 +2061,7 @@ export type GetEmployeeProjectProductionValueByProjectYearReportData = {
     };
 };
 
-export type GetEmployeeProjectProductionValueByProjectYearReportResponse = (unknown);
+export type GetEmployeeProjectProductionValueByProjectYearReportResponse = (string);
 
 export type GetEmployeeProjectProductionValueByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2031,7 +2071,7 @@ export type GetCompanyProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetCompanyProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetCompanyProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetCompanyProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2041,7 +2081,7 @@ export type GetCompanyProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetCompanyProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetCompanyProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetCompanyProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2051,7 +2091,7 @@ export type GetCompanyProjectProductionValueByProjectYearReportData = {
     };
 };
 
-export type GetCompanyProjectProductionValueByProjectYearReportResponse = (unknown);
+export type GetCompanyProjectProductionValueByProjectYearReportResponse = (string);
 
 export type GetCompanyProjectProductionValueByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2062,7 +2102,7 @@ export type GetProjectPayoutListByPaymentYearReportData = {
     };
 };
 
-export type GetProjectPayoutListByPaymentYearReportResponse = (unknown);
+export type GetProjectPayoutListByPaymentYearReportResponse = (string);
 
 export type GetProjectPayoutListByPaymentYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2072,7 +2112,7 @@ export type GetProjectPayoutListByProjectYearReportData = {
     };
 };
 
-export type GetProjectPayoutListByProjectYearReportResponse = (unknown);
+export type GetProjectPayoutListByProjectYearReportResponse = (string);
 
 export type GetProjectPayoutListByProjectYearReportError = (ErrorResponse | HTTPValidationError);
 
@@ -2082,9 +2122,19 @@ export type GetProjectProductionValueReportData = {
     };
 };
 
-export type GetProjectProductionValueReportResponse = (unknown);
+export type GetProjectProductionValueReportResponse = (string);
 
 export type GetProjectProductionValueReportError = (ErrorResponse | HTTPValidationError);
+
+export type GetProjectPayoutReportData = {
+    query: {
+        project_id: number;
+    };
+};
+
+export type GetProjectPayoutReportResponse = (string);
+
+export type GetProjectPayoutReportError = (ErrorResponse | HTTPValidationError);
 
 export type GetContractPaymentPayoutListReportData = {
     query: {
@@ -2092,7 +2142,7 @@ export type GetContractPaymentPayoutListReportData = {
     };
 };
 
-export type GetContractPaymentPayoutListReportResponse = (unknown);
+export type GetContractPaymentPayoutListReportResponse = (string);
 
 export type GetContractPaymentPayoutListReportError = (ErrorResponse | HTTPValidationError);
 

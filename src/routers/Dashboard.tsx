@@ -3,8 +3,8 @@ import SelfMenu from "./../components/Menu";
 import { Nav } from "../components/Nav";
 import "./Dashboard.css";
 import { Test } from "./MainPage";
-import { Link, Navigate, Route, Router, Routes, useNavigate } from "react-router-dom";
-import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider } from "antd";
+import { Link, Navigate, Route, Router, Routes, useNavigate, useLocation } from "react-router-dom";
+import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -20,6 +20,7 @@ import { Content, Header } from "antd/es/layout/layout";
 import Logo from '/favicon.png'
 import { useAuth } from "../context/AuthContext";
 import { OpenAPI, ReportsService, UserPublic, UsersService } from "../client";
+import { downloadReport } from "../utils/ReportFileDownload";
 
 
 type MenuItem = Required<MenuProps>['items'][number] & {
@@ -27,85 +28,63 @@ type MenuItem = Required<MenuProps>['items'][number] & {
 };
 const items: MenuItem[] = [
   {
-    key: '/mainpage',
+    key: '/dashboard',
     label: '主页',
     icon: <MailOutlined />,
-    path: '/mainpage',
-    // children: [
-    //   {
-    //     key: 'g1',
-    //     label: 'Item 1',
-    //     type: 'group',
-    //     children: [
-    //       { key: '1', label: 'Option 1' },
-    //       { key: '2', label: 'Option 2' },
-    //     ],
-    //   },
-    //   {
-    //     key: 'g2',
-    //     label: 'Item 2',
-    //     type: 'group',
-    //     children: [
-    //       { key: '3', label: 'Option 3' },
-    //       { key: '4', label: 'Option 4' },
-    //     ],
-    //   },
-    // ],
+    path: '/dashboard',
+
   },
   {
-    key: 'sub2',
-    label: '人员',
-    icon: <AppstoreOutlined />,
-    path: '/people'
-    // children: [
-    //   { key: '5', label: 'Option 5' },
-    //   { key: '6', label: 'Option 6' },
-    //   {
-    //     key: 'sub3',
-    //     label: 'Submenu',
-    //     children: [
-    //       { key: '7', label: 'Option 7' },
-    //       { key: '8', label: 'Option 8' },
-    //     ],
-    //   },
-    // ],
+    key: '/projects',
+    label: '项目',
+    icon: <SettingOutlined />,
+    path: '/projects'
   },
   {
     type: 'divider',
   },
   {
-    key: 'sub4',
-    label: '工程',
-    icon: <SettingOutlined />,
-    path: '/projects'
-    // children: [
-    //   { key: '9', label: 'Option 9' },
-    //   { key: '10', label: 'Option 10' },
-    //   { key: '11', label: 'Option 11' },
-    //   { key: '12', label: 'Option 12' },
-    // ],
+    key: '/employees',
+    label: '人员管理',
+    icon: <AppstoreOutlined />,
+    path: '/employees'
   },
   {
-    key: 'settings',
-    label: '系统配置',
+    key: '/calculation-settings',
+    label: '计算配置',
     icon: <SettingOutlined />,
-    path: '/settings',
+    path: '/calculation-settings',
+  },
+  {
+    key: '/system-management',
+    label: '系统管理',
+    icon: <SettingOutlined />,
+    path: '/system-management',
   },
   
 ];
 
 
+
 export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth()
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  useEffect(()=>{
-    console.log(auth.user);
-    
-  },[])
+
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/dashboard']);
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const matchingItem = items.find(item => item.path === currentPath);
+    if (matchingItem) {
+      setSelectedKeys([matchingItem.key as string]);
+    }
+  }, [location]);
+
   const toggle = () => {
     setCollapsed(!collapsed);
   };
@@ -123,28 +102,25 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     {
       key: '1',
       label: (
-        
           '1st menu item'
       ),
       onClick: async()=>{
-        // const url = "http://alang-main.griffin-vibes.ts.net/api/v1/employee/report/021"
         try {
-          const { data, error, request, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
+          const { data, error, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
             query: {
-              project_year: 2024,
+              project_year: 2023,
               employee_id: 21
             }
           })
-          console.log("report res")
-          console.log(data);
-          console.log(error);
-          console.log(request);
-          console.log(response);
-
+          if (error){
+            console.log(error);
+            message.error("Error getting report: "+error.detail)
+            return;
+          }
+          downloadReport(data, response)
         } catch (error) {
           console.log(error);
         }
-        
       }
     },
     {
@@ -191,8 +167,8 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
         </div>
         <Menu
           theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['1']}
+          mode="vertical"
+          selectedKeys={selectedKeys}
           items={items}
           onClick={onClickMenuItem}
           

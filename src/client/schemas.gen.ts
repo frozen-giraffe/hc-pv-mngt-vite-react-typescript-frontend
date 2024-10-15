@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-04T22:33:00.803893'
+            default: '2024-10-13T19:02:10.234012'
         }
     },
     type: 'object',
@@ -6795,6 +6795,12 @@ export const QualityRatioClassesPublicOutSchema = {
     title: 'QualityRatioClassesPublicOut'
 } as const;
 
+export const SortDirectionSchema = {
+    type: 'string',
+    enum: ['asc', 'desc'],
+    title: 'SortDirection'
+} as const;
+
 export const TokenSchema = {
     properties: {
         access_token: {
@@ -6862,6 +6868,11 @@ export const UserCreateSchema = {
             ],
             title: 'Full Name'
         },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
+        },
         password: {
             type: 'string',
             maxLength: 40,
@@ -6903,6 +6914,11 @@ export const UserPublicSchema = {
                 }
             ],
             title: 'Full Name'
+        },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
         },
         id: {
             type: 'integer',
@@ -6982,6 +6998,11 @@ export const UserUpdateSchema = {
                 }
             ],
             title: 'Full Name'
+        },
+        password_reset_by_admin: {
+            type: 'boolean',
+            title: 'Password Reset By Admin',
+            default: false
         },
         password: {
             anyOf: [
