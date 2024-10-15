@@ -295,7 +295,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
         pm_ratio: profileData.pm_ratio,
         pm_assistant_ratio: profileData.pm_assistant_ratio,
       },
-      arch_id: {
+      arch: {
         pm_ratio: profileData.arch_pm_ratio,
         pm_assistant_ratio: profileData.arch_pm_assistant_ratio,
         designer_ratio: profileData.arch_designer_ratio,
