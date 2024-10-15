@@ -112,22 +112,16 @@ export const Employees: React.FC = () => {
 
   useEffect(() => {
     if (affixContentRef.current) {
-        if (isAffixed) {
-          // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
-          setTimeout(() => {
-            if (affixContentRef.current) {
-              affixContentRef.current.style.width = "min(max-content, 100%)";
-              affixContentRef.current.style.borderRadius = "5px";
-              affixContentRef.current.style.padding = "13px 20px";
-              affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
-            }
-          }, 0);
-        } else {
-          affixContentRef.current.style.width = "100%";
-          affixContentRef.current.style.borderRadius = "0px";
-          affixContentRef.current.style.padding = "13px 20px";
-          affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
-        }
+      if (isAffixed) {
+        affixContentRef.current.style.borderRadius = "10px";
+        affixContentRef.current.style.padding = "8px 15px";
+        affixContentRef.current.style.boxShadow =
+          "0 1px 10px rgba(0, 0, 0, 0.5)";
+      } else {
+        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.padding = "3px 5px";
+        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
+      }
     }
   }, [isAffixed]);
 
@@ -694,19 +688,18 @@ export const Employees: React.FC = () => {
     <div>
       {contextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
-        <h1>员工管理</h1>
+        <h1>人员管理</h1>
         {user?.is_superuser && (
           <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
             <div
               ref={affixContentRef}
               style={{ 
-                background: 'white', 
-                padding: '13px 20px', 
-                boxShadow: '0 1px 5px rgba(0, 0, 0, 0.1)',
-                borderRadius: '5px',
-                transition: 'all 0.2s ease',
-                maxWidth: '100%',
-                overflow: 'hidden'
+                background: "white",
+                padding: "3px 5px",
+                transition: "all 0.3s ease",
+                maxWidth: "max-content",
+                overflow: "scroll",
+                scrollbarWidth: "none",
               }}
             >
               <Space wrap>

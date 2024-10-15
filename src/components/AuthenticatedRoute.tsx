@@ -15,7 +15,7 @@ export const AuthenticatedRoute: React.FC<{ children: React.ReactNode }> = ({ ch
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    return <Navigate to={`/login?redirect=${location.pathname}`} replace />;
   }
 
   return <>{children}</>;

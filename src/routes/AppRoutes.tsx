@@ -1,13 +1,14 @@
-import React from 'react';
-import { Dashboard } from '../routers/Dashboard';
+import { MenuComponent } from '../routers/MenuComponent';
 import { Login } from '../routers/Login';
-import MainPage from '../routers/MainPage';
+import Dashboard from '../routers/Dashboard';
 import { Employees } from '../routers/Employees';
 import { Projects } from '../routers/Projects';
 import { ProjectDetail } from '../routers/ProjectDetail';
 import { CalculationSettings } from '../routers/CalculationSettings';
 import { AuthenticatedRoute } from '../components/AuthenticatedRoute';
 import SystemManagement from '../routers/SystemManagement';
+import { Navigate } from 'react-router-dom';
+import NotFound from '../routers/NotFound';
 
 export const AppRoutes = [
   { path: "/login", element: <Login /> },
@@ -15,9 +16,9 @@ export const AppRoutes = [
     path: "/", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
-          <MainPage/>
-        </Dashboard>
+        <MenuComponent>
+          <Navigate to="/dashboard" replace />
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -25,9 +26,9 @@ export const AppRoutes = [
     path: "/dashboard", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
-          <MainPage/>
-        </Dashboard>
+        <MenuComponent>
+          <Dashboard/>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -35,9 +36,9 @@ export const AppRoutes = [
     path: "/employees", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
+        <MenuComponent>
           <Employees/>
-        </Dashboard>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -45,9 +46,9 @@ export const AppRoutes = [
     path: "/projects", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
+        <MenuComponent>
           <Projects/>
-        </Dashboard>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -55,9 +56,9 @@ export const AppRoutes = [
     path: "/projects-detail", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
+        <MenuComponent>
           <ProjectDetail/>
-        </Dashboard>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -65,9 +66,9 @@ export const AppRoutes = [
     path: "/calculation-settings", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
+        <MenuComponent>
           <CalculationSettings />
-        </Dashboard>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
   },
@@ -75,10 +76,15 @@ export const AppRoutes = [
     path: "/system-management", 
     element: (
       <AuthenticatedRoute>
-        <Dashboard>
+        <MenuComponent>
           <SystemManagement />
-        </Dashboard>
+        </MenuComponent>
       </AuthenticatedRoute>
     )
+  },
+  // Add the 404 route at the end
+  { 
+    path: "*", 
+    element: <NotFound />
   }
 ];

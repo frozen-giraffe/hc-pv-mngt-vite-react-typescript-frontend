@@ -20,7 +20,7 @@ const SystemManagement: React.FC = () => {
   }, [tabParam, navigate, validTabs]);
 
   const handleTabChange = useCallback((key: string) => {
-    navigate(`/system-management?tab=${key}`, { replace: false });
+    navigate(`/system-management?tab=${key}`, { replace: true });
   }, [navigate]);
 
   const items = useMemo(() => [

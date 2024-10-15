@@ -108,20 +108,14 @@ export const Projects = () => {
   useEffect(() => {
     if (affixContentRef.current) {
       if (isAffixed) {
-        // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
-        setTimeout(() => {
-          if (affixContentRef.current) {
-            affixContentRef.current.style.width = "min(max-content, 100%)";
-            affixContentRef.current.style.borderRadius = "5px";
-            affixContentRef.current.style.padding = "8px 15px";
-            affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
-          }
-        }, 0);
-      } else {
-        affixContentRef.current.style.width = "100%";
-        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.borderRadius = "10px";
         affixContentRef.current.style.padding = "8px 15px";
-        affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
+        affixContentRef.current.style.boxShadow =
+          "0 1px 10px rgba(0, 0, 0, 0.5)";
+      } else {
+        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.padding = "3px 5px";
+        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
       }
     }
   }, [isAffixed]);
@@ -868,15 +862,19 @@ export const Projects = () => {
               ref={affixContentRef}
               style={{
                 background: "white",
-                padding: "8px 15px",
-                boxShadow: "0 1px 5px rgba(0, 0, 0, 0.1)",
-                borderRadius: "5px",
+                padding: "3px 5px",
                 transition: "all 0.3s ease",
+                maxWidth: "max-content",
+                overflow: "scroll",
+                scrollbarWidth: "none",
               }}
             >
               <Space wrap>
-                <Button onClick={showProjectDetail} type="primary">
-                  <PlusOutlined />
+                <Button
+                  onClick={showProjectDetail}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
                   添加
                 </Button>
                 <Divider type="vertical" />
@@ -893,7 +891,7 @@ export const Projects = () => {
                   公司年度报告
                 </Button>
                 <Divider type="vertical" />
-                <p>显示列：</p>
+                <Typography.Text>显示列：</Typography.Text>
                 <Select
                   mode="multiple"
                   style={{ width: "300px" }}
