@@ -13,7 +13,8 @@ import zhCN from 'antd/locale/zh_CN';
 import { REDIRECT_LOGIN_REASON_KEY } from './client/const.tsx';
 
 client.setConfig({
-  baseUrl: "http://localhost:8001",
+  baseUrl: "http://alang-main.griffin-vibes.ts.net:8001",
+  // baseUrl: "http://localhost:8001",
   headers: {
     'Content-Type': 'application/json',
   },

@@ -4,16 +4,17 @@ import { Nav } from "../components/Nav";
 import "./Dashboard.css";
 import { Test } from "./MainPage";
 import { Link, Navigate, Route, Router, Routes, useNavigate, useLocation } from "react-router-dom";
-import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message } from "antd";
+import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message, Tooltip } from "antd";
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  AppstoreOutlined,
-  MailOutlined,
+  ProjectOutlined,
   SettingOutlined,
+  HomeOutlined,
+  CalculatorOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from '@ant-design/icons';
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
@@ -30,14 +31,14 @@ const items: MenuItem[] = [
   {
     key: '/dashboard',
     label: '主页',
-    icon: <MailOutlined />,
+    icon: <HomeOutlined />,
     path: '/dashboard',
 
   },
   {
     key: '/projects',
     label: '项目',
-    icon: <SettingOutlined />,
+    icon: <ProjectOutlined />,
     path: '/projects'
   },
   {
@@ -46,13 +47,13 @@ const items: MenuItem[] = [
   {
     key: '/employees',
     label: '人员管理',
-    icon: <AppstoreOutlined />,
+    icon: <UserOutlined />,
     path: '/employees'
   },
   {
     key: '/calculation-settings',
     label: '计算配置',
-    icon: <SettingOutlined />,
+    icon: <CalculatorOutlined />,
     path: '/calculation-settings',
   },
   {
@@ -85,6 +86,18 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     }
   }, [location]);
 
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    };
+  }, []);
+
   const toggle = () => {
     setCollapsed(!collapsed);
   };
@@ -96,40 +109,32 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
     if (item?.path) {
       navigate(item.path);
     }
-    
   };
+
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
   const dropDownMenu: MenuProps['items']= [
     {
       key: '1',
-      label: (
-          '1st menu item'
-      ),
-      onClick: async()=>{
-        try {
-          const { data, error, response }= await ReportsService.getEmployeeProjectPayoutListByProjectYearReport({
-            query: {
-              project_year: 2023,
-              employee_id: 21
-            }
-          })
-          if (error){
-            console.log(error);
-            message.error("Error getting report: "+error.detail)
-            return;
-          }
-          downloadReport(data, response)
-        } catch (error) {
-          console.log(error);
-        }
-      }
+      icon: isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />,
+      label: isFullScreen ? '退出全屏' : '全屏',
+      onClick: toggleFullScreen
     },
     {
       key: '2',
-      label: (
-        <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-          2nd menu item
-        </a>
-      ),
+      icon: <UserOutlined />,
+      label: auth.user?.full_name || '个人信息',
+      onClick: () => navigate('/system-management?tab=personalInfo')
     },
     {
       type: 'divider',
@@ -144,11 +149,26 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
       onClick:()=>{
         auth.logout()
         navigate('/login')
-        
       }
     },
   ];
   
+
+  const isEmployeesOrProjectsPage = location.pathname.startsWith('/employees') || location.pathname.startsWith('/projects');
+
+  const FullScreenButton = () => (
+    <Tooltip title={isFullScreen ? '退出全屏' : '全屏'}>
+      <Button
+        type="text"
+      icon={isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+      onClick={toggleFullScreen}
+      style={{
+        fontSize: '16px',
+        marginRight: '16px',
+        }}
+      />
+    </Tooltip>
+  );
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -169,7 +189,10 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
           theme="dark"
           mode="vertical"
           selectedKeys={selectedKeys}
-          items={items}
+          items={items.map(item => ({
+            ...item,
+            label: item.path ? <Link to={item.path}>{item.label}</Link> : item.label
+          }))}
           onClick={onClickMenuItem}
           
         />
@@ -177,27 +200,32 @@ export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) 
 
       {/* Layout for Top Nav and Content */}
       <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s ease' }}>
-        <Header style={{ padding: 0, background: colorBgContainer,display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 64,
-              height: 64,
-            }}
-          />
-          <Dropdown menu={{items:dropDownMenu}} placement="bottomRight">
+        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Tooltip title={collapsed ? '展开菜单' : '折叠菜单'} placement="right">
             <Button
               type="text"
-              icon={<SettingOutlined />}
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
               style={{
                 fontSize: '16px',
-                marginRight: '16px',
+                width: 64,
+                height: 64,
               }}
             />
-          </Dropdown>
+          </Tooltip>
+          <div>
+            {isEmployeesOrProjectsPage && <FullScreenButton />}
+            <Dropdown menu={{items:dropDownMenu}} placement="bottomRight">
+              <Button
+                type="text"
+                icon={<SettingOutlined />}
+                style={{
+                  fontSize: '16px',
+                  marginRight: '16px',
+                }}
+              />
+            </Dropdown>
+          </div>
         </Header>
         <Content
           style={{

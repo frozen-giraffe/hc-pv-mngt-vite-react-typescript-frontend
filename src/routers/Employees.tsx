@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
+    Affix,
   Button,
   Collapse,
   DatePicker,
@@ -105,6 +106,30 @@ export const Employees: React.FC = () => {
     useState<EmployeeFullDetails | null>(null);
 
   const getEmployeePublicOutColumn = GetColumnNames<EmployeePublicOut>();
+
+  const [isAffixed, setIsAffixed] = useState(false);
+  const affixContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (affixContentRef.current) {
+        if (isAffixed) {
+          // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
+          setTimeout(() => {
+            if (affixContentRef.current) {
+              affixContentRef.current.style.width = "min(max-content, 100%)";
+              affixContentRef.current.style.borderRadius = "5px";
+              affixContentRef.current.style.padding = "13px 20px";
+              affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
+            }
+          }, 0);
+        } else {
+          affixContentRef.current.style.width = "100%";
+          affixContentRef.current.style.borderRadius = "0px";
+          affixContentRef.current.style.padding = "13px 20px";
+          affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
+        }
+    }
+  }, [isAffixed]);
 
   useEffect(() => {
     fetchStaticData();
@@ -383,7 +408,7 @@ export const Employees: React.FC = () => {
     {
       title: "身份证号",
       dataIndex: "gov_id",
-      width: 100,
+      width: 130,
       key: getEmployeePublicOutColumn("gov_id"),
       filteredValue: getFilteredValue("gov_id"),
       filterDropdown: ({
@@ -669,20 +694,36 @@ export const Employees: React.FC = () => {
     <div>
       {contextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
+        <h1>员工管理</h1>
         {user?.is_superuser && (
-          <Space>
-            <Button
-              onClick={() => showModal()}
-              type="primary"
-              icon={<PlusOutlined />}
+          <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
+            <div
+              ref={affixContentRef}
+              style={{ 
+                background: 'white', 
+                padding: '13px 20px', 
+                boxShadow: '0 1px 5px rgba(0, 0, 0, 0.1)',
+                borderRadius: '5px',
+                transition: 'all 0.2s ease',
+                maxWidth: '100%',
+                overflow: 'hidden'
+              }}
             >
-              添加
-            </Button>
-            <Divider type="vertical" />
-            <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
-              导出人员列表
-            </Button>
-          </Space>
+              <Space wrap>
+                <Button
+                  onClick={() => showModal()}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  添加
+                </Button>
+                <Divider type="vertical" />
+                <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
+                  导出人员列表
+                </Button>
+              </Space>
+            </div>
+          </Affix>
         )}
         <Table
           rowKey="id"
@@ -828,7 +869,7 @@ export const Employees: React.FC = () => {
                 label: <span >高级设置</span>,
                 children: (
                   <>
-                    <Divider plain orientation="left" style={{ color: "grey", margin: "5px 0px" }}>
+                    <Divider plain orientation="left" orientationMargin="0" style={{ color: "grey", margin: "5px 0px" }}>
                       索引设置
                       <Tooltip title="下方数据用于系统内员工拼音/首字母搜索，可以自定义以获得更好的搜索体验">
                         <InfoCircleOutlined

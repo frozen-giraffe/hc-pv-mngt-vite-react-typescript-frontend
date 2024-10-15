@@ -12,9 +12,14 @@ import {
   Modal,
   Checkbox,
   Select,
+  Affix,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { PlusOutlined, FilePdfOutlined, MinusOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  FilePdfOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   ProjectTaskTypePublicOut,
@@ -38,8 +43,11 @@ import ProjectReportModal from "../components/ProjectReportModal";
 import CompanyReportModal from "../components/CompanyReportModal";
 import ContractPaymentModal from "../components/ContractPaymentModal";
 import { ColumnsType } from "antd/es/table";
-import FloatNumberCellRender from '../components/FloatNumberCellRender';
-import { PROJECT_TABLE_SHOWN_COLUMNS_KEY, PROJECT_PAGE_DEFAULT_PAGE_SIZE } from "../client/const";
+import FloatNumberCellRender from "../components/FloatNumberCellRender";
+import {
+  PROJECT_TABLE_SHOWN_COLUMNS_KEY,
+  PROJECT_PAGE_DEFAULT_PAGE_SIZE,
+} from "../client/const";
 import FilterDropdown from "../components/FilterDropdown";
 import { FilterFilled, SortAscendingOutlined } from "@ant-design/icons";
 
@@ -52,7 +60,6 @@ export const Projects = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [projects, setProjects] = useState<ProjectPublicOut[]>([]);
   const [buildingStructureType, setBuildingStructureType] = useState<
@@ -94,6 +101,30 @@ export const Projects = () => {
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
   const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
+
+  const [isAffixed, setIsAffixed] = useState(false);
+  const affixContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (affixContentRef.current) {
+      if (isAffixed) {
+        // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
+        setTimeout(() => {
+          if (affixContentRef.current) {
+            affixContentRef.current.style.width = "min(max-content, 100%)";
+            affixContentRef.current.style.borderRadius = "5px";
+            affixContentRef.current.style.padding = "8px 15px";
+            affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
+          }
+        }, 0);
+      } else {
+        affixContentRef.current.style.width = "100%";
+        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.padding = "8px 15px";
+        affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
+      }
+    }
+  }, [isAffixed]);
 
   useEffect(() => {
     fetchStaticData();
@@ -180,12 +211,16 @@ export const Projects = () => {
       if (resBuildingStructureType.data) {
         setBuildingStructureType(resBuildingStructureType.data.data);
       } else {
-        message.error("获取结构形式失败: " + resBuildingStructureType.error.detail);
+        message.error(
+          "获取结构形式失败: " + resBuildingStructureType.error.detail
+        );
       }
       if (resQualityRatioClass.data) {
         setQualityRatioClass(resQualityRatioClass.data.data);
       } else {
-        message.error("获取设计质量系数失败: " + resQualityRatioClass.error.detail);
+        message.error(
+          "获取设计质量系数失败: " + resQualityRatioClass.error.detail
+        );
       }
       if (resProjectType.data) {
         setProjectType(resProjectType.data.data);
@@ -195,7 +230,9 @@ export const Projects = () => {
       if (resProjectTaskType.data) {
         setProjectTaskType(resProjectTaskType.data.data);
       } else {
-        message.error("获取工程项目类型失败: " + resProjectTaskType.error.detail);
+        message.error(
+          "获取工程项目类型失败: " + resProjectTaskType.error.detail
+        );
       }
 
       setIsStaticDataLoaded(true);
@@ -554,7 +591,9 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_construction_cost"),
       width: 110,
       sorter: true,
-      sortOrder: getSortOrder(getProjectPublicOutColumn("project_construction_cost")),
+      sortOrder: getSortOrder(
+        getProjectPublicOutColumn("project_construction_cost")
+      ),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_construction_cost"),
       filterDropdown: ({
@@ -579,7 +618,9 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("project_contract_value"),
       width: 120,
       sorter: true,
-      sortOrder: getSortOrder(getProjectPublicOutColumn("project_contract_value")),
+      sortOrder: getSortOrder(
+        getProjectPublicOutColumn("project_contract_value")
+      ),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_contract_value"),
       filterDropdown: ({
@@ -604,7 +645,9 @@ export const Projects = () => {
       key: getProjectPublicOutColumn("calculated_employee_payout"),
       width: 100,
       sorter: true,
-      sortOrder: getSortOrder(getProjectPublicOutColumn("calculated_employee_payout")),
+      sortOrder: getSortOrder(
+        getProjectPublicOutColumn("calculated_employee_payout")
+      ),
       render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("calculated_employee_payout"),
       filterDropdown: ({
@@ -707,7 +750,7 @@ export const Projects = () => {
       width: 120,
       sorter: true,
       sortOrder: getSortOrder(getProjectPublicOutColumn("project_area")),
-      render: (value: number) => <FloatNumberCellRender value={value}/>,
+      render: (value: number) => <FloatNumberCellRender value={value} />,
       filteredValue: getRangeFilteredValue("project_area"),
       filterDropdown: ({
         setSelectedKeys,
@@ -740,7 +783,7 @@ export const Projects = () => {
     {
       title: "操作",
       key: "action",
-      width: 150,
+      width: 140,
       fixed: "right",
       render: (row: ProjectPublicOut) => {
         return user?.is_superuser ? (
@@ -815,71 +858,88 @@ export const Projects = () => {
   };
 
   return (
-    <div ref={scrollContainerRef}>
+    <div>
       {contextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
+        <h1>项目管理</h1>
         {user?.is_superuser && (
-          <Space wrap>
-            <Button onClick={showProjectDetail} type="primary">
-              <PlusOutlined />
-              添加
-            </Button>
-            <Divider type="vertical" />
-            <Button
-              onClick={showProjectListDownloadModal}
-              icon={<FilePdfOutlined />}
-            >
-              导出项目列表
-            </Button>
-            <Button onClick={showCompanyReportModal} icon={<FilePdfOutlined />}>
-              公司年度报告
-            </Button>
-            <Divider type="vertical" />
-            <p>显示列：</p>
-            <Select
-              mode="multiple"
-              style={{ width: "300px" }}
-              placeholder="选择显示的列"
-              value={selectedColumns}
-              onChange={handleColumnChange}
-              options={columns.map((col) => ({
-                label: col.title,
-                value: col.key as string,
-                disabled: col.key === "id" || col.key === "action",
-              }))}
-              allowClear={true}
-              onClear={() => handleColumnChange([])}
-              maxTagCount="responsive"
-              dropdownRender={(menu) => {
-                return (
-                  <>
-                    {menu}
-                    <Divider style={{ margin: "8px 0" }} />
-                    <Space style={{ padding: "0 8px 4px", width: "100%" }}>
-                      <Button
-                        type="text"
-                        icon={<PlusOutlined />}
-                        onClick={() =>
-                          handleColumnChange(
-                            columns.map((col) => col.key as string)
-                          )
-                        }
-                      >
-                        全选
-                      </Button>
-                      <Button
-                        type="text"
-                        icon={<MinusOutlined />}
-                        onClick={() => handleColumnChange([])}
-                      >
-                        全不选
-                      </Button>
-                    </Space>
-                  </>
-                );
+          <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
+            <div
+              ref={affixContentRef}
+              style={{
+                background: "white",
+                padding: "8px 15px",
+                boxShadow: "0 1px 5px rgba(0, 0, 0, 0.1)",
+                borderRadius: "5px",
+                transition: "all 0.3s ease",
               }}
-            />
-          </Space>
+            >
+              <Space wrap>
+                <Button onClick={showProjectDetail} type="primary">
+                  <PlusOutlined />
+                  添加
+                </Button>
+                <Divider type="vertical" />
+                <Button
+                  onClick={showProjectListDownloadModal}
+                  icon={<FilePdfOutlined />}
+                >
+                  导出项目列表
+                </Button>
+                <Button
+                  onClick={showCompanyReportModal}
+                  icon={<FilePdfOutlined />}
+                >
+                  公司年度报告
+                </Button>
+                <Divider type="vertical" />
+                <p>显示列：</p>
+                <Select
+                  mode="multiple"
+                  style={{ width: "300px" }}
+                  placeholder="选择显示的列"
+                  value={selectedColumns}
+                  onChange={handleColumnChange}
+                  options={columns.map((col) => ({
+                    label: col.title,
+                    value: col.key as string,
+                    disabled: col.key === "id" || col.key === "action",
+                  }))}
+                  allowClear={true}
+                  onClear={() => handleColumnChange([])}
+                  maxTagCount="responsive"
+                  dropdownRender={(menu) => {
+                    return (
+                      <>
+                        {menu}
+                        <Divider style={{ margin: "8px 0" }} />
+                        <Space style={{ padding: "0 8px 4px", width: "100%" }}>
+                          <Button
+                            type="text"
+                            icon={<PlusOutlined />}
+                            onClick={() =>
+                              handleColumnChange(
+                                columns.map((col) => col.key as string)
+                              )
+                            }
+                          >
+                            全选
+                          </Button>
+                          <Button
+                            type="text"
+                            icon={<MinusOutlined />}
+                            onClick={() => handleColumnChange([])}
+                          >
+                            全不选
+                          </Button>
+                        </Space>
+                      </>
+                    );
+                  }}
+                />
+              </Space>
+            </div>
+          </Affix>
         )}
         <Table
           bordered
@@ -897,18 +957,26 @@ export const Projects = () => {
             total: totalProjects,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total) =>
+            showTotal: (total) => (
               <>
                 共 {total} 个工程
-                {filters && Object.keys(filters).length > 0 ? 
-                <>
-                    <Divider type="vertical" /> 
+                {filters && Object.keys(filters).length > 0 ? (
+                  <>
+                    <Divider type="vertical" />
                     <Space>
-                        <Typography.Text style={{color: "grey"}} >已 <FilterFilled />过滤 / <SortAscendingOutlined />排序</Typography.Text>
-                        <Button onClick={clearFilters} type="dashed" size="small">取消过滤/排序</Button>
+                      <Typography.Text style={{ color: "grey" }}>
+                        已 <FilterFilled />
+                        过滤 / <SortAscendingOutlined />
+                        排序
+                      </Typography.Text>
+                      <Button onClick={clearFilters} type="dashed" size="small">
+                        取消过滤/排序
+                      </Button>
                     </Space>
-                    </> : null}
+                  </>
+                ) : null}
               </>
+            ),
           }}
           scroll={{ x: "max-content" }}
           style={{ height: "100%" }}
