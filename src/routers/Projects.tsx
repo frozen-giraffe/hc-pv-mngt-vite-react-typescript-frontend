@@ -14,7 +14,7 @@ import {
   Select,
   Affix,
 } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   PlusOutlined,
   FilePdfOutlined,
@@ -124,21 +124,52 @@ export const Projects = () => {
     fetchStaticData();
   }, []);
 
+  
+  const fetchProjects = useCallback(
+    async (
+      page: number,
+      size: number,
+      currentFilters: Partial<ProjectQueryParams>
+    ) => {
+      if (!isStaticDataLoaded) {
+        console.log("Static data not loaded yet, skipping project fetch");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data, error } = await ProjectsService.getAndFilterProjects({
+          query: {
+            skip: (page - 1) * size,
+            limit: size,
+            ...currentFilters,
+          },
+        });
+        if (error) {
+          message.error("获取项目失败: " + error.detail);
+        } else if (data) {
+          setProjects(data.data);
+          setTotalProjects(data.count);
+        }
+      } catch (e) {
+        console.error("Error fetching projects:", e);
+        message.error("获取项目数据失败，请重试");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isStaticDataLoaded]
+  );
+
   useEffect(() => {
     if (isStaticDataLoaded) {
       const search_current_page = searchParams.get("current_page");
       const search_page_size = searchParams.get("page_size");
-      if (search_current_page) {
-        setCurrentPage(parseInt(search_current_page));
-      }
-      if (search_page_size) {
-        setPageSize(parseInt(search_page_size));
-      }
+      const newCurrentPage = search_current_page ? parseInt(search_current_page) : 1;
+      const newPageSize = search_page_size ? parseInt(search_page_size) : PROJECT_PAGE_DEFAULT_PAGE_SIZE;
 
-      // Parse filters from URL
       const newFilters: Partial<ProjectQueryParams> = {};
-      searchParams.forEach((value, key) => {
-        // Check if the key is a valid filter
+      for (const [key, value] of searchParams.entries()) {
         if (
           key in
           {
@@ -171,12 +202,16 @@ export const Projects = () => {
         ) {
           newFilters[key as keyof ProjectQueryParams] = value;
         }
-      });
+      }
+
+      setCurrentPage(newCurrentPage);
+      setPageSize(newPageSize);
       setFilters(newFilters);
 
-      fetchProjects(currentPage, pageSize, newFilters);
+      fetchProjects(newCurrentPage, newPageSize, newFilters);
     }
-  }, [searchParams, currentPage, pageSize, isStaticDataLoaded]);
+  }, [searchParams, isStaticDataLoaded, fetchProjects]);
+
 
   useEffect(() => {
     const savedColumns = localStorage.getItem(PROJECT_TABLE_SHOWN_COLUMNS_KEY);
@@ -236,37 +271,6 @@ export const Projects = () => {
     }
   };
 
-  const fetchProjects = async (
-    page: number,
-    size: number,
-    currentFilters: Partial<ProjectQueryParams>
-  ) => {
-    if (!isStaticDataLoaded) {
-      console.log("Static data not loaded yet, skipping project fetch");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await ProjectsService.getAndFilterProjects({
-        query: {
-          skip: (page - 1) * size,
-          limit: size,
-          ...currentFilters,
-        },
-      });
-      if (error) {
-        message.error("获取项目失败: " + error.detail);
-      } else if (data) {
-        setProjects(data.data);
-        setTotalProjects(data.count);
-      }
-    } catch (e) {
-      console.error("Error fetching projects:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleTableChange: TableProps<ProjectPublicOut>["onChange"] = (
     pagination,

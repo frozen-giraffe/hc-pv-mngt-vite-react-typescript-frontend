@@ -197,17 +197,13 @@ export const Employees: React.FC = () => {
       employeeStatus,
     ]
   );
-
+  
   useEffect(() => {
     if (isStaticDataLoaded) {
       const search_current_page = searchParams.get("current_page");
       const search_page_size = searchParams.get("page_size");
-      if (search_current_page) {
-        setCurrentPage(parseInt(search_current_page));
-      }
-      if (search_page_size) {
-        setPageSize(parseInt(search_page_size));
-      }
+      const newCurrentPage = search_current_page ? parseInt(search_current_page) : 1;
+      const newPageSize = search_page_size ? parseInt(search_page_size) : EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE;
 
       const newFilters: Partial<EmployeeQueryParams> = {};
       for (const [key, value] of searchParams.entries()) {
@@ -231,11 +227,14 @@ export const Employees: React.FC = () => {
           newFilters[key as keyof EmployeeQueryParams] = value;
         }
       }
+
+      setCurrentPage(newCurrentPage);
+      setPageSize(newPageSize);
       setFilters(newFilters);
 
-      fetchEmployees(currentPage, pageSize, newFilters);
+      fetchEmployees(newCurrentPage, newPageSize, newFilters);
     }
-  }, [searchParams, currentPage, pageSize, isStaticDataLoaded, fetchEmployees]);
+  }, [searchParams, isStaticDataLoaded, fetchEmployees]);
 
   const getFilteredValue = (key: string): string[] | undefined => {
     const value = filters?.[key as keyof EmployeeQueryParams];
