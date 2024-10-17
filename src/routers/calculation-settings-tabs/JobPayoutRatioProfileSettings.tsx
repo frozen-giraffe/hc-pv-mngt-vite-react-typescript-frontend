@@ -68,7 +68,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
           message.error("获取工比失败: " + error.detail);
         } else {
           const filteredProfiles = data.data.filter(
-            (profile) => profile.id !== 1
+            (profile) => profile.id !== 99
           );
           setProfiles(filteredProfiles);
         setLoading(false);
