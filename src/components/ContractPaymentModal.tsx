@@ -193,6 +193,12 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
 
   const columns = [
     {
+      title: "回款ID",
+      dataIndex: "id",
+      key: "id",
+      render: (id: number) => id.toString(),
+    },
+    {
       title: "到账日期",
       dataIndex: "payment_date",
       key: "payment_date",
