@@ -639,7 +639,7 @@ export const Employees: React.FC = () => {
       }
     }
     if (sorter && !Array.isArray(sorter) && sorter.order) {
-        newFilters["sort_by"] = sorter.field as string;
+        newFilters["sort_by"] = sorter.columnKey as string;
         newFilters["sort_direction"] = sorter.order === "ascend" ? "asc" : "desc";
     }
     setFilters(newFilters);
