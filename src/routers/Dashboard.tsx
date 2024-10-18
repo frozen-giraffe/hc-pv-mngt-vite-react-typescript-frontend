@@ -1,244 +1,63 @@
-import React, { useEffect, useState } from "react";
-import SelfMenu from "./../components/Menu";
-import { Nav } from "../components/Nav";
-import "./Dashboard.css";
-import { Test } from "./MainPage";
-import { Link, Navigate, Route, Router, Routes, useNavigate, useLocation } from "react-router-dom";
-import { Button, Layout, Menu, theme,MenuProps, Dropdown, DropDownProps, Divider, message, Tooltip } from "antd";
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  UserOutlined,
-  ProjectOutlined,
-  SettingOutlined,
-  HomeOutlined,
-  CalculatorOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-} from '@ant-design/icons';
-import Sider from "antd/es/layout/Sider";
-import { Content, Header } from "antd/es/layout/layout";
-import Logo from '/favicon.png'
+import React from "react";
+import { Card, Col, Row, Statistic } from "antd";
+import CountUp from 'react-countup';
 import { useAuth } from "../context/AuthContext";
-import { OpenAPI, ReportsService, UserPublic, UsersService } from "../client";
-import { downloadReport } from "../utils/ReportFileDownload";
 
+const Dashboard: React.FC = () => {
+  const { user } = useAuth();
 
-type MenuItem = Required<MenuProps>['items'][number] & {
-  path?: string;
-};
-const items: MenuItem[] = [
-  {
-    key: '/dashboard',
-    label: '主页',
-    icon: <HomeOutlined />,
-    path: '/dashboard',
-
-  },
-  {
-    key: '/projects',
-    label: '项目',
-    icon: <ProjectOutlined />,
-    path: '/projects'
-  },
-  {
-    type: 'divider',
-  },
-  {
-    key: '/employees',
-    label: '人员管理',
-    icon: <UserOutlined />,
-    path: '/employees'
-  },
-  {
-    key: '/calculation-settings',
-    label: '计算配置',
-    icon: <CalculatorOutlined />,
-    path: '/calculation-settings',
-  },
-  {
-    key: '/system-management',
-    label: '系统管理',
-    icon: <SettingOutlined />,
-    path: '/system-management',
-  },
-  
-];
-
-
-
-export const Dashboard: React.FC<{ children: React.ReactNode }>  = ({children}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const auth = useAuth()
-  const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  const [selectedKeys, setSelectedKeys] = useState<string[]>(['/dashboard']);
-
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const matchingItem = items.find(item => item.path === currentPath);
-    if (matchingItem) {
-      setSelectedKeys([matchingItem.key as string]);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    const handleFullScreenChange = () => {
-      setIsFullScreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullScreenChange);
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullScreenChange);
-    };
-  }, []);
-
-  const toggle = () => {
-    setCollapsed(!collapsed);
-  };
-  const onClickImage:React.DOMAttributes<HTMLImageElement>['onClick']=()=>{
-    navigate('/');
-  }
-  const onClickMenuItem: MenuProps['onClick'] = (e) => {
-    const item = items.find(item => item.key === e.key);
-    if (item?.path) {
-      navigate(item.path);
-    }
-  };
-
-  const [isFullScreen, setIsFullScreen] = useState(false);
-
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  };
-
-  const dropDownMenu: MenuProps['items']= [
-    {
-      key: '1',
-      icon: isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />,
-      label: isFullScreen ? '退出全屏' : '全屏',
-      onClick: toggleFullScreen
-    },
-    {
-      key: '2',
-      icon: <UserOutlined />,
-      label: auth.user?.full_name || '个人信息',
-      onClick: () => navigate('/system-management?tab=personalInfo')
-    },
-    {
-      type: 'divider',
-    },
-    {
-      key: '3',
-      label: (
-        <div style={{display:'flex', justifyContent:'center'}}>
-          登出
-        </div>
-      ),
-      onClick:()=>{
-        auth.logout()
-        navigate('/login')
-      }
-    },
-  ];
-  
-
-  const isEmployeesOrProjectsPage = location.pathname.startsWith('/employees') || location.pathname.startsWith('/projects');
-
-  const FullScreenButton = () => (
-    <Tooltip title={isFullScreen ? '退出全屏' : '全屏'}>
-      <Button
-        type="text"
-      icon={isFullScreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-      onClick={toggleFullScreen}
-      style={{
-        fontSize: '16px',
-        marginRight: '16px',
-        }}
-      />
-    </Tooltip>
+  const formatter = (value: number): React.ReactNode => (
+    <CountUp start={value / 2} end={value} duration={2} />
   );
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      {/* Sider for Drawer Menu */}
-      <Sider  trigger={null} collapsible collapsed={collapsed} width={collapsed ? 80 : 200}  style={{
-          position: "fixed",
-          height: "100vh",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 10,
-        }}>
-        <div className='logo-div'> 
-          <img src={Logo} className='logo-inner-img' onClick={onClickImage}></img>
-
-        </div>
-        <Menu
-          theme="dark"
-          mode="vertical"
-          selectedKeys={selectedKeys}
-          items={items.map(item => ({
-            ...item,
-            label: item.path ? <Link to={item.path}>{item.label}</Link> : item.label
-          }))}
-          onClick={onClickMenuItem}
-          
-        />
-      </Sider>
-
-      {/* Layout for Top Nav and Content */}
-      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s ease' }}>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Tooltip title={collapsed ? '展开菜单' : '折叠菜单'} placement="right">
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: '16px',
-                width: 64,
-                height: 64,
-              }}
+    <div>
+      <h1>新疆昊辰建筑设计规划研究院有限公司-产值计算系统</h1>
+      {user?.full_name ? <h2>欢迎回来，{user?.full_name}</h2> : <h2>欢迎回来！</h2>}
+      <Row gutter={[18,18]}>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="本年工程数量"
+              value={420}
+              suffix="个"
+              formatter={(value) => formatter(value as number)}
             />
-          </Tooltip>
-          <div>
-            {isEmployeesOrProjectsPage && <FullScreenButton />}
-            <Dropdown menu={{items:dropDownMenu}} placement="bottomRight">
-              <Button
-                type="text"
-                icon={<SettingOutlined />}
-                style={{
-                  fontSize: '16px',
-                  marginRight: '16px',
-                }}
-              />
-            </Dropdown>
-          </div>
-        </Header>
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          {children}
-        </Content>
-      </Layout>
-    </Layout>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="总工程数量"
+              value={2048}
+              suffix="个"
+              formatter={(value) => formatter(value as number)}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="未进行产值计算项目"
+              value={3}
+              suffix="个"
+              formatter={(value) => formatter(value as number)}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card bordered={true}>
+            <Statistic
+              title="无回款项目"
+              value={10}
+              suffix="个"
+              formatter={(value) => formatter(value as number)}
+            />
+          </Card>
+        </Col>
+      </Row>
+    </div>
   );
 };
+
+export default Dashboard;

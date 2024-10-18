@@ -14,7 +14,7 @@ import {
   Select,
   Affix,
 } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   PlusOutlined,
   FilePdfOutlined,
@@ -108,20 +108,14 @@ export const Projects = () => {
   useEffect(() => {
     if (affixContentRef.current) {
       if (isAffixed) {
-        // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
-        setTimeout(() => {
-          if (affixContentRef.current) {
-            affixContentRef.current.style.width = "min(max-content, 100%)";
-            affixContentRef.current.style.borderRadius = "5px";
-            affixContentRef.current.style.padding = "8px 15px";
-            affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
-          }
-        }, 0);
-      } else {
-        affixContentRef.current.style.width = "100%";
-        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.borderRadius = "10px";
         affixContentRef.current.style.padding = "8px 15px";
-        affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
+        affixContentRef.current.style.boxShadow =
+          "0 1px 10px rgba(0, 0, 0, 0.5)";
+      } else {
+        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.padding = "3px 5px";
+        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
       }
     }
   }, [isAffixed]);
@@ -130,21 +124,52 @@ export const Projects = () => {
     fetchStaticData();
   }, []);
 
+  
+  const fetchProjects = useCallback(
+    async (
+      page: number,
+      size: number,
+      currentFilters: Partial<ProjectQueryParams>
+    ) => {
+      if (!isStaticDataLoaded) {
+        console.log("Static data not loaded yet, skipping project fetch");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const { data, error } = await ProjectsService.getAndFilterProjects({
+          query: {
+            skip: (page - 1) * size,
+            limit: size,
+            ...currentFilters,
+          },
+        });
+        if (error) {
+          message.error("获取项目失败: " + error.detail);
+        } else if (data) {
+          setProjects(data.data);
+          setTotalProjects(data.count);
+        }
+      } catch (e) {
+        console.error("Error fetching projects:", e);
+        message.error("获取项目数据失败，请重试");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isStaticDataLoaded]
+  );
+
   useEffect(() => {
     if (isStaticDataLoaded) {
       const search_current_page = searchParams.get("current_page");
       const search_page_size = searchParams.get("page_size");
-      if (search_current_page) {
-        setCurrentPage(parseInt(search_current_page));
-      }
-      if (search_page_size) {
-        setPageSize(parseInt(search_page_size));
-      }
+      const newCurrentPage = search_current_page ? parseInt(search_current_page) : 1;
+      const newPageSize = search_page_size ? parseInt(search_page_size) : PROJECT_PAGE_DEFAULT_PAGE_SIZE;
 
-      // Parse filters from URL
       const newFilters: Partial<ProjectQueryParams> = {};
-      searchParams.forEach((value, key) => {
-        // Check if the key is a valid filter
+      for (const [key, value] of searchParams.entries()) {
         if (
           key in
           {
@@ -177,12 +202,16 @@ export const Projects = () => {
         ) {
           newFilters[key as keyof ProjectQueryParams] = value;
         }
-      });
+      }
+
+      setCurrentPage(newCurrentPage);
+      setPageSize(newPageSize);
       setFilters(newFilters);
 
-      fetchProjects(currentPage, pageSize, newFilters);
+      fetchProjects(newCurrentPage, newPageSize, newFilters);
     }
-  }, [searchParams, currentPage, pageSize, isStaticDataLoaded]);
+  }, [searchParams, isStaticDataLoaded, fetchProjects]);
+
 
   useEffect(() => {
     const savedColumns = localStorage.getItem(PROJECT_TABLE_SHOWN_COLUMNS_KEY);
@@ -242,37 +271,6 @@ export const Projects = () => {
     }
   };
 
-  const fetchProjects = async (
-    page: number,
-    size: number,
-    currentFilters: Partial<ProjectQueryParams>
-  ) => {
-    if (!isStaticDataLoaded) {
-      console.log("Static data not loaded yet, skipping project fetch");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await ProjectsService.getAndFilterProjects({
-        query: {
-          skip: (page - 1) * size,
-          limit: size,
-          ...currentFilters,
-        },
-      });
-      if (error) {
-        message.error("获取项目失败: " + error.detail);
-      } else if (data) {
-        setProjects(data.data);
-        setTotalProjects(data.count);
-      }
-    } catch (e) {
-      console.error("Error fetching projects:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleTableChange: TableProps<ProjectPublicOut>["onChange"] = (
     pagination,
@@ -443,8 +441,6 @@ export const Projects = () => {
   const getProjectPublicOutColumn = GetColumnNames<ProjectPublicOut>();
   const getProjectPayoutPublicOutColumn =
     GetColumnNames<ProjectPayoutPublicOut>();
-  //or use
-  //const getProjectPublicOutColumn = <T,> (name: keyof T)=> name //usage getProjectPublicOutColumn<ProjectPublicOut>('building_structure_type_id')
 
   const getSortOrder = (key: string): "ascend" | "descend" | null => {
     const sort_by = filters?.sort_by;
@@ -868,15 +864,19 @@ export const Projects = () => {
               ref={affixContentRef}
               style={{
                 background: "white",
-                padding: "8px 15px",
-                boxShadow: "0 1px 5px rgba(0, 0, 0, 0.1)",
-                borderRadius: "5px",
+                padding: "3px 5px",
                 transition: "all 0.3s ease",
+                maxWidth: "max-content",
+                overflow: "scroll",
+                scrollbarWidth: "none",
               }}
             >
               <Space wrap>
-                <Button onClick={showProjectDetail} type="primary">
-                  <PlusOutlined />
+                <Button
+                  onClick={showProjectDetail}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
                   添加
                 </Button>
                 <Divider type="vertical" />
@@ -893,7 +893,7 @@ export const Projects = () => {
                   公司年度报告
                 </Button>
                 <Divider type="vertical" />
-                <p>显示列：</p>
+                <Typography.Text>显示列：</Typography.Text>
                 <Select
                   mode="multiple"
                   style={{ width: "300px" }}

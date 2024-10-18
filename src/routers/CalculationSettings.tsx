@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Tabs } from 'antd';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import ProdValueRatioSettings from './calculation-settings-tabs/ProdValueRatioSettings';
@@ -10,17 +10,17 @@ export const CalculationSettings: React.FC = () => {
   const navigate = useNavigate();
   const validTabs = useMemo(() => ['prodValueRatio', 'departmentPayoutRatio', 'jobPayoutRatioProfile'], []);
   const tabParam = searchParams.get('tab');
-  const activeTab = searchParams.get('tab') || 'prodValueRatio';
+  const activeTab = tabParam || 'prodValueRatio';
 
-  React.useEffect(() => {
+ useEffect(() => {
     if (!tabParam || !validTabs.includes(tabParam)) {
       navigate('/calculation-settings?tab=prodValueRatio', { replace: true });
     }
   }, [tabParam, navigate, validTabs]);
 
-  const handleTabChange = useCallback((key: string) => {
-    navigate(`/calculation-settings?tab=${key}`, { replace: false });
-  }, [navigate]);
+  const handleTabChange = (key: string) => {
+    navigate(`/calculation-settings?tab=${key}`, { replace: true });
+  };
 
   const items = useMemo(() => [
     {

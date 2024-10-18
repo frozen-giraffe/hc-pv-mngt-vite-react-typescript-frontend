@@ -68,7 +68,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
           message.error("获取工比失败: " + error.detail);
         } else {
           const filteredProfiles = data.data.filter(
-            (profile) => profile.id !== 1
+            (profile) => profile.id !== 99
           );
           setProfiles(filteredProfiles);
         setLoading(false);
@@ -94,7 +94,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   const handleNewProfile = (clone_target?: JobPayoutRatioProfilePublicOut) => {
     const newProfile: JobPayoutRatioProfilePublicOut = {
       id: -1,
-      name: "新建配置",
+      name: clone_target?.name ? "（复制）" + clone_target?.name : "新建配置",
       hidden: false,
       updated_at: new Date().toISOString(),
       is_in_use: false,
@@ -163,6 +163,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     setProfiles([...profiles, newProfile]);
     setSelectedProfileId(-1);
     setSelectedProfileData(newProfile);
+    setNewProfileName(clone_target?.name ? clone_target.name + "（复制）" : "新建配置");
     setIsNewProfilePopoverVisible(false);
     handleEdit(newProfile);
   };
@@ -170,16 +171,8 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
   const createNewProfile = async (name: string) => {
     try {
       const values = await form.validateFields();
-      const newProfile: JobPayoutRatioProfileCreateIn = {
-        name,
-        ...values.pm,
-        ...values.arch,
-        ...values.struct,
-        ...values.plumbing,
-        ...values.electrical,
-        ...values.hvac,
-        ...values.low_voltage,
-      };
+      const newProfile: JobPayoutRatioProfileCreateIn = formValuesToProfileCreateIn(values);
+      newProfile.name = name;
       console.log("Creating new profile:", newProfile);
       const {error} = await JobPayoutRatioProfilesService.createJobPayoutRatioProfile({
         body: newProfile,
@@ -218,8 +211,10 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     fetchProfiles();
   };
 
-  const showNameModal = (initialName: string = "") => {
-    setNewProfileName(initialName);
+  const showNameModal = (initialName: string | undefined = undefined) => {
+    if (initialName) {
+      setNewProfileName(initialName);
+    }
     setRenameNewNameError(null);
     setIsRenameModalVisible(true);
   };
@@ -248,7 +243,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     }
   };
 
-  const handleReameModalCancel = () => {
+  const handleRenameModalCancel = () => {
     setIsRenameModalVisible(false);
   };
 
@@ -295,7 +290,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
         pm_ratio: profileData.pm_ratio,
         pm_assistant_ratio: profileData.pm_assistant_ratio,
       },
-      arch_id: {
+      arch: {
         pm_ratio: profileData.arch_pm_ratio,
         pm_assistant_ratio: profileData.arch_pm_assistant_ratio,
         designer_ratio: profileData.arch_designer_ratio,
@@ -376,7 +371,61 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
     }
   };
         
-  
+  const formValuesToProfileCreateIn = (formValues: any): JobPayoutRatioProfileCreateIn => {
+    return {
+      name: formValues.name,
+      pm_ratio: formValues.pm.pm_ratio,
+      pm_assistant_ratio: formValues.pm.pm_assistant_ratio,
+      arch_pm_ratio: formValues.arch.pm_ratio,
+      arch_pm_assistant_ratio: formValues.arch.pm_assistant_ratio,
+      arch_designer_ratio: formValues.arch.designer_ratio,
+      arch_drafter_ratio: formValues.arch.drafter_ratio,
+      arch_design_post_service_ratio: formValues.arch.design_post_service_ratio,
+      arch_proofreader_ratio: formValues.arch.proofreader_ratio,
+      arch_reviewer_ratio: formValues.arch.reviewer_ratio,
+      arch_approver_ratio: formValues.arch.approver_ratio,
+      struct_pm_ratio: formValues.struct.pm_ratio,
+      struct_pm_assistant_ratio: formValues.struct.pm_assistant_ratio,
+      struct_designer_ratio: formValues.struct.designer_ratio,
+      struct_drafter_ratio: formValues.struct.drafter_ratio,
+      struct_design_post_service_ratio: formValues.struct.design_post_service_ratio,
+      struct_proofreader_ratio: formValues.struct.proofreader_ratio,
+      struct_reviewer_ratio: formValues.struct.reviewer_ratio,
+      struct_approver_ratio: formValues.struct.approver_ratio,
+      plumbing_pm_ratio: formValues.plumbing.pm_ratio,
+      plumbing_pm_assistant_ratio: formValues.plumbing.pm_assistant_ratio,
+      plumbing_designer_ratio: formValues.plumbing.designer_ratio,
+      plumbing_drafter_ratio: formValues.plumbing.drafter_ratio,
+      plumbing_design_post_service_ratio: formValues.plumbing.design_post_service_ratio,
+      plumbing_proofreader_ratio: formValues.plumbing.proofreader_ratio,
+      plumbing_reviewer_ratio: formValues.plumbing.reviewer_ratio,
+      plumbing_approver_ratio: formValues.plumbing.approver_ratio,
+      electrical_pm_ratio: formValues.electrical.pm_ratio,
+      electrical_pm_assistant_ratio: formValues.electrical.pm_assistant_ratio,
+      electrical_designer_ratio: formValues.electrical.designer_ratio,
+      electrical_drafter_ratio: formValues.electrical.drafter_ratio,
+      electrical_design_post_service_ratio: formValues.electrical.design_post_service_ratio,
+      electrical_proofreader_ratio: formValues.electrical.proofreader_ratio,
+      electrical_reviewer_ratio: formValues.electrical.reviewer_ratio,
+      electrical_approver_ratio: formValues.electrical.approver_ratio,
+      hvac_pm_ratio: formValues.hvac.pm_ratio,
+      hvac_pm_assistant_ratio: formValues.hvac.pm_assistant_ratio,
+      hvac_designer_ratio: formValues.hvac.designer_ratio,
+      hvac_drafter_ratio: formValues.hvac.drafter_ratio,
+      hvac_design_post_service_ratio: formValues.hvac.design_post_service_ratio,
+      hvac_proofreader_ratio: formValues.hvac.proofreader_ratio,
+      hvac_reviewer_ratio: formValues.hvac.reviewer_ratio,
+      hvac_approver_ratio: formValues.hvac.approver_ratio,
+      low_voltage_pm_ratio: formValues.low_voltage.pm_ratio,
+      low_voltage_pm_assistant_ratio: formValues.low_voltage.pm_assistant_ratio,
+      low_voltage_designer_ratio: formValues.low_voltage.designer_ratio,
+      low_voltage_drafter_ratio: formValues.low_voltage.drafter_ratio,
+      low_voltage_design_post_service_ratio: formValues.low_voltage.design_post_service_ratio,
+      low_voltage_proofreader_ratio: formValues.low_voltage.proofreader_ratio,
+      low_voltage_reviewer_ratio: formValues.low_voltage.reviewer_ratio,
+      low_voltage_approver_ratio: formValues.low_voltage.approver_ratio,
+    }
+  }
 
   const handleEdit = (override_data?: JobPayoutRatioProfilePublicOut) => {
     setIsEditing(true);
@@ -469,30 +518,39 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
       } else {
         try {
           const values = await form.validateFields();
-          const updatedProfile: JobPayoutRatioProfileUpdateIn = {
-            id: selectedProfileId!,
-            name: selectedProfileData!.name,
-            ...values.pm,
-            ...values.arch,
-            ...values.struct,
-            ...values.plumbing,
-            ...values.electrical,
-            ...values.hvac,
-            ...values.low_voltage,
-          };
+          const updatedProfile = formValuesToProfileCreateIn(values);
+          // Only include fields that have changed
+          const partialProfile: JobPayoutRatioProfileUpdateIn = {
+            ...Object.fromEntries(Object.entries(updatedProfile).filter(([key, value]) => value !== selectedProfileData![key as keyof JobPayoutRatioProfilePublicOut]))
+          }
+          delete partialProfile.name;
           // TODO: Implement API call to save changes
-          console.log("Saving changes:", updatedProfile);
-          setIsEditing(false);
-          message.success("Changes saved successfully");
+          console.log("Saving changes:", partialProfile);
+          if (Object.keys(partialProfile).length === 0) {
+            message.info("没有需要保存的更改");
+            handleCancel();
+            return;
+          }
+          const {error} = await JobPayoutRatioProfilesService.updateJobPayoutRatioProfile({
+            path: {
+              id: selectedProfileId!,
+            },
+            body: partialProfile,
+          });
+          if (error) {
+            message.error("模板更新失败: " + error.detail);
+            return;
+          }
+          message.success("模板更新成功");
           // Refresh profiles list
           await fetchProfiles();
         } catch (error) {
-          console.error("Validation failed:", error);
-          message.error("Failed to save changes");
+          console.error("Api unexpected error: ", error);
+          message.error("模板更新失败，未知错误：" + error);
         }
       }
     } else {
-      message.error("表单上存在错误，请更正后保存");
+      message.error("表单上存在错误，请更正后再尝试保存");
     }
   };
 
@@ -818,7 +876,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
         title={selectedProfileId === -1 ? "输入新分配模板名称" : "重命名模板"}
         open={isRenameModalVisible}
         onOk={handleRenameModalOk}
-        onCancel={handleReameModalCancel}
+        onCancel={handleRenameModalCancel}
       >
         <Form>
           <Form.Item
@@ -873,7 +931,7 @@ const JobPayoutRatioProfileSettings: React.FC = () => {
                           label: (
                             <span>
                               {profile.name}
-                              {!profile.is_in_use && (
+                              {!profile.is_in_use && profile.id !== -1 && (
                                 <Tag style={{ marginLeft: "8px" }}>无项目</Tag>
                               )}
                             </span>

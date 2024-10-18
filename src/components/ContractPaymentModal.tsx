@@ -24,6 +24,7 @@ import { FilePdfOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import ContractPaymentEditModal from "./ContractPaymentEditModal";
 import { downloadReport } from "../utils/ReportFileDownload";
+import FloatNumberCellRender from "./FloatNumberCellRender";
 
 interface ContractPaymentModalProps {
   visible: boolean;
@@ -122,11 +123,15 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
 
   const handleDelete = async (id: number) => {
     try {
-      await ContractPaymentsService.deleteContractPayment({ path: { id } });
-      message.success("项目回款删除成功");
-      fetchContractPayments();
+      const response = await ContractPaymentsService.deleteContractPayment({ path: { id } });
+      if (response.error) {
+        message.error("项目回款删除失败: " + response.error.detail);
+      } else {
+        message.success("项目回款删除成功");
+        fetchContractPayments();
+      }
     } catch (error) {
-      message.error("项目回款删除失败");
+      message.error("项目回款删除失败，未知错误: " + error);
     }
   };
 
@@ -188,12 +193,20 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
 
   const columns = [
     {
-      title: "支付日期",
+      title: "回款ID",
+      dataIndex: "id",
+      key: "id",
+      render: (id: number) => id.toString(),
+    },
+    {
+      title: "到账日期",
       dataIndex: "payment_date",
       key: "payment_date",
       render: (date: string) => dayjs(date).format("YYYY-MM-DD"),
     },
-    { title: "回款金额", dataIndex: "amount", key: "amount" },
+    { title: "回款金额", dataIndex: "amount", key: "amount", 
+      render: (amount: number) => <FloatNumberCellRender value={amount} /> 
+    },
     {
       title: "经办人",
       dataIndex: "processed_by_id",
@@ -206,7 +219,9 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
       key: "paid_ratio",
       render: (ratio: number) => `${(ratio * 100).toFixed(2)}%`,
     },
-    { title: "产值下发金额", dataIndex: "payout_amount", key: "payout_amount" },
+    { title: "产值下发金额", dataIndex: "payout_amount", key: "payout_amount", 
+      render: (amount: number) => <FloatNumberCellRender value={amount} /> 
+    },
     { title: "备注", dataIndex: "notes", key: "notes" },
     {
       title: "操作",

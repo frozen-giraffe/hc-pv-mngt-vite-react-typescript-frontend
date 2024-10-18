@@ -9,13 +9,14 @@ import {
   Input,
   message,
   Modal,
+  notification,
   Select,
   Space,
   Table,
   Tooltip,
   Typography,
 } from "antd";
-import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { PlusOutlined, FilePdfOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import {
   DepartmentPublicOut,
@@ -91,6 +92,7 @@ export const Employees: React.FC = () => {
     null
   );
   const [messageApi, contextHolder] = message.useMessage();
+  const [notificationApi, notificationContextHolder] = notification.useNotification();
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE);
@@ -112,22 +114,16 @@ export const Employees: React.FC = () => {
 
   useEffect(() => {
     if (affixContentRef.current) {
-        if (isAffixed) {
-          // affixContentRef.current.style.width = `${affixContentRef.current.offsetWidth}px`;
-          setTimeout(() => {
-            if (affixContentRef.current) {
-              affixContentRef.current.style.width = "min(max-content, 100%)";
-              affixContentRef.current.style.borderRadius = "5px";
-              affixContentRef.current.style.padding = "13px 20px";
-              affixContentRef.current.style.boxShadow = "0 1px 10px rgba(0, 0, 0, 0.5)";
-            }
-          }, 0);
-        } else {
-          affixContentRef.current.style.width = "100%";
-          affixContentRef.current.style.borderRadius = "0px";
-          affixContentRef.current.style.padding = "13px 20px";
-          affixContentRef.current.style.boxShadow = "0 0 0px rgba(0, 0, 0, 0)";
-        }
+      if (isAffixed) {
+        affixContentRef.current.style.borderRadius = "10px";
+        affixContentRef.current.style.padding = "8px 15px";
+        affixContentRef.current.style.boxShadow =
+          "0 1px 10px rgba(0, 0, 0, 0.5)";
+      } else {
+        affixContentRef.current.style.borderRadius = "0px";
+        affixContentRef.current.style.padding = "3px 5px";
+        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
+      }
     }
   }, [isAffixed]);
 
@@ -203,17 +199,13 @@ export const Employees: React.FC = () => {
       employeeStatus,
     ]
   );
-
+  
   useEffect(() => {
     if (isStaticDataLoaded) {
       const search_current_page = searchParams.get("current_page");
       const search_page_size = searchParams.get("page_size");
-      if (search_current_page) {
-        setCurrentPage(parseInt(search_current_page));
-      }
-      if (search_page_size) {
-        setPageSize(parseInt(search_page_size));
-      }
+      const newCurrentPage = search_current_page ? parseInt(search_current_page) : 1;
+      const newPageSize = search_page_size ? parseInt(search_page_size) : EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE;
 
       const newFilters: Partial<EmployeeQueryParams> = {};
       for (const [key, value] of searchParams.entries()) {
@@ -237,11 +229,14 @@ export const Employees: React.FC = () => {
           newFilters[key as keyof EmployeeQueryParams] = value;
         }
       }
+
+      setCurrentPage(newCurrentPage);
+      setPageSize(newPageSize);
       setFilters(newFilters);
 
-      fetchEmployees(currentPage, pageSize, newFilters);
+      fetchEmployees(newCurrentPage, newPageSize, newFilters);
     }
-  }, [searchParams, currentPage, pageSize, isStaticDataLoaded, fetchEmployees]);
+  }, [searchParams, isStaticDataLoaded, fetchEmployees]);
 
   const getFilteredValue = (key: string): string[] | undefined => {
     const value = filters?.[key as keyof EmployeeQueryParams];
@@ -592,36 +587,41 @@ export const Employees: React.FC = () => {
 
   const downloadEmployeeList = () => {
     try {
-      messageApi.open({
-        key: "downloadEmployeeList",
-        type: "loading",
-        content: "正在生成人员列表...",
+      notificationApi.info({
+        message: "正在生成人员列表",
+        description: "请稍候...",
         duration: 0,
+        icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
+        key: "downloadEmployeeList"
       });
+
       ReportsService.getEmployeeListReport({ query: {} }).then((res) => {
         if (res.data) {
-          messageApi.open({
-            key: "downloadEmployeeList",
-            type: "success",
-            content: "人员列表生成成功，正在下载...",
-            duration: 2,
+          notificationApi.success({
+            message: "人员列表生成成功",
+            description: "正在下载...",
+            duration: 3,
+            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+            key: "downloadEmployeeList"
           });
           downloadReport(res.data, res.response);
         } else {
-          messageApi.open({
-            key: "downloadEmployeeList",
-            type: "error",
-            content: "人员列表生成失败：" + res.error?.detail,
+          notificationApi.error({
+            message: "人员列表生成失败",
+            description: res.error?.detail || "未知错误",
             duration: 10,
+            icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+            key: "downloadEmployeeList"
           });
         }
       });
     } catch (e) {
-      messageApi.open({
-        key: "downloadEmployeeList",
-        type: "error",
-        content: "人员列表生成失败，未知错误：" + e,
+      notificationApi.error({
+        message: "人员列表生成失败",
+        description: `未知错误：${e}`,
         duration: 10,
+        icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
+        key: "downloadEmployeeList"
       });
     }
   };
@@ -645,7 +645,7 @@ export const Employees: React.FC = () => {
       }
     }
     if (sorter && !Array.isArray(sorter) && sorter.order) {
-        newFilters["sort_by"] = sorter.field as string;
+        newFilters["sort_by"] = sorter.columnKey as string;
         newFilters["sort_direction"] = sorter.order === "ascend" ? "asc" : "desc";
     }
     setFilters(newFilters);
@@ -693,20 +693,20 @@ export const Employees: React.FC = () => {
   return (
     <div>
       {contextHolder}
+      {notificationContextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
-        <h1>员工管理</h1>
+        <h1>人员管理</h1>
         {user?.is_superuser && (
           <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
             <div
               ref={affixContentRef}
               style={{ 
-                background: 'white', 
-                padding: '13px 20px', 
-                boxShadow: '0 1px 5px rgba(0, 0, 0, 0.1)',
-                borderRadius: '5px',
-                transition: 'all 0.2s ease',
-                maxWidth: '100%',
-                overflow: 'hidden'
+                background: "white",
+                padding: "3px 5px",
+                transition: "all 0.3s ease",
+                maxWidth: "max-content",
+                overflow: "scroll",
+                scrollbarWidth: "none",
               }}
             >
               <Space wrap>

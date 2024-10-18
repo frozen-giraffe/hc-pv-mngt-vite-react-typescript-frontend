@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal, Form, Input, DatePicker, InputNumber, Select, message } from 'antd';
 import { ContractPaymentsService, ContractPaymentPublicOut, EmployeeService } from '../client';
 import dayjs from 'dayjs';
+import debounce from 'lodash.debounce';
 
 interface ContractPaymentEditModalProps {
   visible: boolean;
@@ -38,7 +39,7 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
     }
   }, [visible, payment, form, employeeName]);
 
-  const handleSearch = async (value: string) => {
+  const handleSearch = useCallback(async (value: string) => {
     if (value) {
       try {
         const response = await EmployeeService.searchEmployee({
@@ -53,7 +54,12 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
     } else {
       setEmployees([]);
     }
-  };
+  }, []);
+
+  const debouncedHandleSearch = useMemo(
+    () => debounce(handleSearch, 300),
+    [handleSearch]
+  );
 
   const handleOk = async () => {
     try {
@@ -119,7 +125,7 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
             <Select
               showSearch
               placeholder="搜索员工"
-              onSearch={handleSearch}
+              onSearch={debouncedHandleSearch}
               filterOption={false}
               labelInValue
             >

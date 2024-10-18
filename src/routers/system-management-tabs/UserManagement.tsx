@@ -21,6 +21,8 @@ import { copyToClipboard } from "../../utils/copyToClipboard";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { CopyOutlined } from "@ant-design/icons";
 import type { InputRef } from "antd";
+import UserAddModal from '../../components/UserAddModal';
+import { PlusOutlined } from "@ant-design/icons";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserPublic[]>([]);
@@ -36,6 +38,7 @@ const UserManagement: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const passwordInputRef = useRef<InputRef>(null);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
   useEffect(() => {
     const search_current_page = searchParams.get("current_page");
@@ -196,8 +199,22 @@ const UserManagement: React.FC = () => {
     },
   ];
 
+  const handleAddUser = () => {
+    setIsAddModalVisible(true);
+  };
+
+  const handleAddSuccess = () => {
+    setIsAddModalVisible(false);
+    fetchUsers(currentPage, pageSize);
+  };
+
   return (
     <div>
+      <Button type="primary" onClick={handleAddUser} style={{ marginBottom: 16 }}>
+        <PlusOutlined />
+        添加用户
+      </Button>
+
       <Table
         dataSource={users}
         columns={columns}
@@ -214,6 +231,7 @@ const UserManagement: React.FC = () => {
         }}
         onChange={handleTableChange}
       />
+
       <Modal
         title={`重置密码: ${editingUser?.full_name}`}
         open={isResetPasswordModalVisible}
@@ -250,6 +268,7 @@ const UserManagement: React.FC = () => {
           <Typography.Text type="warning">此密码只会显示一次。</Typography.Text>
         </Space>
       </Modal>
+
       <Modal
         title={`编辑用户: ${editingUser?.full_name}`}
         open={isModalVisible}
@@ -277,11 +296,17 @@ const UserManagement: React.FC = () => {
               <Select.Option value={false}>普通用户</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="is_active" label="状态" rules={[{ required: true }]}>
+          <Form.Item name="is_active" label="允许登录" rules={[{ required: true }]}>
             <Switch />
           </Form.Item>
         </Form>
       </Modal>
+
+      <UserAddModal
+        visible={isAddModalVisible}
+        onCancel={() => setIsAddModalVisible(false)}
+        onSuccess={handleAddSuccess}
+      />
     </div>
   );
 };
