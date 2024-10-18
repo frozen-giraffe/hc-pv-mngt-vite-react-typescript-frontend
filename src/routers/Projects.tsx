@@ -441,8 +441,6 @@ export const Projects = () => {
   const getProjectPublicOutColumn = GetColumnNames<ProjectPublicOut>();
   const getProjectPayoutPublicOutColumn =
     GetColumnNames<ProjectPayoutPublicOut>();
-  //or use
-  //const getProjectPublicOutColumn = <T,> (name: keyof T)=> name //usage getProjectPublicOutColumn<ProjectPublicOut>('building_structure_type_id')
 
   const getSortOrder = (key: string): "ascend" | "descend" | null => {
     const sort_by = filters?.sort_by;

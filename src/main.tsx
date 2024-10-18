@@ -1,6 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 
 import { AuthProvider, LOCALSTORAGE_ACCESS_TOKEN_NAME } from './context/AuthContext.tsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -13,7 +12,8 @@ import zhCN from 'antd/locale/zh_CN';
 import { REDIRECT_LOGIN_REASON_KEY } from './client/const.tsx';
 
 client.setConfig({
-  baseUrl: "http://alang-main.griffin-vibes.ts.net:8001",
+  baseUrl: "http://api.aaronyou.photos",
+  // baseUrl: "http://alang-main.griffin-vibes.ts.net:8001",
   // baseUrl: "http://localhost:8001",
   headers: {
     'Content-Type': 'application/json',

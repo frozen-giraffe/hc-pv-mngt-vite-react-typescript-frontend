@@ -9,13 +9,14 @@ import {
   Input,
   message,
   Modal,
+  notification,
   Select,
   Space,
   Table,
   Tooltip,
   Typography,
 } from "antd";
-import { PlusOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { PlusOutlined, FilePdfOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import {
   DepartmentPublicOut,
@@ -91,6 +92,7 @@ export const Employees: React.FC = () => {
     null
   );
   const [messageApi, contextHolder] = message.useMessage();
+  const [notificationApi, notificationContextHolder] = notification.useNotification();
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE);
@@ -585,36 +587,41 @@ export const Employees: React.FC = () => {
 
   const downloadEmployeeList = () => {
     try {
-      messageApi.open({
-        key: "downloadEmployeeList",
-        type: "loading",
-        content: "正在生成人员列表...",
+      notificationApi.info({
+        message: "正在生成人员列表",
+        description: "请稍候...",
         duration: 0,
+        icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
+        key: "downloadEmployeeList"
       });
+
       ReportsService.getEmployeeListReport({ query: {} }).then((res) => {
         if (res.data) {
-          messageApi.open({
-            key: "downloadEmployeeList",
-            type: "success",
-            content: "人员列表生成成功，正在下载...",
-            duration: 2,
+          notificationApi.success({
+            message: "人员列表生成成功",
+            description: "正在下载...",
+            duration: 3,
+            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+            key: "downloadEmployeeList"
           });
           downloadReport(res.data, res.response);
         } else {
-          messageApi.open({
-            key: "downloadEmployeeList",
-            type: "error",
-            content: "人员列表生成失败：" + res.error?.detail,
+          notificationApi.error({
+            message: "人员列表生成失败",
+            description: res.error?.detail || "未知错误",
             duration: 10,
+            icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+            key: "downloadEmployeeList"
           });
         }
       });
     } catch (e) {
-      messageApi.open({
-        key: "downloadEmployeeList",
-        type: "error",
-        content: "人员列表生成失败，未知错误：" + e,
+      notificationApi.error({
+        message: "人员列表生成失败",
+        description: `未知错误：${e}`,
         duration: 10,
+        icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
+        key: "downloadEmployeeList"
       });
     }
   };
@@ -686,6 +693,7 @@ export const Employees: React.FC = () => {
   return (
     <div>
       {contextHolder}
+      {notificationContextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
         <h1>人员管理</h1>
         {user?.is_superuser && (
