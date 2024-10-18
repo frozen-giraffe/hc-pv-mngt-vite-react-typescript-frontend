@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
 import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Col, Collapse, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag } from "antd";
+import { AutoComplete, Button, Col, Collapse, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Typography } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, ProjectsService, WorkLocationPublicOut, WorkLocationsService } from "../client";
-
+import type { BaseSelectRef } from 'rc-select'; // Import the correct type
+import './PayoutTable.css'
+//import type { FormInstance } from 'antd/es/form';
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -22,6 +24,21 @@ interface EditableRowProps {
   form: any;
 }
 
+interface DataType {
+  key:string
+  category: string;
+  text: string;
+  pm: string | number
+  pm_assistant: string | number
+  designer: string | number
+  drafter: string | number
+  post_service: string | number
+  proofreader: string | number
+  reviewer: string | number
+  approver: string | number
+}
+
+type ColumnTypes = Exclude<TableProps<DataType>["columns"], undefined>;
 const EditableRow: React.FC<EditableRowProps> = ({ index, form, ...props }) => {
   //const [form] = Form.useForm();
   return (
@@ -42,6 +59,7 @@ interface EditableCellProps {
   columnIndex: number;
   departments: DepartmentPublicOut[];
   workLocations: WorkLocationPublicOut[];
+  form:any
   handleSave: (record: Item) => void;
 }
 
@@ -61,36 +79,77 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   const [editing, setEditing] = useState(false);
   const [department, setDepartment] = useState<DepartmentPublicOut | null | undefined>(null)
   const [options, setOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
+  const selectRef  = useRef<BaseSelectRef>(null);
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
   
   useEffect(() => {
-    // if (editing) {
-    //   inputRef.current?.focus();
-    // }
+    if (editing) {
+      record?.text==='设计人' ? selectRef.current?.focus() : inputRef.current?.focus()
+      //inputRef.current?.focus();
+    }
     
   }, [editing]);
   useEffect(()=>{
     setDepartment(departments?.find(dp=>dp.name===record?.category))
+    
   },[])
-  
+  // useEffect(() => {
+  //   // 设置初始值
+  //   if (form && record) {
+  //     form.setFieldsValue({
+  //       [`${record.category}${record.text}`]: {
+  //         [dataIndex]: record[dataIndex] || ""
+  //       }
+  //     });
+  //   }
+  // }, [form, record, dataIndex]);
   const toggleEdit = () => {
     console.log("click");
 
     setEditing(!editing);
     //form.setFieldsValue({ [dataIndex]: record[dataIndex] || "" });
+    console.log();
+    
+    console.log({[record?.category + record?.text]: {
+      [dataIndex]: record[dataIndex] || ""
+    }});
+    
+    // form.setFieldsValue({
+    //   [record?.category + record?.text]: {
+    //     [dataIndex]: record[dataIndex] || ""
+    //   }
+    // });
+    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "s")
   };
+  // const setValueToFormField=()=>{
+  //   form.setFieldsValue({ [dataIndex]: record[dataIndex] || "" });
+
+  // }
 
   const save = async () => {
-    // try {
-    //   const values = await form.validateFields();
-    //   console.log(values);
+      //setEditing(!editing);
+      try{
+        const values = await form.validateFields();
+        console.log(record,'pppp')
+        let internalValue={}
+        Object.keys(values).forEach((key) => {
+          // 检查是否存在一个对象,对象的key是record?.category+record?.text，因为form item name
+          if (typeof values[key] === 'object') {
+            internalValue={...values[key]}//ep:让{建筑设计人：{pm: XXX, pm_assistant,...}} to be {pm: XXX, pm_assistant,...}
+            console.log(internalValue,key, values[key]);
+          }
+        });
+        
+        console.log({ ...record, ...internalValue});
+        
+        handleSave({ ...record, ...internalValue});//save 到table的dataSource
+        toggleEdit();//save 到form上
+      }catch(e){
+        console.log('存错误'+e);
+      }
       
-    //   toggleEdit();
-    //   handleSave({ ...record, ...values });
-    // } catch (errInfo) {
-    //   console.log("Save failed:", errInfo);
-    // }
+    
   };
   const onSelect = (data: string) => {
     //const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
@@ -124,45 +183,23 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       }
     } catch (error) {
       console.log(error);
-      
-    }
-    
-  }
-  let formItemName
-  if(record?.category === '建筑'){
-    if(record?.text === '设计人'){
-      formItemName='archPM'
-    }else if(record?.text === '产值'){
-      formItemName='archAssistant'
     }
   }
-  else if(record?.category === '结构'){
-    if(record?.text === '设计人'){
-      formItemName='structPM'
-    }else if(record?.text === '产值'){
-      formItemName='structAssistant'
-    }
-  }else{
-    formItemName=dataIndex
-  }
-  console.log(formItemName,"llll");
-  console.log(record,"llll1");
-  console.log(rowIndex,"llll2");
-  console.log(columnIndex,"llll4");
-  console.log(dataIndex,"llll5");
-  
+   
   let childNode = children;
-
-  if (editable) {
+  let formName=[record?.category+record?.text, dataIndex]
+   if (editable) {
     childNode = editing ? (
       <Form.Item
         style={{ margin: 0 }}
-        name={formItemName}
+        name={formName}
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        
       >
         {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
         {record?.text==='设计人' ? 
           <AutoComplete
+            ref={selectRef}
             onBlur={save}
             options={options.map((option)=>({
               value:option.value,
@@ -174,7 +211,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
                 </div>
               )
             }))}
-            style={{ width: 200 }}
+            // style={{ width: 200 }}
             onSelect={onSelect}
             onSearch={onSearch}
             allowClear={true}
@@ -186,37 +223,141 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         
       </Form.Item>
     ) : (
+      <Form.Item
+        style={{ margin: 0 }}
+        name={formName}
+        rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        
+      >
       <div
         className="editable-cell-value-wrap"
-        style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
+        // style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
+        //style={{ paddingInlineEnd: 24, border: '1px dashed transparent', transition: 'border 0.3s ease' }}
         onClick={toggleEdit}
       >
-        
-        <Space>
+        {/* <Space>
           {editable ? <EditOutlined style={{color:'gray'}}/> : <></>}
-        
           {children}
-        </Space>
-        
+        </Space> */}
+        {children}
         
       </div>
+      </Form.Item>
     );
   }
+  // if (editable) {
+  //   childNode = editing ? (
+  //     <Form.Item
+  //       style={{ margin: 0 }}
+  //       name={formName}
+  //       rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        
+  //     >
+  //       {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
+  //       {record?.text==='设计人' ? 
+  //         <AutoComplete
+  //           ref={selectRef}
+  //           onBlur={save}
+  //           options={options.map((option)=>({
+  //             value:option.value,
+  //             label:(
+  //               <div style={{ display: 'flex' }}>
+  //                 <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
+  //                 <div style={{ textAlign:'center',flex:'1 1 100px',borderLeft: '1px solid #000',borderRight: '1px solid #000'}}>{department?.name}</div>
+  //                 <div style={{ textAlign:'center',flex:'1 1 100px'}}>{workLocations.find((wl)=>wl.id===option.work_location_id)?.name}</div>
+  //               </div>
+  //             )
+  //           }))}
+  //           // style={{ width: 200 }}
+  //           onSelect={onSelect}
+  //           onSearch={onSearch}
+  //           allowClear={true}
+  //         />
+        
+  //       :
+  //       <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+  //       }
+        
+  //     </Form.Item>
+  //   ) : (
+  //     <Form.Item
+  //       style={{ margin: 0 }}
+  //       name={formName}
+  //       rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        
+  //     >
+  //     <div
+  //       className="editable-cell-value-wrap"
+  //       // style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
+  //       //style={{ paddingInlineEnd: 24, border: '1px dashed transparent', transition: 'border 0.3s ease' }}
+  //       onClick={toggleEdit}
+  //     >
+  //       {/* <Space>
+  //         {editable ? <EditOutlined style={{color:'gray'}}/> : <></>}
+  //         {children}
+  //       </Space> */}
+  //       {children}
+        
+  //     </div>
+  //     </Form.Item>
+  //   );
+  // }
+//   if (editable) {
+//   childNode = (
+//     <Form.Item
+//       style={{ margin: 0 }}
+//       name={formName}
+//       rules={[{ required: true, message: `${record?.text}不能为空` }]}
+//     >
+//       {editing ? (
+//         record?.text === '设计人' ? (
+//           <AutoComplete
+//             ref={selectRef}
+//             onBlur={save}
+//             options={options.map((option) => ({
+//               value: option.value,
+//               label: (
+//                 <div style={{ display: 'flex' }}>
+//                   <div style={{ textAlign: 'center', flex: '2 1 100px' }}>{option.name}</div>
+//                   <div
+//                     style={{
+//                       textAlign: 'center',
+//                       flex: '1 1 100px',
+//                       borderLeft: '1px solid #000',
+//                       borderRight: '1px solid #000',
+//                     }}
+//                   >
+//                     {department?.name}
+//                   </div>
+//                   <div style={{ textAlign: 'center', flex: '1 1 100px' }}>
+//                     {workLocations.find((wl) => wl.id === option.work_location_id)?.name}
+//                   </div>
+//                 </div>
+//               ),
+//             }))}
+//             onSelect={onSelect}
+//             onSearch={onSearch}
+//             allowClear={true}
+//           />
+//         ) : (
+//           <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+//         )
+//       ) : (
+//         <div
+//           className="editable-cell-value-wrap"
+//           onClick={toggleEdit}
+//         >
+//           {children}
+//         </div>
+//       )}
+//     </Form.Item>
+//   );
+// }
 
   return <td {...restProps}>{childNode}</td>;
 };
 
-interface DataType {
-  key: React.Key;
-  age: string;
-  pm: string;
-  category: string;
-  text: string;
-  
-  pm_assistant: string
-}
 
-type ColumnTypes = Exclude<TableProps<DataType>["columns"], undefined>;
 
 export const PayoutTable: React.FC = () => {
   
@@ -227,7 +368,7 @@ export const PayoutTable: React.FC = () => {
   const [profiles, setProfiles] = useState<JobPayoutRatioProfilePublicOut[]>(
     []
   );
-
+  const [tableInit, setTableInit] = useState({})
   const [designChiefOptions,setDesignChiefOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [designAssistantOptions,setdesignAssistantOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
@@ -237,114 +378,114 @@ export const PayoutTable: React.FC = () => {
   
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
   const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
-
-  const [dataSource, setDataSource] = useState<DataType[]>([
-    {
-      key: "0",
-      age: "32",
-      category:'建筑',
-      text:'设计人',
-      pm: "韩乐",
-      pm_assistant: 'you',
+  const [dataSource, setDataSource] = useState<DataType[]>([])
+  // const [dataSource, setDataSource] = useState<DataType[]>([
+  //   {
+  //     key: "0",
+  //     age: "32",
+  //     category:'建筑',
+  //     text:'设计人',
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
       
-    },
-    {
-      key: "1",
-      text:'产值',
-      category:'建筑',
-      age: "32",
-      pm: "123",
-      pm_assistant: 'you',
-    },
-    {
-      key: "2",
-      text:'设计人',
-      category:'结构',
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "3",
-      text:'产值',
-      category:'结构',
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "4",
-      text:'设计人',
-      category:'给排水',
+  //   },
+  //   {
+  //     key: "1",
+  //     text:'产值',
+  //     category:'建筑',
+  //     age: "32",
+  //     pm: "123",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "2",
+  //     text:'设计人',
+  //     category:'结构',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "3",
+  //     text:'产值',
+  //     category:'结构',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "4",
+  //     text:'设计人',
+  //     category:'给排水',
 
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "5",
-      text:'产值',
-      category:'给排水',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "5",
+  //     text:'产值',
+  //     category:'给排水',
 
-      age: "32",
-      pm: "",
-      pm_assistant: 'you',
-    },
-    {
-      key: "6",
-      text:'设计人',
-      category:'暖通',
+  //     age: "32",
+  //     pm: "",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "6",
+  //     text:'设计人',
+  //     category:'暖通',
 
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "7",
-      text:'产值',
-      category:'暖通',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "7",
+  //     text:'产值',
+  //     category:'暖通',
 
-      age: "32",
-      pm: "",
-      pm_assistant: 'you',
-    },
-    {
-      key: "8",
-      text:'设计人',
-      category:'强电',
+  //     age: "32",
+  //     pm: "",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "8",
+  //     text:'设计人',
+  //     category:'强电',
 
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "9",
-      text:'产值',
-      category:'强电',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "9",
+  //     text:'产值',
+  //     category:'强电',
 
-      age: "32",
-      pm: "",
-      pm_assistant: 'you',
-    },
-    {
-      key: "10",
-      text:'设计人',
-      category:'弱电',
+  //     age: "32",
+  //     pm: "",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "10",
+  //     text:'设计人',
+  //     category:'弱电',
 
-      age: "32",
-      pm: "韩乐",
-      pm_assistant: 'you',
-    },
-    {
-      key: "11",
-      text:'产值',
-      category:'弱电',
+  //     age: "32",
+  //     pm: "韩乐",
+  //     pm_assistant: 'you',
+  //   },
+  //   {
+  //     key: "11",
+  //     text:'产值',
+  //     category:'弱电',
 
-      age: "32",
-      pm: "",
-      pm_assistant: 'you',
-    },
-  ]);
+  //     age: "32",
+  //     pm: "",
+  //     pm_assistant: 'you',
+  //   },
+  // ]);
 
   useEffect(() => {
     
@@ -355,7 +496,7 @@ export const PayoutTable: React.FC = () => {
     //   structAssistant: dataSource[3].pm_assistant,
 
     // })
-    console.log(formPayout.getFieldsValue());
+    console.log(formPayout.getFieldsValue(),'useEffect');
     
   }, [formPayout, dataSource]);
   useEffect(()=>{
@@ -396,7 +537,7 @@ export const PayoutTable: React.FC = () => {
           message.error("获取工比失败: " + error.detail);
         } else {
           const filteredProfiles = data.data.filter(
-            (profile) => profile.id !== 1
+            (profile) => profile.id !== 99
           );
           setProfiles(filteredProfiles);
         setLoading(false);
@@ -447,18 +588,81 @@ export const PayoutTable: React.FC = () => {
       
     }
   }
-  const handlePayoutFinish = (fieldsValue: any)=>{
-    console.log("表单提交时的值:", fieldsValue);
-    console.log("表单提交时的值:", formPayout.getFieldsValue());
+  const handlePayoutFinish = async(fieldsValue: any)=>{
+    try {
+      
+      const values = await formPayout.validateFields();
+      console.log("表单提交时的值:", fieldsValue);
+    console.log("表单提交时的值:", values);
+    } catch (error) {
+      console.log('表单提交错误');
+      
+    }
+    
 
   }
+  function calculatePayout(departmentValue: number, ratios: any) {
+    return {
+      pm: (departmentValue * ratios.pm_ratio / 100).toFixed(2),
+      pm_assistant: (departmentValue * ratios.pm_assistant_ratio / 100).toFixed(2),
+      designer: (departmentValue * ratios.designer_ratio / 100).toFixed(2),
+      drafter: (departmentValue * ratios.drafter_ratio / 100).toFixed(2),
+      post_service: (departmentValue * ratios.design_post_service_ratio / 100).toFixed(2),
+      proofreader: (departmentValue * ratios.proofreader_ratio / 100).toFixed(2),
+      reviewer: (departmentValue * ratios.reviewer_ratio / 100).toFixed(2),
+      approver: (departmentValue * ratios.approver_ratio / 100).toFixed(2),
+    };
+  }
+  function getPayoutData(category: string, text: string, department: any) {
+    if (text === '设计人') {
+      return {
+        category,
+        text,
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      };
+    } else if (text === '产值') {
+      return {
+        category,
+        text,
+        pm: department.pm,
+        pm_assistant: department.pm_assistant,
+        designer: department.designer,
+        drafter: department.drafter,
+        post_service: department.post_service,
+        proofreader: department.proofreader,
+        reviewer: department.reviewer,
+        approver: department.approver,
+      };
+    }
+    // 默认返回空数据，但保持类型一致
+    return {
+      category: '',
+      text: '',
+      pm: 0,
+      pm_assistant: 0,
+      designer: 0,
+      drafter: 0,
+      post_service: 0,
+      proofreader: 0,
+      reviewer: 0,
+      approver: 0,
+    };
+  }
+  
   const generatePayout = async()=>{
     console.log("生成产值表...");
     setTogglePayoutTable(true)
     const [resProject,resDepartmentPayoutRatio] = await Promise.all([
       ProjectsService.readProject({
         path: {
-          id: 2216
+          id: 1812
         }
       }),
       DepartmentPayoutRatiosService.getDepartmentPayoutRatio({
@@ -477,6 +681,8 @@ export const PayoutTable: React.FC = () => {
       message.error("获得部门间工比失败: "+ resDepartmentPayoutRatio.error)
       return
     }
+    console.log(resProject.data,"工程");
+    
     //计算部门间payout
     const valueForPMTeam = resProject.data?.calculated_employee_payout!! * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
     const valueForRestOfPM = resProject.data?.calculated_employee_payout!! * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
@@ -489,21 +695,509 @@ export const PayoutTable: React.FC = () => {
     //具体职责payout
     const pm = valueForPMTeam * selectedProfileData?.pm_ratio!! /100
     const pmAssistant = valueForPMTeam * selectedProfileData?.pm_assistant_ratio!! /100
-    const archPM = valueArch * selectedProfileData?.arch_pm_ratio!! / 100
-    const archAssistant = valueArch * selectedProfileData?.arch_pm_assistant_ratio!! / 100
+
+    const archPM = (valueArch * selectedProfileData?.arch_pm_ratio!! / 100).toFixed(2)
+    const archAssistant = (valueArch * selectedProfileData?.arch_pm_assistant_ratio!! / 100).toFixed(2)
+    const archDesigner= (valueArch * selectedProfileData?.arch_designer_ratio!! / 100).toFixed(2)
+    const archDrafter= (valueArch * selectedProfileData?.arch_drafter_ratio!! / 100).toFixed(2)
+    const archPostService= (valueArch * selectedProfileData?.arch_design_post_service_ratio!! / 100).toFixed(2)
+    const archProofreader= (valueArch * selectedProfileData?.arch_proofreader_ratio!! / 100).toFixed(2)
+    const archReviewer= (valueArch * selectedProfileData?.arch_reviewer_ratio!! / 100).toFixed(2)
+    const archApprover= (valueArch * selectedProfileData?.arch_approver_ratio!! / 100).toFixed(2)
+
     const structPM = valueStruct * selectedProfileData?.struct_pm_ratio!! / 100
     const structAssistant = valueStruct * selectedProfileData?.struct_pm_assistant_ratio!! / 100
+    const structDesigner = valueStruct * selectedProfileData?.struct_designer_ratio!! / 100
+    const structDrafter = valueStruct * selectedProfileData?.struct_drafter_ratio!! / 100
+    const structPostService = valueStruct * selectedProfileData?.struct_design_post_service_ratio!! / 100
+    const structProofreader = valueStruct * selectedProfileData?.struct_proofreader_ratio!! / 100
+    const structReviewer = valueStruct * selectedProfileData?.struct_reviewer_ratio!! / 100
+    const structApprover = valueStruct * selectedProfileData?.struct_approver_ratio!! / 100
+
     const plumbingPM = valuePlumbing * selectedProfileData?.plumbing_pm_ratio!! / 100
     const plumbingAssistant = valuePlumbing * selectedProfileData?.plumbing_pm_assistant_ratio!! / 100
+    const plumbingDesigner = valuePlumbing * selectedProfileData?.plumbing_designer_ratio!! / 100
+    const plumbingDrafter = valuePlumbing * selectedProfileData?.plumbing_drafter_ratio!! / 100
+    const plumbingPostService = valuePlumbing * selectedProfileData?.plumbing_design_post_service_ratio!! / 100
+    const plumbingProofreader = valuePlumbing * selectedProfileData?.plumbing_proofreader_ratio!! / 100
+    const plumbingReviewer = valuePlumbing * selectedProfileData?.plumbing_reviewer_ratio!! / 100
+    const plumbingApprover = valuePlumbing * selectedProfileData?.plumbing_approver_ratio!! / 100
+
+    const electricPM = valueElectric * selectedProfileData?.electrical_pm_ratio!! / 100
+    const electricAssistant = valueElectric * selectedProfileData?.electrical_pm_assistant_ratio!! / 100
+    const electricDesigner = valueElectric * selectedProfileData?.electrical_designer_ratio!! / 100
+    const electricDrafter = valueElectric * selectedProfileData?.electrical_drafter_ratio!! / 100
+    const electricPostService = valueElectric * selectedProfileData?.electrical_design_post_service_ratio!! / 100
+    const electricProofreader = valueElectric * selectedProfileData?.electrical_proofreader_ratio!! / 100
+    const electricReviewer = valueElectric * selectedProfileData?.electrical_reviewer_ratio!! / 100
+    const electricApprover = valueElectric * selectedProfileData?.electrical_approver_ratio!! / 100
+
+    const HVACPM = valueHVAC * selectedProfileData?.hvac_pm_ratio!! / 100
+    const HVACAssistant = valueHVAC * selectedProfileData?.hvac_pm_assistant_ratio!! / 100
+    const HVACDesigner = valueHVAC * selectedProfileData?.hvac_designer_ratio!! / 100
+    const HVACDrafter = valueHVAC * selectedProfileData?.hvac_drafter_ratio!! / 100
+    const HVACPostService = valueHVAC * selectedProfileData?.hvac_design_post_service_ratio!! / 100
+    const HVACProofreader = valueHVAC * selectedProfileData?.hvac_proofreader_ratio!! / 100
+    const HVACReviewer = valueHVAC * selectedProfileData?.hvac_reviewer_ratio!! / 100
+    const HVACApprover = valueHVAC * selectedProfileData?.hvac_approver_ratio!! / 100
+
+    const lowVoltagePM = valueLowVoltage * selectedProfileData?.low_voltage_pm_ratio!! / 100
+    const lowVoltageAssistant = valueLowVoltage * selectedProfileData?.low_voltage_pm_assistant_ratio!! / 100
+    const lowVoltageDesigner = valueLowVoltage * selectedProfileData?.low_voltage_designer_ratio!! / 100
+    const lowVoltageDrafter = valueLowVoltage * selectedProfileData?.low_voltage_drafter_ratio!! / 100
+    const lowVoltagePostService = valueLowVoltage * selectedProfileData?.low_voltage_design_post_service_ratio!! / 100
+    const lowVoltageProofreader = valueLowVoltage * selectedProfileData?.low_voltage_proofreader_ratio!! / 100
+    const lowVoltageReviewer = valueLowVoltage * selectedProfileData?.low_voltage_reviewer_ratio!! / 100
+    const lowVoltageApprover = valueLowVoltage * selectedProfileData?.low_voltage_approver_ratio!! / 100
+
+    // const departments = {
+    //   arch: calculatePayout(valueArch, selectedProfileData),
+    //   struct: calculatePayout(valueStruct, selectedProfileData),
+    //   plumbing: calculatePayout(valuePlumbing, selectedProfileData),
+    //   hvac: calculatePayout(valueHVAC, selectedProfileData),
+    //   electric: calculatePayout(valueElectric, selectedProfileData),
+    //   lowVoltage: calculatePayout(valueLowVoltage, selectedProfileData),
+    // };
+    // setDataSource([
+    //   getPayoutData('建筑', '设计人', departments.arch),
+    //   getPayoutData('建筑', '产值', departments.arch),
+    //   getPayoutData('结构', '设计人', departments.struct),
+    //   getPayoutData('结构', '产值', departments.struct),
+    //   getPayoutData('给排水', '设计人', departments.plumbing),
+    //   getPayoutData('给排水', '产值', departments.plumbing),
+    //   getPayoutData('暖通', '设计人', departments.hvac),
+    //   getPayoutData('暖通', '产值', departments.hvac),
+    //   getPayoutData('强电', '设计人', departments.electric),
+    //   getPayoutData('强电', '产值', departments.electric),
+    //   getPayoutData('弱电', '设计人', departments.lowVoltage),
+    //   getPayoutData('弱电', '产值', departments.lowVoltage),
+    // ]);
+    
+    // formPayout.setFieldsValue({
+    //   designChiefPayout: pm,
+    //   designAssistantPayout: pmAssistant,
+    //   建筑产值: departments.arch,
+    //   结构产值: departments.struct,
+    //   给排水产值: departments.plumbing,
+    //   暖通产值: departments.hvac,
+    //   强电产值: departments.electric,
+    //   弱电产值: departments.lowVoltage,
+    // });
+    const fields={
+      designChief:'',
+      designChiefPayout: pm,
+      designAssistant:'',
+      designAssistantPayout: pmAssistant,
+      建筑设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      建筑产值:{
+        pm: archPM,
+        pm_assistant: archAssistant,
+        designer:archDesigner,
+        drafter:archDrafter,
+        post_service:archPostService,
+        proofreader:archProofreader,
+        reviewer:archReviewer,
+        approver:archApprover,
+      },
+      结构设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      结构产值:{
+        pm: structPM,
+        pm_assistant: structAssistant,
+        designer:structDesigner,
+        drafter:structDrafter,
+        post_service:structPostService,
+        proofreader:structProofreader,
+        reviewer:structReviewer,
+        approver:structApprover,
+      },
+      给排水设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      给排水产值:{
+        pm: plumbingPM,
+        pm_assistant:plumbingAssistant,
+        designer:plumbingDesigner,
+        drafter:plumbingDrafter,
+        post_service:plumbingPostService,
+        proofreader:plumbingProofreader,
+        reviewer:plumbingReviewer,
+        approver:plumbingApprover,
+      },
+      暖通设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      暖通产值:{
+        pm:HVACPM,
+        pm_assistant:HVACAssistant,
+        designer:HVACDesigner,
+        drafter:HVACDrafter,
+        post_service:HVACPostService,
+        proofreader:HVACProofreader,
+        reviewer:HVACReviewer,
+        approver:HVACApprover,
+      },
+      强电设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      强电产值:{
+        pm:electricPM,
+        pm_assistant:electricAssistant,
+        designer:electricDesigner,
+        drafter:electricDrafter,
+        post_service:electricPostService,
+        proofreader:electricProofreader,
+        reviewer:electricReviewer,
+        approver:electricApprover,
+      },
+      弱电设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      弱电产值:{
+        pm:lowVoltagePM,
+        pm_assistant:lowVoltageAssistant,
+        designer:lowVoltageDesigner,
+        drafter:lowVoltageDrafter,
+        post_service:lowVoltagePostService,
+        proofreader:lowVoltageProofreader,
+        reviewer:lowVoltageReviewer,
+        approver:lowVoltageApprover,
+      }
+      
+    }
+    setTableInit(fields)
+    setDataSource([
+      {
+        key:'1',
+        category: '建筑',
+        text: '设计人',
+        pm: '的',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'2',
+        category: '建筑',
+        text: '产值',
+        pm: archPM,
+        pm_assistant: archAssistant,
+        designer: archDesigner,
+        drafter: archDrafter,
+        post_service: archPostService,
+        proofreader: archProofreader,
+        reviewer: archReviewer,
+        approver: archApprover,
+      },
+      {
+        key:'3',
+        category: '结构',
+        text: '设计人',
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'4',
+        category: '结构',
+        text: '产值',
+        pm: structPM,
+        pm_assistant: structAssistant,
+        designer: structDesigner,
+        drafter: structDrafter,
+        post_service: structPostService,
+        proofreader: structProofreader,
+        reviewer: structReviewer,
+        approver: structApprover,
+      },
+      {
+        key:'5',
+        category: '给排水',
+        text: '设计人',
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'6',
+        category: '给排水',
+        text: '产值',
+        pm: plumbingPM,
+        pm_assistant: plumbingAssistant,
+        designer: plumbingDesigner,
+        drafter: plumbingDrafter,
+        post_service: plumbingPostService,
+        proofreader: plumbingProofreader,
+        reviewer: plumbingReviewer,
+        approver: plumbingApprover,
+      },
+      {
+        key:'7',
+        category: '暖通',
+        text: '设计人',
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'8',
+        category: '暖通',
+        text: '产值',
+        pm: HVACPM,
+        pm_assistant: HVACAssistant,
+        designer: HVACDesigner,
+        drafter: HVACDrafter,
+        post_service: HVACPostService,
+        proofreader: HVACProofreader,
+        reviewer: HVACReviewer,
+        approver: HVACApprover,
+      },
+      {
+        key:'9',
+        category: '强电',
+        text: '设计人',
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'10',
+        category: '强电',
+        text: '产值',
+        pm: electricPM,
+        pm_assistant: electricAssistant,
+        designer: electricDesigner,
+        drafter: electricDrafter,
+        post_service: electricPostService,
+        proofreader: electricProofreader,
+        reviewer: electricReviewer,
+        approver: electricApprover,
+      },
+      {
+        key:'11',
+        category: '弱电',
+        text: '设计人',
+        pm: '',
+        pm_assistant: '',
+        designer: '',
+        drafter: '',
+        post_service: '',
+        proofreader: '',
+        reviewer: '',
+        approver: '',
+      },
+      {
+        key:'12',
+        category: '弱电',
+        text: '产值',
+        pm: lowVoltagePM,
+        pm_assistant: lowVoltageAssistant,
+        designer: lowVoltageDesigner,
+        drafter: lowVoltageDrafter,
+        post_service: lowVoltagePostService,
+        proofreader: lowVoltageProofreader,
+        reviewer: lowVoltageReviewer,
+        approver: lowVoltageApprover,
+      },
+    ])
 
     formPayout.setFieldsValue({
-      designChief: pm,
-      designAssistant: pmAssistant,
-      archPM: archPM,
-      archAssistant:archAssistant,
-      structPM: structPM,
-      structAssistant: structAssistant
+      designChief:'',
+      designChiefPayout: pm,
+      designAssistant:'',
+      designAssistantPayout: pmAssistant,
+      建筑设计人:{
+        pm: ' ',
+        pm_assistant: ' ',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      建筑产值:{
+        pm: archPM,
+        pm_assistant: archAssistant,
+        designer:archDesigner,
+        drafter:archDrafter,
+        post_service:archPostService,
+        proofreader:archProofreader,
+        reviewer:archReviewer,
+        approver:archApprover,
+      },
+      结构设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      结构产值:{
+        pm: structPM,
+        pm_assistant: structAssistant,
+        designer:structDesigner,
+        drafter:structDrafter,
+        post_service:structPostService,
+        proofreader:structProofreader,
+        reviewer:structReviewer,
+        approver:structApprover,
+      },
+      给排水设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      给排水产值:{
+        pm: plumbingPM,
+        pm_assistant:plumbingAssistant,
+        designer:plumbingDesigner,
+        drafter:plumbingDrafter,
+        post_service:plumbingPostService,
+        proofreader:plumbingProofreader,
+        reviewer:plumbingReviewer,
+        approver:plumbingApprover,
+      },
+      暖通设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      暖通产值:{
+        pm:HVACPM,
+        pm_assistant:HVACAssistant,
+        designer:HVACDesigner,
+        drafter:HVACDrafter,
+        post_service:HVACPostService,
+        proofreader:HVACProofreader,
+        reviewer:HVACReviewer,
+        approver:HVACApprover,
+      },
+      强电设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      强电产值:{
+        pm:electricPM,
+        pm_assistant:electricAssistant,
+        designer:electricDesigner,
+        drafter:electricDrafter,
+        post_service:electricPostService,
+        proofreader:electricProofreader,
+        reviewer:electricReviewer,
+        approver:electricApprover,
+      },
+      弱电设计人:{
+        pm: '',
+        pm_assistant: '',
+        designer:'',
+        drafter:'',
+        post_service:'',
+        proofreader:'',
+        reviewer:'',
+        approver:'',
+      },
+      弱电产值:{
+        pm:lowVoltagePM,
+        pm_assistant:lowVoltageAssistant,
+        designer:lowVoltageDesigner,
+        drafter:lowVoltageDrafter,
+        post_service:lowVoltagePostService,
+        proofreader:lowVoltageProofreader,
+        reviewer:lowVoltageReviewer,
+        approver:lowVoltageApprover,
+      }
+      
     })
+    
   }
   
 
@@ -612,7 +1306,9 @@ export const PayoutTable: React.FC = () => {
     },
   ];
 
-  const handleSave = (row: DataType) => {
+  const handleSave = (row: any) => {
+    console.log(row,'ooooooooooooo');
+    
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
@@ -620,12 +1316,14 @@ export const PayoutTable: React.FC = () => {
       ...item,
       ...row,
     });
+    console.log(newData);
+    
     setDataSource(newData);
   };
 
   const components = {
     body: {
-      
+      // row: EditableRow,
       cell: EditableCell,
     },
   };
@@ -662,6 +1360,7 @@ export const PayoutTable: React.FC = () => {
               columnIndex,
               departments: departments,
               workLocations: workLocations,
+              form: formPayout,
               handleSave,
             }),
           })),
@@ -755,11 +1454,16 @@ export const PayoutTable: React.FC = () => {
             产值表
           </span>, children:<PayoutTable></PayoutTable>}]} /> */}
         {/* {togglePayoutTable && <PayoutTable></PayoutTable>} */}
-        {togglePayoutTable && 
-        <Form.Provider>
+        {togglePayoutTable &&
           
-          <Form form={formPayout} onFinish={handlePayoutFinish} >
-          
+          <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit}>
+          <Form.Item noStyle shouldUpdate>
+            {() => (
+              <Typography>
+                <pre>{JSON.stringify(formPayout.getFieldsValue(), null, 2)}</pre>
+              </Typography>
+            )}
+          </Form.Item>
             <Space direction="vertical" size="large" style={{ display: 'flex' }}>
             
               <Row gutter={16}>
@@ -787,24 +1491,39 @@ export const PayoutTable: React.FC = () => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Table<DataType>
-                components={components}
-                rowClassName={() => "editable-row"}
-                bordered
-                dataSource={dataSource}
-                columns={columns as ColumnTypes}
-                pagination={false}
-              />
+              {/* <Form.List name=''>
+                {(fields, operation) =>
+                  <Table<DataType>
+                  components={components}
+                  rowClassName={() => "editable-row"}
+                  bordered
+                  dataSource={dataSource}
+                  columns={columns as ColumnTypes}
+                  pagination={false}
+                />
+                }
+              </Form.List> */}
+              <EditableContext.Provider value={formPayout}>
+              
+                <Table<DataType>
+                  components={components}
+                  rowClassName={() => "editable-row"}
+                  bordered
+                  dataSource={dataSource}
+                  columns={columns as ColumnTypes}
+                  pagination={false}
+                />
+              </EditableContext.Provider>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   提交产值表
                 </Button>
                 
               </Form.Item>
+              
             </Space>
             
           </Form>
-        </Form.Provider>
         }
             
       </Space>
