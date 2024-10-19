@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
 import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Col, Collapse, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Typography } from "antd";
+import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Typography } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, ProjectsService, WorkLocationPublicOut, WorkLocationsService } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import './PayoutTable.css'
@@ -120,7 +120,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     //     [dataIndex]: record[dataIndex] || ""
     //   }
     // });
-    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "s")
+    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "")
   };
   // const setValueToFormField=()=>{
   //   form.setFieldsValue({ [dataIndex]: record[dataIndex] || "" });
@@ -146,15 +146,18 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         handleSave({ ...record, ...internalValue});//save 到table的dataSource
         toggleEdit();//save 到form上
       }catch(e){
-        console.log('存错误'+e);
+        console.log('存错误');
+        console.log(e);
       }
       
     
   };
   const onSelect = (data: string) => {
-    //const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
-    //console.log(person);
-    
+    const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
+    console.log(person);
+    setEditing(false)
+    setOptions([])
+    form.setFieldValue([record?.category+record?.text, dataIndex], person[0].id)
   };
   
   const onSearch = async(searchText:string)=>{
@@ -196,25 +199,26 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
         
       >
-        {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
         {record?.text==='设计人' ? 
           <AutoComplete
             ref={selectRef}
             onBlur={save}
             options={options.map((option)=>({
-              value:option.value,
+              value:option.id,
               label:(
-                <div style={{ display: 'flex' }}>
+                <Space size={1} align="end">
                   <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
-                  <div style={{ textAlign:'center',flex:'1 1 100px',borderLeft: '1px solid #000',borderRight: '1px solid #000'}}>{department?.name}</div>
+                  <Divider type="vertical" style={{width:'1px'}}/>
+                  <div style={{ textAlign:'center',flex:'1 1 100px'}}>{departments.find((dept) => dept.id === option.department_id)?.name}</div>
+                  <Divider type="vertical" style={{width:'1px'}}/>
                   <div style={{ textAlign:'center',flex:'1 1 100px'}}>{workLocations.find((wl)=>wl.id===option.work_location_id)?.name}</div>
-                </div>
+                </Space>
               )
             }))}
-            // style={{ width: 200 }}
             onSelect={onSelect}
             onSearch={onSearch}
             allowClear={true}
+            popupMatchSelectWidth={false}
           />
         
         :
@@ -227,20 +231,12 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         style={{ margin: 0 }}
         name={formName}
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
-        
       >
       <div
         className="editable-cell-value-wrap"
-        // style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
-        //style={{ paddingInlineEnd: 24, border: '1px dashed transparent', transition: 'border 0.3s ease' }}
         onClick={toggleEdit}
       >
-        {/* <Space>
-          {editable ? <EditOutlined style={{color:'gray'}}/> : <></>}
-          {children}
-        </Space> */}
         {children}
-        
       </div>
       </Form.Item>
     );
@@ -530,7 +526,7 @@ export const PayoutTable: React.FC = () => {
       const {error, data} =
         await JobPayoutRatioProfilesService.readJobPayoutRatioProfiles({
           query: {
-            hidden: true,
+            hidden: false,
           },
         });
         if (error) {
@@ -561,6 +557,10 @@ export const PayoutTable: React.FC = () => {
       message.error("未找到所选配置文件");
     }
   };
+  const onSelectDesignChief=(value:string,option:any)=>{
+    setDesignChiefOptions([])
+    
+  }
   const onSearchDesignChief=async(searchText:string)=>{
     if(searchText===""){
       setDesignChiefOptions([])
@@ -684,8 +684,8 @@ export const PayoutTable: React.FC = () => {
     console.log(resProject.data,"工程");
     
     //计算部门间payout
-    const valueForPMTeam = resProject.data?.calculated_employee_payout!! * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
-    const valueForRestOfPM = resProject.data?.calculated_employee_payout!! * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
+    const valueForPMTeam = resProject.data?.calculated_employee_payout * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
+    const valueForRestOfPM = resProject.data?.calculated_employee_payout * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
     const valueArch = valueForRestOfPM * resDepartmentPayoutRatio.data.arch_ratio / 100 //建筑专业产值
     const valueStruct = valueForRestOfPM * resDepartmentPayoutRatio.data.struct_ratio / 100 //结构专业产值
     const valuePlumbing = valueForRestOfPM * resDepartmentPayoutRatio.data.plumbing_ratio / 100 //给排水专业产值
@@ -693,96 +693,74 @@ export const PayoutTable: React.FC = () => {
     const valueHVAC = valueForRestOfPM * resDepartmentPayoutRatio.data.hvac_ratio / 100 //暖通专业产值
     const valueLowVoltage = valueForRestOfPM * resDepartmentPayoutRatio.data.low_voltage_ratio / 100 //弱电专业产值
     //具体职责payout
-    const pm = valueForPMTeam * selectedProfileData?.pm_ratio!! /100
-    const pmAssistant = valueForPMTeam * selectedProfileData?.pm_assistant_ratio!! /100
+    let pm = (valueForPMTeam * selectedProfileData!.pm_ratio /100).toFixed(2)
+    const pmAssistant = (valueForPMTeam * selectedProfileData!.pm_assistant_ratio /100).toFixed(2)
 
-    const archPM = (valueArch * selectedProfileData?.arch_pm_ratio!! / 100).toFixed(2)
-    const archAssistant = (valueArch * selectedProfileData?.arch_pm_assistant_ratio!! / 100).toFixed(2)
-    const archDesigner= (valueArch * selectedProfileData?.arch_designer_ratio!! / 100).toFixed(2)
-    const archDrafter= (valueArch * selectedProfileData?.arch_drafter_ratio!! / 100).toFixed(2)
-    const archPostService= (valueArch * selectedProfileData?.arch_design_post_service_ratio!! / 100).toFixed(2)
-    const archProofreader= (valueArch * selectedProfileData?.arch_proofreader_ratio!! / 100).toFixed(2)
-    const archReviewer= (valueArch * selectedProfileData?.arch_reviewer_ratio!! / 100).toFixed(2)
-    const archApprover= (valueArch * selectedProfileData?.arch_approver_ratio!! / 100).toFixed(2)
+    const archPM = (valueArch * selectedProfileData!.arch_pm_ratio / 100).toFixed(2)
+    const archAssistant = (valueArch * selectedProfileData!.arch_pm_assistant_ratio / 100).toFixed(2)
+    const archDesigner= (valueArch * selectedProfileData!.arch_designer_ratio / 100).toFixed(2)
+    const archDrafter= (valueArch * selectedProfileData!.arch_drafter_ratio / 100).toFixed(2)
+    const archPostService= (valueArch * selectedProfileData!.arch_design_post_service_ratio / 100).toFixed(2)
+    const archProofreader= (valueArch * selectedProfileData!.arch_proofreader_ratio / 100).toFixed(2)
+    const archReviewer= (valueArch * selectedProfileData!.arch_reviewer_ratio / 100).toFixed(2)
+    const archApprover= (valueArch * selectedProfileData!.arch_approver_ratio / 100).toFixed(2)
 
-    const structPM = valueStruct * selectedProfileData?.struct_pm_ratio!! / 100
-    const structAssistant = valueStruct * selectedProfileData?.struct_pm_assistant_ratio!! / 100
-    const structDesigner = valueStruct * selectedProfileData?.struct_designer_ratio!! / 100
-    const structDrafter = valueStruct * selectedProfileData?.struct_drafter_ratio!! / 100
-    const structPostService = valueStruct * selectedProfileData?.struct_design_post_service_ratio!! / 100
-    const structProofreader = valueStruct * selectedProfileData?.struct_proofreader_ratio!! / 100
-    const structReviewer = valueStruct * selectedProfileData?.struct_reviewer_ratio!! / 100
-    const structApprover = valueStruct * selectedProfileData?.struct_approver_ratio!! / 100
+    const structPM = (valueStruct * selectedProfileData!.struct_pm_ratio / 100).toFixed(2)
+    const structAssistant = (valueStruct * selectedProfileData!.struct_pm_assistant_ratio / 100).toFixed(2)
+    const structDesigner = (valueStruct * selectedProfileData!.struct_designer_ratio / 100).toFixed(2)
+    const structDrafter = (valueStruct * selectedProfileData!.struct_drafter_ratio / 100).toFixed(2)
+    const structPostService = (valueStruct * selectedProfileData!.struct_design_post_service_ratio / 100).toFixed(2)
+    const structProofreader = (valueStruct * selectedProfileData!.struct_proofreader_ratio / 100).toFixed(2)
+    const structReviewer = (valueStruct * selectedProfileData!.struct_reviewer_ratio / 100).toFixed(2)
+    const structApprover = (valueStruct * selectedProfileData!.struct_approver_ratio / 100).toFixed(2)
 
-    const plumbingPM = valuePlumbing * selectedProfileData?.plumbing_pm_ratio!! / 100
-    const plumbingAssistant = valuePlumbing * selectedProfileData?.plumbing_pm_assistant_ratio!! / 100
-    const plumbingDesigner = valuePlumbing * selectedProfileData?.plumbing_designer_ratio!! / 100
-    const plumbingDrafter = valuePlumbing * selectedProfileData?.plumbing_drafter_ratio!! / 100
-    const plumbingPostService = valuePlumbing * selectedProfileData?.plumbing_design_post_service_ratio!! / 100
-    const plumbingProofreader = valuePlumbing * selectedProfileData?.plumbing_proofreader_ratio!! / 100
-    const plumbingReviewer = valuePlumbing * selectedProfileData?.plumbing_reviewer_ratio!! / 100
-    const plumbingApprover = valuePlumbing * selectedProfileData?.plumbing_approver_ratio!! / 100
+    const plumbingPM = (valuePlumbing * selectedProfileData!.plumbing_pm_ratio / 100).toFixed(2)
+    const plumbingAssistant = (valuePlumbing * selectedProfileData!.plumbing_pm_assistant_ratio / 100).toFixed(2)
+    const plumbingDesigner = (valuePlumbing * selectedProfileData!.plumbing_designer_ratio / 100).toFixed(2)
+    const plumbingDrafter = (valuePlumbing * selectedProfileData!.plumbing_drafter_ratio / 100).toFixed(2)
+    const plumbingPostService = (valuePlumbing * selectedProfileData!.plumbing_design_post_service_ratio / 100).toFixed(2)
+    const plumbingProofreader = (valuePlumbing * selectedProfileData!.plumbing_proofreader_ratio / 100).toFixed(2)
+    const plumbingReviewer = (valuePlumbing * selectedProfileData!.plumbing_reviewer_ratio / 100).toFixed(2)
+    const plumbingApprover = (valuePlumbing * selectedProfileData!.plumbing_approver_ratio / 100).toFixed(2)
 
-    const electricPM = valueElectric * selectedProfileData?.electrical_pm_ratio!! / 100
-    const electricAssistant = valueElectric * selectedProfileData?.electrical_pm_assistant_ratio!! / 100
-    const electricDesigner = valueElectric * selectedProfileData?.electrical_designer_ratio!! / 100
-    const electricDrafter = valueElectric * selectedProfileData?.electrical_drafter_ratio!! / 100
-    const electricPostService = valueElectric * selectedProfileData?.electrical_design_post_service_ratio!! / 100
-    const electricProofreader = valueElectric * selectedProfileData?.electrical_proofreader_ratio!! / 100
-    const electricReviewer = valueElectric * selectedProfileData?.electrical_reviewer_ratio!! / 100
-    const electricApprover = valueElectric * selectedProfileData?.electrical_approver_ratio!! / 100
+    const electricPM = (valueElectric * selectedProfileData!.electrical_pm_ratio / 100).toFixed(2)
+    const electricAssistant = (valueElectric * selectedProfileData!.electrical_pm_assistant_ratio / 100).toFixed(2)
+    const electricDesigner = (valueElectric * selectedProfileData!.electrical_designer_ratio / 100).toFixed(2)
+    const electricDrafter = (valueElectric * selectedProfileData!.electrical_drafter_ratio / 100).toFixed(2)
+    const electricPostService = (valueElectric * selectedProfileData!.electrical_design_post_service_ratio / 100).toFixed(2)
+    const electricProofreader = (valueElectric * selectedProfileData!.electrical_proofreader_ratio / 100).toFixed(2)
+    const electricReviewer = (valueElectric * selectedProfileData!.electrical_reviewer_ratio / 100).toFixed(2)
+    const electricApprover = (valueElectric * selectedProfileData!.electrical_approver_ratio / 100).toFixed(2)
 
-    const HVACPM = valueHVAC * selectedProfileData?.hvac_pm_ratio!! / 100
-    const HVACAssistant = valueHVAC * selectedProfileData?.hvac_pm_assistant_ratio!! / 100
-    const HVACDesigner = valueHVAC * selectedProfileData?.hvac_designer_ratio!! / 100
-    const HVACDrafter = valueHVAC * selectedProfileData?.hvac_drafter_ratio!! / 100
-    const HVACPostService = valueHVAC * selectedProfileData?.hvac_design_post_service_ratio!! / 100
-    const HVACProofreader = valueHVAC * selectedProfileData?.hvac_proofreader_ratio!! / 100
-    const HVACReviewer = valueHVAC * selectedProfileData?.hvac_reviewer_ratio!! / 100
-    const HVACApprover = valueHVAC * selectedProfileData?.hvac_approver_ratio!! / 100
+    const HVACPM = (valueHVAC * selectedProfileData!.hvac_pm_ratio / 100).toFixed(2)
+    const HVACAssistant = (valueHVAC * selectedProfileData!.hvac_pm_assistant_ratio / 100).toFixed(2) 
+    const HVACDesigner = (valueHVAC * selectedProfileData!.hvac_designer_ratio / 100).toFixed(2)
+    const HVACDrafter = (valueHVAC * selectedProfileData!.hvac_drafter_ratio / 100).toFixed(2)
+    const HVACPostService = (valueHVAC * selectedProfileData!.hvac_design_post_service_ratio / 100).toFixed(2)
+    const HVACProofreader = (valueHVAC * selectedProfileData!.hvac_proofreader_ratio / 100).toFixed(2)
+    const HVACReviewer = (valueHVAC * selectedProfileData!.hvac_reviewer_ratio / 100).toFixed(2)
+    const HVACApprover = (valueHVAC * selectedProfileData!.hvac_approver_ratio / 100).toFixed(2)
 
-    const lowVoltagePM = valueLowVoltage * selectedProfileData?.low_voltage_pm_ratio!! / 100
-    const lowVoltageAssistant = valueLowVoltage * selectedProfileData?.low_voltage_pm_assistant_ratio!! / 100
-    const lowVoltageDesigner = valueLowVoltage * selectedProfileData?.low_voltage_designer_ratio!! / 100
-    const lowVoltageDrafter = valueLowVoltage * selectedProfileData?.low_voltage_drafter_ratio!! / 100
-    const lowVoltagePostService = valueLowVoltage * selectedProfileData?.low_voltage_design_post_service_ratio!! / 100
-    const lowVoltageProofreader = valueLowVoltage * selectedProfileData?.low_voltage_proofreader_ratio!! / 100
-    const lowVoltageReviewer = valueLowVoltage * selectedProfileData?.low_voltage_reviewer_ratio!! / 100
-    const lowVoltageApprover = valueLowVoltage * selectedProfileData?.low_voltage_approver_ratio!! / 100
+    const lowVoltagePM = (valueLowVoltage * selectedProfileData!.low_voltage_pm_ratio / 100).toFixed(2)
+    const lowVoltageAssistant = (valueLowVoltage * selectedProfileData!.low_voltage_pm_assistant_ratio / 100).toFixed(2)
+    const lowVoltageDesigner = (valueLowVoltage * selectedProfileData!.low_voltage_designer_ratio / 100).toFixed(2)
+    const lowVoltageDrafter = (valueLowVoltage * selectedProfileData!.low_voltage_drafter_ratio / 100).toFixed(2)
+    const lowVoltagePostService = (valueLowVoltage * selectedProfileData!.low_voltage_design_post_service_ratio / 100).toFixed(2)
+    const lowVoltageProofreader = (valueLowVoltage * selectedProfileData!.low_voltage_proofreader_ratio / 100).toFixed(2)
+    const lowVoltageReviewer = (valueLowVoltage * selectedProfileData!.low_voltage_reviewer_ratio / 100).toFixed(2)
+    const lowVoltageApprover = (valueLowVoltage * selectedProfileData!.low_voltage_approver_ratio / 100).toFixed(2)
 
-    // const departments = {
-    //   arch: calculatePayout(valueArch, selectedProfileData),
-    //   struct: calculatePayout(valueStruct, selectedProfileData),
-    //   plumbing: calculatePayout(valuePlumbing, selectedProfileData),
-    //   hvac: calculatePayout(valueHVAC, selectedProfileData),
-    //   electric: calculatePayout(valueElectric, selectedProfileData),
-    //   lowVoltage: calculatePayout(valueLowVoltage, selectedProfileData),
-    // };
-    // setDataSource([
-    //   getPayoutData('建筑', '设计人', departments.arch),
-    //   getPayoutData('建筑', '产值', departments.arch),
-    //   getPayoutData('结构', '设计人', departments.struct),
-    //   getPayoutData('结构', '产值', departments.struct),
-    //   getPayoutData('给排水', '设计人', departments.plumbing),
-    //   getPayoutData('给排水', '产值', departments.plumbing),
-    //   getPayoutData('暖通', '设计人', departments.hvac),
-    //   getPayoutData('暖通', '产值', departments.hvac),
-    //   getPayoutData('强电', '设计人', departments.electric),
-    //   getPayoutData('强电', '产值', departments.electric),
-    //   getPayoutData('弱电', '设计人', departments.lowVoltage),
-    //   getPayoutData('弱电', '产值', departments.lowVoltage),
-    // ]);
+    const inaccuracy = (resProject.data?.calculated_employee_payout - (Number(pm)+Number(pmAssistant)+
+    Number(archPM)+Number(archAssistant)+Number(archDesigner)+Number(archDrafter)+Number(archPostService)+Number(archProofreader)+Number(archReviewer)+Number(archApprover)+
+    Number(structPM)+Number(structAssistant)+Number(structDesigner)+Number(structDrafter)+Number(structPostService)+Number(structProofreader)+Number(structReviewer)+Number(structApprover)+
+    Number(plumbingPM)+Number(plumbingAssistant)+Number(plumbingDesigner)+Number(plumbingDrafter)+Number(plumbingPostService)+Number(plumbingProofreader)+Number(plumbingReviewer)+Number(plumbingApprover)+
+    Number(electricPM)+Number(electricAssistant)+Number(electricDesigner)+Number(electricDrafter)+Number(electricPostService)+Number(electricProofreader)+Number(electricReviewer)+Number(electricApprover)+
+    Number(HVACPM)+Number(HVACAssistant)+Number(HVACDesigner)+Number(HVACDrafter)+Number(HVACPostService)+Number(HVACProofreader)+Number(HVACReviewer)+Number(HVACApprover)+
+    Number(lowVoltagePM)+Number(lowVoltageAssistant)+Number(lowVoltageDesigner)+Number(lowVoltageDrafter)+Number(lowVoltagePostService)+Number(lowVoltageProofreader)+Number(lowVoltageReviewer)+Number(lowVoltageApprover)))
     
-    // formPayout.setFieldsValue({
-    //   designChiefPayout: pm,
-    //   designAssistantPayout: pmAssistant,
-    //   建筑产值: departments.arch,
-    //   结构产值: departments.struct,
-    //   给排水产值: departments.plumbing,
-    //   暖通产值: departments.hvac,
-    //   强电产值: departments.electric,
-    //   弱电产值: departments.lowVoltage,
-    // });
+    console.log("不准确度: "+inaccuracy);
+    pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
+
     const fields={
       designChief:'',
       designChiefPayout: pm,
@@ -916,7 +894,7 @@ export const PayoutTable: React.FC = () => {
         key:'1',
         category: '建筑',
         text: '设计人',
-        pm: '的',
+        pm: '',
         pm_assistant: '',
         designer: '',
         drafter: '',
@@ -1076,8 +1054,8 @@ export const PayoutTable: React.FC = () => {
       designAssistant:'',
       designAssistantPayout: pmAssistant,
       建筑设计人:{
-        pm: ' ',
-        pm_assistant: ' ',
+        pm: '',
+        pm_assistant: '',
         designer:'',
         drafter:'',
         post_service:'',
@@ -1293,14 +1271,12 @@ export const PayoutTable: React.FC = () => {
       width: 100,
       onCell: (record: any, index: number) => {
         const cellProps = {} as any;
-    
         // 每两行合并一次
         if (index % 2 === 0) {
           cellProps.rowSpan = 2; // 合并两行
         } else {
           cellProps.rowSpan = 0; // 隐藏第二行
         }
-    
         return cellProps;
       },
     },
@@ -1381,6 +1357,40 @@ export const PayoutTable: React.FC = () => {
     };
   });
 
+  const handleFormValuesChange = (changedValues: any, allValues: any) => {
+    const newDataSource = [...dataSource];
+
+    // Update dataSource based on form values
+    Object.entries(changedValues).forEach(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        const category = key.includes('设计人') ? key.replace('设计人','') : key.replace('产值','');
+        const text = key.includes('设计人') ? '设计人' : '产值';
+        const index = newDataSource.findIndex(item => item.category === category && item.text === text);
+        
+        if (index !== -1) {
+          newDataSource[index] = {
+            ...newDataSource[index],
+            ...value as DataType,
+          };
+        }
+      }
+    });
+
+    // Update designChief and designAssistant separately
+    const designChiefIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
+    if (designChiefIndex !== -1) {
+      newDataSource[designChiefIndex].pm = allValues.designChief || '';
+    }
+
+    const designAssistantIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
+    if (designAssistantIndex !== -1) {
+      newDataSource[designAssistantIndex].pm_assistant = allValues.designAssistant || '';
+    }
+
+    setDataSource(newDataSource);
+  };
+
+
   return (
     <div>
       <Space direction="vertical" size="large" style={{ display: 'flex' }}> 
@@ -1398,24 +1408,6 @@ export const PayoutTable: React.FC = () => {
                       title: "not_hidden",
                       options: profiles
                         .filter((profile) => !profile.hidden)
-                        .map((profile) => ({
-                          value: profile.id,
-                          label: (
-                            <span>
-                              {profile.name}
-                              {!profile.is_in_use && (
-                                <Tag style={{ marginLeft: "8px" }}>无项目</Tag>
-                              )}
-                            </span>
-                          ),
-                          disabled: false,
-                        })),
-                    },
-                    {
-                      label: <span>已隐藏</span>,
-                      title: "已隐藏",
-                      options: profiles
-                        .filter((profile) => profile.hidden)
                         .map((profile) => ({
                           value: profile.id,
                           label: (
@@ -1456,7 +1448,7 @@ export const PayoutTable: React.FC = () => {
         {/* {togglePayoutTable && <PayoutTable></PayoutTable>} */}
         {togglePayoutTable &&
           
-          <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit}>
+          <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit} onValuesChange={handleFormValuesChange}>
           <Form.Item noStyle shouldUpdate>
             {() => (
               <Typography>
@@ -1469,7 +1461,7 @@ export const PayoutTable: React.FC = () => {
               <Row gutter={16}>
                 <Col span={6}>
                 <Form.Item label="设计总负责人" name="designChief">
-                  <AutoComplete options={designChiefOptions} onSearch={onSearchDesignChief} placeholder="input here"/>
+                  <AutoComplete options={designChiefOptions} onSearch={onSearchDesignChief} onSelect={onSelectDesignChief} placeholder="input here"/>
                 </Form.Item>
                 </Col>
                 <Col span={6}>
