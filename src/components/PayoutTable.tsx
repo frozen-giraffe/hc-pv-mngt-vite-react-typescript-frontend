@@ -9,6 +9,7 @@ import './PayoutTable.css'
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
+const employeeCache: { [key: string]: EmployeePublicOut } = {};
 
 interface Item {
   key: string;
@@ -128,30 +129,31 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   // }
 
   const save = async () => {
-      //setEditing(!editing);
-      try{
-        const values = await form.validateFields();
-        console.log(record,'pppp')
-        let internalValue={}
-        Object.keys(values).forEach((key) => {
-          // 检查是否存在一个对象,对象的key是record?.category+record?.text，因为form item name
-          if (typeof values[key] === 'object') {
-            internalValue={...values[key]}//ep:让{建筑设计人：{pm: XXX, pm_assistant,...}} to be {pm: XXX, pm_assistant,...}
-            console.log(internalValue,key, values[key]);
-          }
-        });
-        
-        console.log({ ...record, ...internalValue});
-        
-        handleSave({ ...record, ...internalValue});//save 到table的dataSource
-        toggleEdit();//save 到form上
-      }catch(e){
-        console.log('存错误');
-        console.log(e);
+    try {
+      const values = await form.validateFields();
+      let internalValue = {}
+      Object.keys(values).forEach((key) => {
+        if (typeof values[key] === 'object') {
+          internalValue = {...values[key]}
+        }
+      });
+      
+      // If this is a 设计人 cell, store the employee object
+      if (record.text === '设计人') {
+        const employeeId = internalValue[dataIndex];
+        if (employeeId && employeeCache[employeeId]) {
+          internalValue[dataIndex] = employeeCache[employeeId];
+        }
       }
       
-    
+      handleSave({ ...record, ...internalValue });
+      toggleEdit();
+    } catch(e) {
+      console.log('存错误');
+      console.log(e);
+    }
   };
+  
   const onSelect = (data: string) => {
     const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
     console.log(person);
@@ -160,14 +162,13 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     form.setFieldValue([record?.category+record?.text, dataIndex], person[0].id)
   };
   
-  const onSearch = async(searchText:string)=>{
-    //setDepartment(departments?.find(dp=>dp.name===record?.category))
-    if(searchText===""){
+  const onSearch = async(searchText:string) => {
+    if(searchText === "") {
       setOptions([])
       return
     }
     try {
-      const repsonse = await EmployeeService.searchEmployee({
+      const response = await EmployeeService.searchEmployee({
         path: {
           query: searchText
         },
@@ -175,13 +176,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
           department_id: department?.id
         }
       })
-      if(repsonse.data){
-        const formattedOptions = repsonse.data.data.map((employee: EmployeePublicOut) => ({
-          ...employee,                // Spread the existing EmployeePublicOut fields
-          label: employee.name,       // Label is set to employee's name
-          value: employee.name
-        }));
-        
+      if(response.data){
+        const formattedOptions = response.data.data.map((employee: EmployeePublicOut) => {
+          // Add employee to cache
+          employeeCache[employee.id.toString()] = employee;
+          return {
+            ...employee,
+            label: employee.name,
+            value: employee.id.toString()
+          };
+        });
         setOptions(formattedOptions)
       }
     } catch (error) {
@@ -232,12 +236,14 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         name={formName}
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
       >
-      <div
-        className="editable-cell-value-wrap"
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
+    <div
+      className="editable-cell-value-wrap"
+      onClick={toggleEdit}
+    >
+      {record.text === '设计人' && typeof children[1] === 'number'
+        ? employeeCache[children[1]]?.name || children
+        : children}
+    </div>
       </Form.Item>
     );
   }
@@ -246,7 +252,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   //     <Form.Item
   //       style={{ margin: 0 }}
   //       name={formName}
-  //       rules={[{ required: true, message: `${record?.text}不能为空` }]}
+  //       rules={[{ required: true, message: `${record?.text}不能为���` }]}
         
   //     >
   //       {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
@@ -370,6 +376,8 @@ export const PayoutTable: React.FC = () => {
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
   const [togglePayoutTable, setTogglePayoutTable] = useState(false)
   const [loading, setLoading] = useState<boolean>(true);
+  const [employees, setEmployees] = useState<{ [key: string]: EmployeePublicOut }>({});
+
 
   
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
@@ -1359,8 +1367,7 @@ export const PayoutTable: React.FC = () => {
 
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const newDataSource = [...dataSource];
-
-    // Update dataSource based on form values
+  
     Object.entries(changedValues).forEach(([key, value]) => {
       if (typeof value === 'object' && value !== null) {
         const category = key.includes('设计人') ? key.replace('设计人','') : key.replace('产值','');
@@ -1368,10 +1375,19 @@ export const PayoutTable: React.FC = () => {
         const index = newDataSource.findIndex(item => item.category === category && item.text === text);
         
         if (index !== -1) {
-          newDataSource[index] = {
-            ...newDataSource[index],
-            ...value as DataType,
-          };
+          if (text === '设计人') {
+            newDataSource[index] = {
+              ...newDataSource[index],
+              ...Object.fromEntries(
+                Object.entries(value).map(([k, v]) => [k, typeof v === 'string' ? parseInt(v, 10) : v])
+              )
+            };
+          } else {
+            newDataSource[index] = {
+              ...newDataSource[index],
+              ...value as DataType,
+            };
+          }
         }
       }
     });
@@ -1379,14 +1395,14 @@ export const PayoutTable: React.FC = () => {
     // Update designChief and designAssistant separately
     const designChiefIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
     if (designChiefIndex !== -1) {
-      newDataSource[designChiefIndex].pm = allValues.designChief || '';
+      newDataSource[designChiefIndex].pm = allValues.designChief ? parseInt(allValues.designChief, 10) : '';
     }
-
+  
     const designAssistantIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
     if (designAssistantIndex !== -1) {
-      newDataSource[designAssistantIndex].pm_assistant = allValues.designAssistant || '';
+      newDataSource[designAssistantIndex].pm_assistant = allValues.designAssistant ? parseInt(allValues.designAssistant, 10) : '';
     }
-
+  
     setDataSource(newDataSource);
   };
 
