@@ -79,18 +79,27 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 }) => {
   const [editing, setEditing] = useState(false);
   const [department, setDepartment] = useState<DepartmentPublicOut | null | undefined>(null)
-  const [options, setOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
+  const [options, setOptions] = useState<(EmployeePublicOut & {value:number, label:string})[]>([])
   const selectRef  = useRef<BaseSelectRef>(null);
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
+  const [employeeName, setEmployeeName] = useState<string>('');
   
   useEffect(() => {
     if (editing) {
-      record?.text==='设计人' ? selectRef.current?.focus() : inputRef.current?.focus()
-      //inputRef.current?.focus();
+      record?.text === '设计人' ? selectRef.current?.focus() : inputRef.current?.focus();
     }
     
-  }, [editing]);
+    // Set initial employee name when editing starts
+    if (editing && record?.text === '设计人' && record[dataIndex]) {
+      const employeeId = record[dataIndex];
+      const employee = employeeCache[employeeId];
+      if (employee) {
+        setEmployeeName(employee.name);
+      }
+    }
+  }, [editing, record, dataIndex]);
+  
   useEffect(()=>{
     setDepartment(departments?.find(dp=>dp.name===record?.category))
     
@@ -109,19 +118,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     console.log("click");
 
     setEditing(!editing);
-    //form.setFieldsValue({ [dataIndex]: record[dataIndex] || "" });
-    console.log();
+    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "");
     
-    console.log({[record?.category + record?.text]: {
-      [dataIndex]: record[dataIndex] || ""
-    }});
-    
-    // form.setFieldsValue({
-    //   [record?.category + record?.text]: {
-    //     [dataIndex]: record[dataIndex] || ""
-    //   }
-    // });
-    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "")
+    // Set employee name when toggling edit mode
+    if (record?.text === '设计人' && record[dataIndex]) {
+      const employeeId = record[dataIndex];
+      const employee = employeeCache[employeeId];
+      if (employee) {
+        setEmployeeName(employee.name);
+      }
+    }
   };
   // const setValueToFormField=()=>{
   //   form.setFieldsValue({ [dataIndex]: record[dataIndex] || "" });
@@ -154,12 +160,24 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     }
   };
   
-  const onSelect = (data: string) => {
-    const person:EmployeePublicOut[] = options.filter((value)=> value.id===parseInt(data))
-    console.log(person);
-    setEditing(false)
-    setOptions([])
-    form.setFieldValue([record?.category+record?.text, dataIndex], person[0].id)
+  const onSelect = async (data: string) => {
+    const person = options.find((value) => value.id === parseInt(data));
+    if (person) {
+      setEmployeeName(person.name);
+      setEditing(false);
+      const response = await EmployeeService.getEmployeeById({
+        path: { id: person.id }
+      })
+      if(response.data){
+        setOptions([{
+          ...response.data,
+          label: response.data.name,
+          value: response.data.id
+        }])
+      }
+
+      form.setFieldValue([record?.category + record?.text, dataIndex], person.id);
+    }
   };
   
   const onSearch = async(searchText:string) => {
@@ -201,15 +219,18 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         style={{ margin: 0 }}
         name={formName}
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
-        
       >
-        {record?.text==='设计人' ? 
-          <AutoComplete
+        {record?.text === '设计人' ? 
+          <Select
+            showSearch
             ref={selectRef}
             onBlur={save}
-            options={options.map((option)=>({
-              value:option.id,
-              label:(
+            filterOption={false}
+            value={employeeName==='' ? undefined : employeeName}
+            options={options.map((option) => ({
+              key: option.id,
+              value: option.id,
+              label: (
                 <Space size={1} align="end">
                   <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
                   <Divider type="vertical" style={{width:'1px'}}/>
@@ -223,12 +244,11 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
             onSearch={onSearch}
             allowClear={true}
             popupMatchSelectWidth={false}
+            placeholder={`模糊搜索员工`}
           />
-        
         :
         <Input ref={inputRef} onPressEnter={save} onBlur={save} />
         }
-        
       </Form.Item>
     ) : (
       <Form.Item
@@ -236,10 +256,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         name={formName}
         rules={[{ required: true, message: `${record?.text}不能为空` }]}
       >
-    <div
-      className="editable-cell-value-wrap"
-      onClick={toggleEdit}
-    >
+        <div
+          className="editable-cell-value-wrap"
+          onClick={toggleEdit}
+        >
       {record.text === '设计人' && typeof children[1] === 'number'
         ? employeeCache[children[1]]?.name || children
         : children}
@@ -247,114 +267,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       </Form.Item>
     );
   }
-  // if (editable) {
-  //   childNode = editing ? (
-  //     <Form.Item
-  //       style={{ margin: 0 }}
-  //       name={formName}
-  //       rules={[{ required: true, message: `${record?.text}不能为���` }]}
-        
-  //     >
-  //       {/* <Input ref={inputRef} onPressEnter={save} onBlur={save} /> */}
-  //       {record?.text==='设计人' ? 
-  //         <AutoComplete
-  //           ref={selectRef}
-  //           onBlur={save}
-  //           options={options.map((option)=>({
-  //             value:option.value,
-  //             label:(
-  //               <div style={{ display: 'flex' }}>
-  //                 <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
-  //                 <div style={{ textAlign:'center',flex:'1 1 100px',borderLeft: '1px solid #000',borderRight: '1px solid #000'}}>{department?.name}</div>
-  //                 <div style={{ textAlign:'center',flex:'1 1 100px'}}>{workLocations.find((wl)=>wl.id===option.work_location_id)?.name}</div>
-  //               </div>
-  //             )
-  //           }))}
-  //           // style={{ width: 200 }}
-  //           onSelect={onSelect}
-  //           onSearch={onSearch}
-  //           allowClear={true}
-  //         />
-        
-  //       :
-  //       <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-  //       }
-        
-  //     </Form.Item>
-  //   ) : (
-  //     <Form.Item
-  //       style={{ margin: 0 }}
-  //       name={formName}
-  //       rules={[{ required: true, message: `${record?.text}不能为空` }]}
-        
-  //     >
-  //     <div
-  //       className="editable-cell-value-wrap"
-  //       // style={{ width: "100%", minHeight: "20px", cursor:'pointer' }}
-  //       //style={{ paddingInlineEnd: 24, border: '1px dashed transparent', transition: 'border 0.3s ease' }}
-  //       onClick={toggleEdit}
-  //     >
-  //       {/* <Space>
-  //         {editable ? <EditOutlined style={{color:'gray'}}/> : <></>}
-  //         {children}
-  //       </Space> */}
-  //       {children}
-        
-  //     </div>
-  //     </Form.Item>
-  //   );
-  // }
-//   if (editable) {
-//   childNode = (
-//     <Form.Item
-//       style={{ margin: 0 }}
-//       name={formName}
-//       rules={[{ required: true, message: `${record?.text}不能为空` }]}
-//     >
-//       {editing ? (
-//         record?.text === '设计人' ? (
-//           <AutoComplete
-//             ref={selectRef}
-//             onBlur={save}
-//             options={options.map((option) => ({
-//               value: option.value,
-//               label: (
-//                 <div style={{ display: 'flex' }}>
-//                   <div style={{ textAlign: 'center', flex: '2 1 100px' }}>{option.name}</div>
-//                   <div
-//                     style={{
-//                       textAlign: 'center',
-//                       flex: '1 1 100px',
-//                       borderLeft: '1px solid #000',
-//                       borderRight: '1px solid #000',
-//                     }}
-//                   >
-//                     {department?.name}
-//                   </div>
-//                   <div style={{ textAlign: 'center', flex: '1 1 100px' }}>
-//                     {workLocations.find((wl) => wl.id === option.work_location_id)?.name}
-//                   </div>
-//                 </div>
-//               ),
-//             }))}
-//             onSelect={onSelect}
-//             onSearch={onSearch}
-//             allowClear={true}
-//           />
-//         ) : (
-//           <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-//         )
-//       ) : (
-//         <div
-//           className="editable-cell-value-wrap"
-//           onClick={toggleEdit}
-//         >
-//           {children}
-//         </div>
-//       )}
-//     </Form.Item>
-//   );
-// }
 
   return <td {...restProps}>{childNode}</td>;
 };

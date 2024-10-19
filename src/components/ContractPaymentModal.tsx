@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   Table,
@@ -53,7 +53,7 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
   );
   const notificationApi = useNotificationApi();
 
-  const fetchContractPayments = async () => {
+  const fetchContractPayments = useCallback(async () => {
     setLoading(true);
     try {
       const response =
@@ -71,9 +71,9 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectPayoutId]);
 
-  const fetchProjectAndProjectPayout = async () => {
+  const fetchProjectAndProjectPayout = useCallback(async () => {
     const projectPayoutResponse = await ProjectPayoutsService.readProjectPayout(
       { path: { id: projectPayoutId } }
     );
@@ -90,7 +90,7 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
       setProject(projectResponse.data);
       setProjectPayout(projectPayoutResponse.data);
     }
-  };
+  }, [projectPayoutId]);
 
   const fetchEmployeeNames = async (payments: ContractPaymentPublicOut[]) => {
     const employeeIds = [...new Set(payments.map((p) => p.processed_by_id))];
