@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import Logo from './../assets/Logo.png'
 import { Button, Input, Alert, message } from "antd";

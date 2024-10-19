@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "antd";
 import { UserPublic, UsersService, UserUpdate } from "../../client";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import { copyToClipboard } from "../../utils/copyToClipboard";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { CopyOutlined } from "@ant-design/icons";

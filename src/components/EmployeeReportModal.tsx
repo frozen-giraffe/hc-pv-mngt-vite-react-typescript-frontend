@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, Tabs, Radio, DatePicker, Space, Button, message } from 'antd';
+import { Modal, Tabs, Radio, DatePicker, Space, Button } from 'antd';
 import { ReportsService } from '../client';
 import { downloadReport } from "../utils/ReportFileDownload";
-
+import { useNotificationApi } from "../hooks/useNotificationApi";
+import { LoadingOutlined } from '@ant-design/icons';
 interface EmployeeReportModalProps {
   visible: boolean;
   onCancel: () => void;
@@ -19,30 +20,29 @@ const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
   const [activeTab, setActiveTab] = useState('1');
   const [payoutListType, setPayoutListType] = useState<'payment' | 'project'>('payment');
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [messageApi, contextHolder] = message.useMessage();
+  const notificationApi = useNotificationApi();
 
   const handleDownload = async () => {
     try {
       let response;
-      messageApi.open({
+      notificationApi.open({
         key: 'employee_report_loading',
-        type: 'loading',
-        content: '正在生成报告...',
+        message: '正在生成报告...',
+        icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
         duration: 2,
         onClose: () => {
-          messageApi.open({
+          notificationApi.open({
             key: 'employee_report_loading',
-            type: 'loading',
-            content: '正在生成报告...数据较多，请耐心等待，不要离开页面',
+            message: '正在生成报告...数据较多，请耐心等待，不要离开页面',
+            icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
             duration: 0,
           });
         },
       });
       if (!selectedYear) {
-        messageApi.open({
+        notificationApi.error({
         key: 'employee_report_loading',
-        type: 'error',
-        content: '未提供年度',
+        message: '未提供年度',
         duration: 2,
         });
         return;
@@ -68,26 +68,26 @@ const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
       }
 
       if (response?.data) {
-        messageApi.open({
+        notificationApi.success({
           key: 'employee_report_loading',
-          type: 'success',
-          content: '报告生成成功，正在下载...',
+          message: '报告生成成功',
+          description: '正在下载...',
           duration: 2,
         });
         downloadReport(response.data, response.response);
       } else {
-        messageApi.open({
+        notificationApi.error({
           key: 'employee_report_loading',
-          type: 'error',
-          content: '获取报告失败：' + response?.error?.detail,
+          message: '获取报告失败',
+          description: String(response?.error?.detail),
           duration: 20,
         });
       }
     } catch (error) {
-      messageApi.open({
+      notificationApi.open({
         key: 'employee_report_loading',
-        type: 'error',
-        content: '获取报告失败，未知错误：' + error,
+        message: '获取报告失败，未知错误',
+        description: String(error),
         duration: 10,
       });
     }
@@ -130,7 +130,6 @@ const EmployeeReportModal: React.FC<EmployeeReportModalProps> = ({
         </Button>,
       ]}
     >
-      {contextHolder}
       <Space direction="vertical">
         <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
           <DatePicker

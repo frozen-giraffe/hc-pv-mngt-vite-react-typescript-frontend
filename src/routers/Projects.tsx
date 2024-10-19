@@ -36,7 +36,7 @@ import {
   ProjectPayoutPublicOut,
 } from "../client";
 import { GetColumnNames } from "../helper";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { downloadReport } from "../utils/ReportFileDownload";
 import ProjectListDownloadModal from "../components/ProjectListDownloadModal";
 import ProjectReportModal from "../components/ProjectReportModal";

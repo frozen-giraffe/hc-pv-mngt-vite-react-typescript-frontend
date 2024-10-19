@@ -16,7 +16,7 @@ import {
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
 import Logo from '/favicon.png'
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 
 type MenuItem = Required<MenuProps>['items'][number] & {

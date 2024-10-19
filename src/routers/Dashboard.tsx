@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Col, Row, Statistic } from "antd";
 import CountUp from 'react-countup';
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();

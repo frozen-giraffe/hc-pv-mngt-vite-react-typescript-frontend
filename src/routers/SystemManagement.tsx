@@ -3,7 +3,7 @@ import { Tabs } from 'antd';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import UserManagement from './system-management-tabs/UserManagement.tsx';
 import PersonalInfo from './system-management-tabs/PersonalInfo.tsx';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const SystemManagement: React.FC = () => {
   const [searchParams] = useSearchParams();

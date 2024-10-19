@@ -9,14 +9,13 @@ import {
   Input,
   message,
   Modal,
-  notification,
   Select,
   Space,
   Table,
   Tooltip,
   Typography,
 } from "antd";
-import { PlusOutlined, FilePdfOutlined, LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 import {
   DepartmentPublicOut,
@@ -35,7 +34,7 @@ import {
   WorkLocationPublicOut,
   WorkLocationsService,
 } from "../client";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { ColumnsType } from "antd/es/table/interface";
 import { downloadReport } from "../utils/ReportFileDownload";
 import EmployeeReportModal from "../components/EmployeeReportModal";
@@ -45,6 +44,7 @@ import { GetColumnNames } from "../helper";
 import FilterDropdown from "../components/FilterDropdown";
 import dayjs from "dayjs";
 import { InfoCircleOutlined, FilterFilled, SortAscendingOutlined } from "@ant-design/icons";
+import { useNotificationApi } from '../hooks/useNotificationApi';
 
 type EmployeeQueryParams = NonNullable<
   Parameters<typeof EmployeeService.readEmployees>[0]
@@ -91,8 +91,6 @@ export const Employees: React.FC = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
     null
   );
-  const [messageApi, contextHolder] = message.useMessage();
-  const [notificationApi, notificationContextHolder] = notification.useNotification();
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(EMPLOYEE_PAGE_DEFAULT_PAGE_SIZE);
@@ -111,6 +109,8 @@ export const Employees: React.FC = () => {
 
   const [isAffixed, setIsAffixed] = useState(false);
   const affixContentRef = useRef<HTMLDivElement>(null);
+
+  const notificationApi = useNotificationApi();
 
   useEffect(() => {
     if (affixContentRef.current) {
@@ -587,7 +587,7 @@ export const Employees: React.FC = () => {
 
   const downloadEmployeeList = () => {
     try {
-      notificationApi.info({
+      notificationApi.open({
         message: "正在生成人员列表",
         description: "请稍候...",
         duration: 0,
@@ -601,7 +601,6 @@ export const Employees: React.FC = () => {
             message: "人员列表生成成功",
             description: "正在下载...",
             duration: 3,
-            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
             key: "downloadEmployeeList"
           });
           downloadReport(res.data, res.response);
@@ -609,8 +608,7 @@ export const Employees: React.FC = () => {
           notificationApi.error({
             message: "人员列表生成失败",
             description: res.error?.detail || "未知错误",
-            duration: 10,
-            icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+            duration: 0,
             key: "downloadEmployeeList"
           });
         }
@@ -619,8 +617,7 @@ export const Employees: React.FC = () => {
       notificationApi.error({
         message: "人员列表生成失败",
         description: `未知错误：${e}`,
-        duration: 10,
-        icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
+        duration: 0,
         key: "downloadEmployeeList"
       });
     }
@@ -692,8 +689,6 @@ export const Employees: React.FC = () => {
 
   return (
     <div>
-      {contextHolder}
-      {notificationContextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
         <h1>人员管理</h1>
         {user?.is_superuser && (

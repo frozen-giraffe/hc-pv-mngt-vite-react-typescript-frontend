@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, Tabs, Radio, DatePicker, Space, Button, message } from 'antd';
+import { Modal, Tabs, Radio, DatePicker, Space, Button } from 'antd';
 import { ReportsService } from '../client';
 import { downloadReport } from "../utils/ReportFileDownload";
+import { useNotificationApi } from "../hooks/useNotificationApi";
+import { LoadingOutlined } from '@ant-design/icons';
 
 interface ProjectReportModalProps {
   visible: boolean;
@@ -17,21 +19,23 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
   const [activeTab, setActiveTab] = useState('1');
   const [payoutListType, setPayoutListType] = useState<'payment' | 'project'>('payment');
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [messageApi, contextHolder] = message.useMessage();
+  const notificationApi = useNotificationApi();
 
   const handleDownload = async () => {
     try {
       let response;
-      messageApi.open({
+      notificationApi.open({
         key: 'project_report_loading',
-        type: 'loading',
-        content: '正在生成报告...',
+        message: '正在生成报告...',
+        description: '请稍候...',
+        icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
         duration: 7,
         onClose: () => {
-          messageApi.open({
+          notificationApi.open({
             key: 'project_report_loading',
-            type: 'loading',
-            content: '正在生成报告...数据较多，请耐心等待，不要离开页面',
+            message: '正在生成报告...',
+            description: '数据较多，请耐心等待',
+            icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
             duration: 0,
           });
         },
@@ -46,10 +50,9 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
         case '3':
           if (payoutListType === 'payment') {
             if (!selectedYear) {
-              messageApi.open({
+              notificationApi.error({
                 key: 'project_report_loading',
-                type: 'error',
-                content: '未提供回款年度',
+                message: '未提供回款年度',
                 duration: 2,
               });
               return;
@@ -66,27 +69,27 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
       }
 
       if (response?.data) {
-        messageApi.open({
+        notificationApi.success({
           key: 'project_report_loading',
-          type: 'success',
-          content: '报告生成成功，正在下载...',
+          message: '报告生成成功',
+          description: '正在下载...',
           duration: 2,
         });
         downloadReport(response.data, response.response);
       } else {
-        messageApi.open({
+        notificationApi.error({
           key: 'project_report_loading',
-          type: 'error',
-          content: '获取报告失败：' + response?.error?.detail,
-          duration: 10,
+          message: '获取报告失败',
+          description: String(response?.error?.detail),
+          duration: 0,
         });
       }
     } catch (error) {
-      messageApi.open({
+      notificationApi.error({
         key: 'project_report_loading',
-        type: 'error',
-        content: '获取报告失败，未知错误：' + error,
-        duration: 10,
+        message: '获取报告失败，未知错误',
+        description: String(error),
+        duration: 0,
       });
     }
     onCancel();
@@ -135,7 +138,6 @@ const ProjectReportModal: React.FC<ProjectReportModalProps> = ({
         </Button>,
       ]}
     >
-      {contextHolder}
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
     </Modal>
   );

@@ -25,7 +25,8 @@ import dayjs from "dayjs";
 import ContractPaymentEditModal from "./ContractPaymentEditModal";
 import { downloadReport } from "../utils/ReportFileDownload";
 import FloatNumberCellRender from "./FloatNumberCellRender";
-
+import { useNotificationApi } from "../hooks/useNotificationApi"; 
+import { LoadingOutlined } from '@ant-design/icons';
 interface ContractPaymentModalProps {
   visible: boolean;
   onCancel: () => void;
@@ -50,7 +51,7 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
   const [employeeNames, setEmployeeNames] = useState<{ [key: number]: string }>(
     {}
   );
-  const [messageApi, contextHolder] = message.useMessage();
+  const notificationApi = useNotificationApi();
 
   const fetchContractPayments = async () => {
     setLoading(true);
@@ -114,7 +115,7 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
       fetchContractPayments();
       fetchProjectAndProjectPayout();
     }
-  }, [visible, projectPayoutId]);
+  }, [visible, projectPayoutId, fetchContractPayments, fetchProjectAndProjectPayout]);
 
   const handleEdit = (payment: ContractPaymentPublicOut) => {
     setSelectedPayment(payment);
@@ -136,56 +137,66 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
   };
 
   const handleSinglePaymentReport = async (id: number) => {
-    messageApi.open({
+    notificationApi.open({
       key: "contract_payment_report_loading",
-      type: "loading",
-      content: "正在生成报告...",
+      icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
+      message: "正在生成报告...",
+      description: "请稍候...",
       duration: 0,
     });
-    const res = await ReportsService.getContractPaymentPayoutListReport({
-      query: { contract_payment_id: id },
-    });
-    if (res.error) {
-      messageApi.open({
+    try {
+      const res = await ReportsService.getContractPaymentPayoutListReport({
+        query: { contract_payment_id: id },
+      });
+      if (res.error) {
+        notificationApi.error({
+          key: "contract_payment_report_loading",
+          message: "报告生成失败",
+          description: String(res.error.detail),
+          duration: 10,
+        });
+        return;
+      }
+      notificationApi.success({
         key: "contract_payment_report_loading",
-        type: "error",
-        content: "报告生成失败: " + res.error.detail,
+        message: "报告生成成功",
+        description: "正在下载...",
+        duration: 2,
+      });
+      downloadReport(res.data, res.response);
+    } catch (error) {
+      notificationApi.error({
+        key: "contract_payment_report_loading",
+        message: "报告生成失败，未知错误",
+        description: String(error),
         duration: 10,
       });
-      return;
     }
-    messageApi.open({
-      key: "contract_payment_report_loading",
-      type: "success",
-      content: "报告生成成功，正在下载...",
-      duration: 2,
-    });
-    downloadReport(res.data, res.response);
   };
 
   const handleProjectContractPaymentListReport = async () => {
-    messageApi.open({
+    notificationApi.open({
       key: "contract_payment_report_loading",
-      type: "loading",
-      content: "正在生成项目回款列表报告...",
+      message: "正在生成项目回款列表报告...",
+      icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
       duration: 0,
     });
     const res = await ReportsService.getContractPaymentListReport({
       query: { project_id: project!.id },
     });
     if (res.error) {
-      messageApi.open({
+      notificationApi.error({
         key: "contract_payment_report_loading",
-        type: "error",
-        content: "报告生成失败: " + res.error.detail,
+        message: "报告生成失败",
+        description: String(res.error.detail),
         duration: 10,
       });
       return;
     }
-    messageApi.open({
+    notificationApi.success({
       key: "contract_payment_report_loading",
-      type: "success",
-      content: "报告生成成功，正在下载...",
+      message: "报告生成成功",
+      description: "正在下载...",
       duration: 2,
     });
     downloadReport(res.data, res.response);
@@ -270,7 +281,6 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
 
   return (
     <>
-      {contextHolder}
       <Modal
         title={`项目回款列表：${project?.name} `}
         open={visible}
