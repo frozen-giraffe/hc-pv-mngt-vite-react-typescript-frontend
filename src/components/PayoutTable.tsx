@@ -706,9 +706,11 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     // Set PM and PM Assistant names
     if (existing_project_payout.pm_id) {
       setPmName(employeeCache[existing_project_payout.pm_id]?.name || '');
+      setPmOptions(employeeCache[existing_project_payout.pm_id] ? [employeeCache[existing_project_payout.pm_id]] : [])
     }
     if (existing_project_payout.pm_assistant_id) {
-      setPmAssistantName(employeeCache[existing_project_payout.pm_assistant_id]?.name || '');
+      setPmName(employeeCache[existing_project_payout.pm_id]?.name || '');
+      setPmAssistantOptions(employeeCache[existing_project_payout.pm_assistant_id] ? [employeeCache[existing_project_payout.pm_assistant_id]] : [])
     }
 
     setSelectedProfileId(existing_project_payout.job_payout_ratio_profile_id)
@@ -1441,7 +1443,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                     <>
                       项目负责人产值
                       {Math.abs(inaccuracy) > 0.001 && (
-                        <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入项目负责人产值，如项目无项目负责人，请手动更改`}>
+                        <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入项目负责人产值，如项目无项目负责人，请手动修改`}>
                           <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
                         </Tooltip>
                       )}
