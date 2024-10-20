@@ -68,7 +68,7 @@ interface EditableCellProps {
 
 // Add this custom validator function
 const validateEmployee = (_, value, payoutValue) => {
-  if (Number(payoutValue) !== 0 && value === '') {
+  if (Number(payoutValue) !== 0 && (value === undefined || value === '')) {
     return Promise.reject(new Error('员工不能为空'));
   }
   return Promise.resolve();
@@ -323,8 +323,10 @@ export const PayoutTable: React.FC = () => {
   const [inaccuracy, setInaccuracy] = useState<number>(0)
   const [isSumValid, setIsSumValid] = useState<boolean>(false)
   const [totalSum, setTotalSum] = useState<number>(0)
-
-
+  const [pmOptions, setPmOptions] = useState<(EmployeePublicOut & {value: number, label: string})[]>([])
+  const [pmAssistantOptions, setPmAssistantOptions] = useState<(EmployeePublicOut & {value: number, label: string})[]>([])
+  const [pmName, setPmName] = useState<string>('');
+  const [pmAssistantName, setPmAssistantName] = useState<string>('');
   
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
   const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
@@ -1194,7 +1196,7 @@ export const PayoutTable: React.FC = () => {
     {
       title: "专业分类",
       dataIndex: "category",
-      width: 50,
+      width: 60,
       rowScope: 'row',
       editable: false,
       colSpan: 2,
@@ -1209,7 +1211,7 @@ export const PayoutTable: React.FC = () => {
     {
       title: "",//being colSpan to 专业分类
       dataIndex: "text",
-      width: 50,
+      width: 60,
       colSpan:0,
       editable: false,
     },
@@ -1440,6 +1442,89 @@ export const PayoutTable: React.FC = () => {
     fetchProjectData();
   }, []);
 
+  const onSelectPm = async (data: string) => {
+    const person = pmOptions.find((value) => value.id === parseInt(data));
+    if (person) {
+      setPmName(person.name);
+      const response = await EmployeeService.getEmployeeById({
+        path: { id: person.id }
+      })
+      if(response.data){
+        setPmOptions([{
+          ...response.data,
+          label: response.data.name,
+          value: response.data.id
+        }])
+      }
+      formPayout.setFieldValue('pm', person.id);
+    }
+  };
+
+  const onSearchPm = async (searchText: string) => {
+    if (searchText === "") {
+      setPmOptions([])
+      return
+    }
+    try {
+      const response = await EmployeeService.searchEmployee({
+        path: {
+          query: searchText
+        }
+      })
+      if (response.data) {
+        const formattedOptions = response.data.data.map((employee: EmployeePublicOut) => ({
+          ...employee,
+          label: employee.name,
+          value: employee.id
+        }));
+        setPmOptions(formattedOptions)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const onSelectPmAssistant = async (data: string) => {
+    const person = pmAssistantOptions.find((value) => value.id === parseInt(data));
+    if (person) {
+      setPmAssistantName(person.name);
+      const response = await EmployeeService.getEmployeeById({
+        path: { id: person.id }
+      })
+      if(response.data){
+        setPmAssistantOptions([{
+          ...response.data,
+          label: response.data.name,
+          value: response.data.id
+        }])
+      }
+      formPayout.setFieldValue('pmAssistant', person.id);
+    }
+  };
+
+  const onSearchPmAssistant = async (searchText: string) => {
+    if (searchText === "") {
+      setPmAssistantOptions([])
+      return
+    }
+    try {
+      const response = await EmployeeService.searchEmployee({
+        path: {
+          query: searchText
+        }
+      })
+      if (response.data) {
+        const formattedOptions = response.data.data.map((employee: EmployeePublicOut) => ({
+          ...employee,
+          label: employee.name,
+          value: employee.id
+        }));
+        setPmAssistantOptions(formattedOptions)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div>
@@ -1510,14 +1595,41 @@ export const PayoutTable: React.FC = () => {
             
               <Row gutter={16}>
                 <Col span={6}>
-                <Form.Item label="项目负责人" name="pm">
-                  <AutoComplete 
-                    options={PMOptions} 
-                    onSearch={onSearchPM} 
-                    onSelect={onSelectPM} 
-                    placeholder="模糊搜索员工"
-                  />
-                </Form.Item>
+                  <Form.Item label="项目负责人" name="pm"  rules={[
+                    ({ getFieldValue }) => ({
+                      validator: (_, value) => 
+                        validateEmployee(
+                          _, 
+                          value, 
+                          getFieldValue('pmPayout')
+                        )
+                      })
+                    ]}>
+                    <Select
+                      showSearch
+                      filterOption={false}
+                      value={pmName === '' ? undefined : pmName}
+                      options={pmOptions.map((option) => ({
+                        key: option.id,
+                        value: option.id,
+                        label: (
+                          <Space size={1} align="end">
+                            <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
+                            <Divider type="vertical" style={{width:'1px'}}/>
+                            <div style={{ textAlign:'center',flex:'1 1 100px'}}>{departments.find((dept) => dept.id === option.department_id)?.name}</div>
+                            <Divider type="vertical" style={{width:'1px'}}/>
+                            <div style={{ textAlign:'center',flex:'1 1 100px'}}>{workLocations.find((wl)=>wl.id===option.work_location_id)?.name}</div>
+                          </Space>
+                        )
+                      }))}
+                      onSelect={onSelectPm}
+                      onSearch={onSearchPm}
+                      notFoundContent={pmName === '' ? <div>输入员工姓名或拼音来开始搜索</div> : <div>没有员工满足搜索条件</div>}
+                      allowClear={true}
+                      popupMatchSelectWidth={false}
+                      placeholder={`模糊搜索员工`}
+                    />
+                  </Form.Item>
                 </Col>
                 <Col span={6}>
                 <Form.Item 
@@ -1536,9 +1648,40 @@ export const PayoutTable: React.FC = () => {
                 </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="项目负责人助理" name='pmAssistant'>
-                    
-                    <AutoComplete options={PMOptions} onSearch={onSearchPM}/>
+                  <Form.Item label="项目负责人助理" name='pmAssistant'  rules={[
+                    ({ getFieldValue }) => ({
+                      validator: (_, value) => 
+                        validateEmployee(
+                          _, 
+                          value, 
+                          getFieldValue('pmAssistantPayout')
+                        )
+                      })
+                    ]}>
+                    <Select
+                      showSearch
+                      filterOption={false}
+                      value={pmAssistantName === '' ? undefined : pmAssistantName}
+                      options={pmAssistantOptions.map((option) => ({
+                        key: option.id,
+                        value: option.id,
+                        label: (
+                          <Space size={1} align="end">
+                            <div style={{ textAlign:'center', flex:'2 1 100px'}}>{option.name}</div>
+                            <Divider type="vertical" style={{width:'1px'}}/>
+                            <div style={{ textAlign:'center',flex:'1 1 100px'}}>{departments.find((dept) => dept.id === option.department_id)?.name}</div>
+                            <Divider type="vertical" style={{width:'1px'}}/>
+                            <div style={{ textAlign:'center',flex:'1 1 100px'}}>{workLocations.find((wl)=>wl.id===option.work_location_id)?.name}</div>
+                          </Space>
+                        )
+                      }))}
+                      onSelect={onSelectPmAssistant}
+                      onSearch={onSearchPmAssistant}
+                      notFoundContent={pmAssistantName === '' ? <div>输入员工姓名或拼音来开始搜索</div> : <div>没有员工满足搜索条件</div>}
+                      allowClear={true}
+                      popupMatchSelectWidth={false}
+                      placeholder={`模糊搜索员工`}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
@@ -1570,6 +1713,7 @@ export const PayoutTable: React.FC = () => {
                   dataSource={dataSource}
                   columns={columns as ColumnTypes}
                   pagination={false}
+                  size="small"
                 />
               </EditableContext.Provider>
               
