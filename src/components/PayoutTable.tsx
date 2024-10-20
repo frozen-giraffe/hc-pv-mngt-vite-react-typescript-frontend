@@ -1537,7 +1537,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                 </Text>
                 {!isSumValid && (
                   <Text type="danger" style={{ marginLeft: '10px' }}>
-                    总计与下发产值不符
+                    与下发产值不符
                   </Text>
                 )}
               </div>
