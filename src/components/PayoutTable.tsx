@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
 import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Typography } from "antd";
+import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, ProjectsService, WorkLocationPublicOut, WorkLocationsService } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
+import { InfoCircleOutlined } from '@ant-design/icons';
 import './PayoutTable.css'
 //import type { FormInstance } from 'antd/es/form';
 type FormInstance<T> = GetRef<typeof Form<T>>;
@@ -136,13 +137,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 
   const save = async () => {
     try {
-      const values = await form.validateFields();
-      let internalValue = {}
-      Object.keys(values).forEach((key) => {
-        if (typeof values[key] === 'object') {
-          internalValue = {...values[key]}
-        }
-      });
+      // Validate only the current field
+      await form.validateFields([[record?.category + record?.text, dataIndex]]);
+      
+      const values = form.getFieldsValue();
+      let internalValue = {};
+      
+      // Extract the value for the current cell
+      if (values[record?.category + record?.text]) {
+        internalValue = { [dataIndex]: values[record?.category + record?.text][dataIndex] };
+      }
       
       // If this is a 设计人 cell, store the employee object
       if (record.text === '设计人') {
@@ -154,9 +158,19 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       
       handleSave({ ...record, ...internalValue });
       toggleEdit();
-    } catch(e) {
-      console.log('存错误');
-      console.log(e);
+    } catch (error) {
+      // If there's an error, check if it's for the current field
+      if (error instanceof Error) {
+        const errorFields = (error as any).errorFields;
+        if (!errorFields || !errorFields.some((field: any) => 
+          field.name[0] === record?.category + record?.text && 
+          field.name[1] === dataIndex
+        )) {
+          // If the error is not for the current field, still allow toggling edit mode
+          toggleEdit();
+        }
+      }
+      console.log('存错误:', error);
     }
   };
   
@@ -242,6 +256,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
             }))}
             onSelect={onSelect}
             onSearch={onSearch}
+            notFoundContent={employeeName === '' ? <div>输入员工姓名或拼音来开始搜索</div> : <div>没有员工满足搜索条件</div>}
             allowClear={true}
             popupMatchSelectWidth={false}
             placeholder={`模糊搜索员工`}
@@ -271,7 +286,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-
+const { Text } = Typography;
 
 export const PayoutTable: React.FC = () => {
   
@@ -289,6 +304,9 @@ export const PayoutTable: React.FC = () => {
   const [togglePayoutTable, setTogglePayoutTable] = useState(false)
   const [loading, setLoading] = useState<boolean>(true);
   const [employees, setEmployees] = useState<{ [key: string]: EmployeePublicOut }>({});
+  const [inaccuracy, setInaccuracy] = useState<number>(0)
+  const [isSumValid, setIsSumValid] = useState<boolean>(false)
+  const [totalSum, setTotalSum] = useState<number>(0)
 
 
   
@@ -477,8 +495,8 @@ export const PayoutTable: React.FC = () => {
       message.error("未找到所选配置文件");
     }
   };
-  const onSelectDesignChief=(value:string,option:any)=>{
-    setDesignChiefOptions([])
+  const onSelectDesignChief=(value:number,option:any)=>{
+    formPayout.setFieldValue('designChief', value)
     
   }
   const onSearchDesignChief=async(searchText:string)=>{
@@ -499,7 +517,7 @@ export const PayoutTable: React.FC = () => {
       const formattedOptions = repsonse.data.data.map((employee: EmployeePublicOut) => ({
         ...employee,                // Spread the existing EmployeePublicOut fields
         label: employee.name,       // Label is set to employee's name
-        value: employee.name, // Value is set to employee's id as a string
+        value: employee.id, // Value is set to employee's id as a string
         key: employee.id,
       }));
       setDesignChiefOptions(formattedOptions)
@@ -678,8 +696,9 @@ export const PayoutTable: React.FC = () => {
     Number(HVACPM)+Number(HVACAssistant)+Number(HVACDesigner)+Number(HVACDrafter)+Number(HVACPostService)+Number(HVACProofreader)+Number(HVACReviewer)+Number(HVACApprover)+
     Number(lowVoltagePM)+Number(lowVoltageAssistant)+Number(lowVoltageDesigner)+Number(lowVoltageDrafter)+Number(lowVoltagePostService)+Number(lowVoltageProofreader)+Number(lowVoltageReviewer)+Number(lowVoltageApprover)))
     
-    console.log("不准确度: "+inaccuracy);
+    console.log("四舍五入后不准确度: "+inaccuracy);
     pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
+    setInaccuracy(inaccuracy)
 
     const fields={
       designChief:'',
@@ -1106,6 +1125,23 @@ export const PayoutTable: React.FC = () => {
     setDataSource(newData);
   };
 
+  // Modify the calculateRowSum function to accept a category
+  const calculateRowSum = (category: string, formValues: any) => {
+    const rowData = formValues[`${category}产值`] || {};
+    const values = [
+      rowData.pm,
+      rowData.pm_assistant,
+      rowData.designer,
+      rowData.drafter,
+      rowData.post_service,
+      rowData.proofreader,
+      rowData.reviewer,
+      rowData.approver
+    ];
+    return values.reduce((sum, value) => sum + (Number(value) || 0), 0).toFixed(2);
+  };
+
+  // Modify the defaultColumns array
   const defaultColumns = [
     {
       title: "专业分类",
@@ -1187,24 +1223,28 @@ export const PayoutTable: React.FC = () => {
     },
     {
       title: "小计",
-      dataIndex: "address",
+      dataIndex: "subtotal",
       width: 100,
-      onCell: (record: any, index: number) => {
+      render: (_, record, index) => {
+        if (record.text === '产值') {
+          const formValues = formPayout.getFieldsValue();
+          return calculateRowSum(record.category, formValues);
+        }
+        return null;
+      },
+      onCell: (record: DataType, index: number) => {
         const cellProps = {} as any;
-        // 每两行合并一次
-        if (index % 2 === 0) {
-          cellProps.rowSpan = 2; // 合并两行
+        if (index % 2 === 1) { // Display on '产值' rows
+          cellProps.rowSpan = 1;
         } else {
-          cellProps.rowSpan = 0; // 隐藏第二行
+          cellProps.rowSpan = 0;
         }
         return cellProps;
       },
     },
   ];
 
-  const handleSave = (row: any) => {
-    console.log(row,'ooooooooooooo');
-    
+  const handleSave = (row: DataType) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
@@ -1212,9 +1252,12 @@ export const PayoutTable: React.FC = () => {
       ...item,
       ...row,
     });
-    console.log(newData);
-    
     setDataSource(newData);
+
+    // Update form values
+    const formValues = formPayout.getFieldsValue();
+    formValues[`${row.category}${row.text}`] = row;
+    formPayout.setFieldsValue(formValues);
   };
 
   const components = {
@@ -1277,6 +1320,21 @@ export const PayoutTable: React.FC = () => {
     };
   });
 
+  const [calculatedEmployeePayout, setCalculatedEmployeePayout] = useState<number>(0);
+
+  // Add this function to calculate the total sum
+  const calculateTotalSum = (formValues: any): number => {
+    const departmentSums = ['建筑', '结构', '给排水', '暖通', '强电', '弱电'].reduce((sum, category) => {
+      return sum + Number(calculateRowSum(category, formValues));
+    }, 0);
+
+    const designChiefPayout = Number(formValues.designChiefPayout) || 0;
+    const designAssistantPayout = Number(formValues.designAssistantPayout) || 0;
+
+    return departmentSums + designChiefPayout + designAssistantPayout;
+  };
+
+  // Modify the handleFormValuesChange function
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
     const newDataSource = [...dataSource];
   
@@ -1287,19 +1345,10 @@ export const PayoutTable: React.FC = () => {
         const index = newDataSource.findIndex(item => item.category === category && item.text === text);
         
         if (index !== -1) {
-          if (text === '设计人') {
-            newDataSource[index] = {
-              ...newDataSource[index],
-              ...Object.fromEntries(
-                Object.entries(value).map(([k, v]) => [k, typeof v === 'string' ? parseInt(v, 10) : v])
-              )
-            };
-          } else {
-            newDataSource[index] = {
-              ...newDataSource[index],
-              ...value as DataType,
-            };
-          }
+          newDataSource[index] = {
+            ...newDataSource[index],
+            ...value,
+          };
         }
       }
     });
@@ -1316,7 +1365,32 @@ export const PayoutTable: React.FC = () => {
     }
   
     setDataSource(newDataSource);
+
+    // Calculate and update the total sum
+    const totalSum = calculateTotalSum(allValues);
+    setTotalSum(totalSum);
+
+    // Check if the total sum matches the calculated employee payout
+    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.01);
   };
+
+  // Add this effect to update the calculated employee payout when the project data is fetched
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const response = await ProjectsService.readProject({
+          path: { id: 1812 } // Replace with the actual project ID
+        });
+        if (response.data) {
+          setCalculatedEmployeePayout(response.data.calculated_employee_payout);
+        }
+      } catch (error) {
+        console.error("Error fetching project data:", error);
+      }
+    };
+
+    fetchProjectData();
+  }, []);
 
 
   return (
@@ -1389,11 +1463,27 @@ export const PayoutTable: React.FC = () => {
               <Row gutter={16}>
                 <Col span={6}>
                 <Form.Item label="设计总负责人" name="designChief">
-                  <AutoComplete options={designChiefOptions} onSearch={onSearchDesignChief} onSelect={onSelectDesignChief} placeholder="input here"/>
+                  <AutoComplete 
+                    options={designChiefOptions} 
+                    onSearch={onSearchDesignChief} 
+                    onSelect={onSelectDesignChief} 
+                    placeholder="模糊搜索员工"
+                  />
                 </Form.Item>
                 </Col>
                 <Col span={6}>
-                <Form.Item label="设计总负责产值" name='designChiefPayout'>
+                <Form.Item 
+                  label={
+                    <>
+                      设计总负责人产值
+                      {Math.abs(inaccuracy) > 0.01 && (
+                        <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入设计总负责人产值，如项目无设计总负责人，请手动更改`}>
+                          <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
+                        </Tooltip>
+                      )}
+                    </>
+                  } 
+                  name='designChiefPayout'>
                   <Input></Input>
                 </Form.Item>
                 </Col>
@@ -1434,11 +1524,34 @@ export const PayoutTable: React.FC = () => {
                   pagination={false}
                 />
               </EditableContext.Provider>
+              
+              {/* Add the 总计 field */}
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <Text strong style={{ marginRight: '10px' }}>总计:</Text>
+                <Text 
+                  strong 
+                  style={{ 
+                    fontSize: '18px', 
+                    color: isSumValid ? 'inherit' : 'red' 
+                  }}
+                >
+                  {calculateTotalSum(formPayout.getFieldsValue()).toFixed(2)}
+                </Text>
+                {!isSumValid && (
+                  <Text type="danger" style={{ marginLeft: '10px' }}>
+                    总计与下发产值不符
+                  </Text>
+                )}
+              </div>
+
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  disabled={!isSumValid}
+                >
                   提交产值表
                 </Button>
-                
               </Form.Item>
               
             </Space>

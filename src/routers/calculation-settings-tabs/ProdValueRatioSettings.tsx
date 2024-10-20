@@ -141,7 +141,7 @@ const ProdValueRatioSettings: React.FC = () => {
       await ProdValueCalcRatiosService.createProdValueCalcRatio({
         body: {
           ...values,
-          ratio: values.ratio,
+          ratio: (values.ratio / 100).toFixed(2),
         },
       });
       message.success("添加成功");
@@ -155,15 +155,17 @@ const ProdValueRatioSettings: React.FC = () => {
   };
 
   const handleDelete = async (record: ProdValueCalcRatioPublicOut) => {
-    const res = await ProdValueCalcRatiosService.deleteProdValueCalcRatio({
-      id: record.id,
+    const {error} = await ProdValueCalcRatiosService.deleteProdValueCalcRatio({
+      path: {
+        id: record.id,
+      },
     });
-      if (error) {
-        message.error("删除失败: " + error.message);
-      } else {
-        message.success("删除成功");
-        fetchRatios();
-      }
+    if (error) {
+      message.error("删除失败: " + error.detail);
+    } else {
+      message.success("删除成功");
+      fetchRatios();
+    }
   };
 
   const columns = [

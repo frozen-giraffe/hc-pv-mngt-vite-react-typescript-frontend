@@ -67,6 +67,7 @@ import {
 } from "../client";
 import MySelectComponent from "../components/Dropdown";
 import { PayoutTable } from "../components/PayoutTable";
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 const { Text, Link } = Typography;
 
@@ -545,7 +546,11 @@ const errorMessage = (msg:string) => {
                     </Col>
                     <Col>
                       <Segmented
-                        options={prodValCalcRatios.map((value) => `${value.ratio}`)}
+                        options={prodValCalcRatios.sort((a)=>a.default?-1:1).map((value) => ({
+                          label: `${(value.ratio*100).toFixed(2)}%`,
+                          value: `${value.ratio}`,
+                          icon: <Tooltip title={(value.default? "(默认) ": "")+ value.name }><InfoCircleOutlined/></Tooltip>
+                        }))}
                         value={segmentedValue}
                         onChange={handleSegmentedChange}
                       />
