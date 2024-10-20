@@ -64,6 +64,7 @@ import {
   JobPayoutRatioProfilesService,
   WorkLocationPublicOut,
   WorkLocationsService,
+  ProjectPayoutPublicOut,
 } from "../client";
 import MySelectComponent from "../components/Dropdown";
 import { PayoutTable } from "../components/PayoutTable";
@@ -106,7 +107,7 @@ const DecimalInput: React.FC<any> = ({
 
 export const ProjectDetail = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState<ProjectPublicOut>();
+  const [project, setProject] = useState<ProjectPublicOut>();
   const [loading, setLoading] = useState<boolean>(true);
   const [silderValue, setSilderValue] = useState(1);
   
@@ -142,7 +143,8 @@ export const ProjectDetail = () => {
   const [pageTitle, setPageTitle] = useState("新建项目");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  
+  const [projectPayout, setProjectPayout] = useState<ProjectPayoutPublicOut | null>(null);
+
   
   useEffect(() => {
     fetchData();
@@ -200,14 +202,14 @@ export const ProjectDetail = () => {
       setLoading(false);
     }
     if (searchParams.get('id')){
-      fetchProjectDetail();
+      await fetchProjectDetail();
     }
   };
 
   const fetchProjectDetail = async () => {
     const res = await ProjectsService.readProject({path: {id: Number(searchParams.get('id'))}})
     if (res.data){
-      setData(res.data)
+      setProject(res.data)
       setPageTitle("项目信息: "+res.data.name)
       form.setFieldsValue({
         projectName: res.data.name,
@@ -225,6 +227,7 @@ export const ProjectDetail = () => {
         projectContractValue: res.data.project_contract_value,
         projectRateAdjustmentClass: res.data.project_rate_adjustment_class_id, 
       })
+      setProjectPayout(res.data.project_payout || null)
       console.log(res.data.project_rate_adjustment_class_id)
     }
   } 
@@ -684,7 +687,7 @@ const errorMessage = (msg:string) => {
       {/* 下发产值表 */}
       <Divider/>
       <h2 style={{ marginTop: 0 }}>下发产值表</h2>
-      <PayoutTable></PayoutTable>
+      <PayoutTable project={project} project_payout={projectPayout}></PayoutTable>
       <Divider />
 
       {/* 操作按钮 */}
