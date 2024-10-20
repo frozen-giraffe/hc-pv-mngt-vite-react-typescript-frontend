@@ -65,6 +65,14 @@ interface EditableCellProps {
   handleSave: (record: Item) => void;
 }
 
+// Add this custom validator function
+const validateEmployee = (_, value, payoutValue) => {
+  if (Number(payoutValue) !== 0 && !value) {
+    return Promise.reject(new Error('员工不能为空'));
+  }
+  return Promise.resolve();
+};
+
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   title,
   editable,
@@ -159,17 +167,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       handleSave({ ...record, ...internalValue });
       toggleEdit();
     } catch (error) {
-      // If there's an error, check if it's for the current field
-      if (error instanceof Error) {
-        const errorFields = (error as any).errorFields;
-        if (!errorFields || !errorFields.some((field: any) => 
-          field.name[0] === record?.category + record?.text && 
-          field.name[1] === dataIndex
-        )) {
-          // If the error is not for the current field, still allow toggling edit mode
-          toggleEdit();
-        }
-      }
+      // If there's an error, don't toggle edit mode
       console.log('存错误:', error);
     }
   };
@@ -232,7 +230,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       <Form.Item
         style={{ margin: 0 }}
         name={formName}
-        rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        rules={[
+          ({ getFieldValue }) => ({
+            validator: (_, value) => 
+              validateEmployee(
+                _, 
+                value, 
+                getFieldValue([record?.category + '产值', dataIndex])
+              )
+          })
+        ]}
       >
         {record?.text === '设计人' ? 
           <Select
@@ -269,7 +276,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       <Form.Item
         style={{ margin: 0 }}
         name={formName}
-        rules={[{ required: true, message: `${record?.text}不能为空` }]}
+        rules={[
+          ({ getFieldValue }) => ({
+            validator: (_, value) => 
+              validateEmployee(
+                _, 
+                value, 
+                getFieldValue([record?.category + '产值', dataIndex])
+              )
+          })
+        ]}
       >
         <div
           className="editable-cell-value-wrap"
@@ -526,19 +542,15 @@ export const PayoutTable: React.FC = () => {
       
     }
   }
-  const handlePayoutFinish = async(fieldsValue: any)=>{
+  const handlePayoutFinish = async () => {
     try {
-      
       const values = await formPayout.validateFields();
-      console.log("表单提交时的值:", fieldsValue);
-    console.log("表单提交时的值:", values);
+      console.log("表单提交时的值:", values);
+      // Here you can proceed with submitting the form data
     } catch (error) {
-      console.log('表单提交错误');
-      
+      console.log('表单验证错误:', error);
     }
-    
-
-  }
+  };
   function calculatePayout(departmentValue: number, ratios: any) {
     return {
       pm: (departmentValue * ratios.pm_ratio / 100).toFixed(2),
@@ -1547,8 +1559,7 @@ export const PayoutTable: React.FC = () => {
               <Form.Item>
                 <Button 
                   type="primary" 
-                  htmlType="submit" 
-                  disabled={!isSumValid}
+                  htmlType="submit"
                 >
                   提交产值表
                 </Button>
