@@ -318,7 +318,7 @@ export const PayoutTable: React.FC = () => {
   const [designChiefOptions,setDesignChiefOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [designAssistantOptions,setdesignAssistantOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
-  const [togglePayoutTable, setTogglePayoutTable] = useState(true)
+  const [togglePayoutTable, setTogglePayoutTable] = useState(false)
   const [loading, setLoading] = useState<boolean>(true);
   const [employees, setEmployees] = useState<{ [key: string]: EmployeePublicOut }>({});
   const [inaccuracy, setInaccuracy] = useState<number>(0)
@@ -329,127 +329,165 @@ export const PayoutTable: React.FC = () => {
   
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
   const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
-  const [dataSource, setDataSource] = useState<DataType[]>([])
-  // const [dataSource, setDataSource] = useState<DataType[]>([
-  //   {
-  //     key: "0",
-  //     age: "32",
-  //     category:'建筑',
-  //     text:'设计人',
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-      
-  //   },
-  //   {
-  //     key: "1",
-  //     text:'产值',
-  //     category:'建筑',
-  //     age: "32",
-  //     pm: "123",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "2",
-  //     text:'设计人',
-  //     category:'结构',
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "3",
-  //     text:'产值',
-  //     category:'结构',
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "4",
-  //     text:'设计人',
-  //     category:'给排水',
+  const [dataSource, setDataSource] = useState<DataType[]>([
+    {
+      key:'1',
+      category: '建筑',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'2',
+      category: '建筑',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'3',
+      category: '结构',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'4',
+      category: '结构',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'5',
+      category: '给排水',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'6',
+      category: '给排水',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'7',
+      category: '暖通',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'8',
+      category: '暖通',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'9',
+      category: '强电',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'10',
+      category: '强电',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'11',
+      category: '弱电',
+      text: '设计人',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+    {
+      key:'12',
+      category: '弱电',
+      text: '产值',
+      pm: '',
+      pm_assistant: '',
+      designer: '',
+      drafter: '',
+      post_service: '',
+      proofreader: '',
+      reviewer: '',
+      approver: '',
+    },
+  ])
 
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "5",
-  //     text:'产值',
-  //     category:'给排水',
-
-  //     age: "32",
-  //     pm: "",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "6",
-  //     text:'设计人',
-  //     category:'暖通',
-
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "7",
-  //     text:'产值',
-  //     category:'暖通',
-
-  //     age: "32",
-  //     pm: "",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "8",
-  //     text:'设计人',
-  //     category:'强电',
-
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "9",
-  //     text:'产值',
-  //     category:'强电',
-
-  //     age: "32",
-  //     pm: "",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "10",
-  //     text:'设计人',
-  //     category:'弱电',
-
-  //     age: "32",
-  //     pm: "韩乐",
-  //     pm_assistant: 'you',
-  //   },
-  //   {
-  //     key: "11",
-  //     text:'产值',
-  //     category:'弱电',
-
-  //     age: "32",
-  //     pm: "",
-  //     pm_assistant: 'you',
-  //   },
-  // ]);
-
-  useEffect(() => {
-    
-    // formPayout.setFieldsValue({
-    //   archPM: dataSource[1].pm,//index 1 is arch's 产值
-    //   archAssistant:dataSource[1].pm_assistant,
-    //   structPM: dataSource[3].pm,
-    //   structAssistant: dataSource[3].pm_assistant,
-
-    // })
-    console.log(formPayout.getFieldsValue(),'useEffect');
-    
-  }, [formPayout, dataSource]);
   useEffect(()=>{
     fetchData()
     fetchProfiles()
@@ -718,7 +756,7 @@ export const PayoutTable: React.FC = () => {
       designChiefPayout: pm,
       designAssistant:'',
       designAssistantPayout: pmAssistant,
-      建筑设计人:{
+      '建筑设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -728,7 +766,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      建筑产值:{
+      '建筑产值':{
         pm: archPM,
         pm_assistant: archAssistant,
         designer:archDesigner,
@@ -738,7 +776,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:archReviewer,
         approver:archApprover,
       },
-      结构设计人:{
+      '结构设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -748,7 +786,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      结构产值:{
+      '结构产值':{
         pm: structPM,
         pm_assistant: structAssistant,
         designer:structDesigner,
@@ -758,7 +796,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:structReviewer,
         approver:structApprover,
       },
-      给排水设计人:{
+      '给排水设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -768,7 +806,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      给排水产值:{
+      '给排水产值':{
         pm: plumbingPM,
         pm_assistant:plumbingAssistant,
         designer:plumbingDesigner,
@@ -778,7 +816,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:plumbingReviewer,
         approver:plumbingApprover,
       },
-      暖通设计人:{
+      '暖通设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -788,7 +826,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      暖通产值:{
+      '暖通产值':{
         pm:HVACPM,
         pm_assistant:HVACAssistant,
         designer:HVACDesigner,
@@ -798,7 +836,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:HVACReviewer,
         approver:HVACApprover,
       },
-      强电设计人:{
+      '强电设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -808,7 +846,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      强电产值:{
+      '强电产值':{
         pm:electricPM,
         pm_assistant:electricAssistant,
         designer:electricDesigner,
@@ -818,7 +856,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:electricReviewer,
         approver:electricApprover,
       },
-      弱电设计人:{
+      '弱电设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -828,7 +866,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      弱电产值:{
+      '弱电产值':{
         pm:lowVoltagePM,
         pm_assistant:lowVoltageAssistant,
         designer:lowVoltageDesigner,
@@ -841,7 +879,7 @@ export const PayoutTable: React.FC = () => {
       
     }
     setTableInit(fields)
-    await setDataSource([
+    setDataSource([
       {
         key:'1',
         category: '建筑',
@@ -999,13 +1037,12 @@ export const PayoutTable: React.FC = () => {
         approver: lowVoltageApprover,
       },
     ])
-
-    formPayout.setFieldsValue({
+    const fieldsValue = {
       designChief:'',
       designChiefPayout: pm,
       designAssistant:'',
       designAssistantPayout: pmAssistant,
-      建筑设计人:{
+      '建筑设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1015,7 +1052,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      建筑产值:{
+      '建筑产值':{
         pm: archPM,
         pm_assistant: archAssistant,
         designer:archDesigner,
@@ -1025,7 +1062,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:archReviewer,
         approver:archApprover,
       },
-      结构设计人:{
+      '结构设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1035,7 +1072,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      结构产值:{
+      '结构产值':{
         pm: structPM,
         pm_assistant: structAssistant,
         designer:structDesigner,
@@ -1045,7 +1082,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:structReviewer,
         approver:structApprover,
       },
-      给排水设计人:{
+      '给排水设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1055,7 +1092,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      给排水产值:{
+      '给排水产值':{
         pm: plumbingPM,
         pm_assistant:plumbingAssistant,
         designer:plumbingDesigner,
@@ -1065,7 +1102,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:plumbingReviewer,
         approver:plumbingApprover,
       },
-      暖通设计人:{
+      '暖通设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1075,7 +1112,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      暖通产值:{
+      '暖通产值':{
         pm:HVACPM,
         pm_assistant:HVACAssistant,
         designer:HVACDesigner,
@@ -1085,7 +1122,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:HVACReviewer,
         approver:HVACApprover,
       },
-      强电设计人:{
+      '强电设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1095,7 +1132,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      强电产值:{
+      '强电产值':{
         pm:electricPM,
         pm_assistant:electricAssistant,
         designer:electricDesigner,
@@ -1105,7 +1142,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:electricReviewer,
         approver:electricApprover,
       },
-      弱电设计人:{
+      '弱电设计人':{
         pm: '',
         pm_assistant: '',
         designer:'',
@@ -1115,7 +1152,7 @@ export const PayoutTable: React.FC = () => {
         reviewer:'',
         approver:'',
       },
-      弱电产值:{
+      '弱电产值':{
         pm:lowVoltagePM,
         pm_assistant:lowVoltageAssistant,
         designer:lowVoltageDesigner,
@@ -1125,9 +1162,10 @@ export const PayoutTable: React.FC = () => {
         reviewer:lowVoltageReviewer,
         approver:lowVoltageApprover,
       }
+    }
+    formPayout.setFieldsValue(fieldsValue)
+    handleFormValuesChange(fieldsValue,fieldsValue)
       
-    })
-    
   }
   
 
