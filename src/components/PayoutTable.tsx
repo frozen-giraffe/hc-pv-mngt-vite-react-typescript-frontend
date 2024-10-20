@@ -6,6 +6,7 @@ import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService,
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import { InfoCircleOutlined } from '@ant-design/icons';
 import './PayoutTable.css'
+import PayoutInput from "./PayoutInput";
 //import type { FormInstance } from 'antd/es/form';
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -67,7 +68,7 @@ interface EditableCellProps {
 
 // Add this custom validator function
 const validateEmployee = (_, value, payoutValue) => {
-  if (Number(payoutValue) !== 0 && !value) {
+  if (Number(payoutValue) !== 0 && value === '') {
     return Promise.reject(new Error('员工不能为空'));
   }
   return Promise.resolve();
@@ -269,7 +270,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
             placeholder={`模糊搜索员工`}
           />
         :
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        <PayoutInput ref={inputRef} onPressEnter={save} onBlur={save} />
         }
       </Form.Item>
     ) : (
@@ -317,7 +318,7 @@ export const PayoutTable: React.FC = () => {
   const [designChiefOptions,setDesignChiefOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [designAssistantOptions,setdesignAssistantOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
-  const [togglePayoutTable, setTogglePayoutTable] = useState(false)
+  const [togglePayoutTable, setTogglePayoutTable] = useState(true)
   const [loading, setLoading] = useState<boolean>(true);
   const [employees, setEmployees] = useState<{ [key: string]: EmployeePublicOut }>({});
   const [inaccuracy, setInaccuracy] = useState<number>(0)
@@ -840,7 +841,7 @@ export const PayoutTable: React.FC = () => {
       
     }
     setTableInit(fields)
-    setDataSource([
+    await setDataSource([
       {
         key:'1',
         category: '建筑',
@@ -1383,7 +1384,7 @@ export const PayoutTable: React.FC = () => {
     setTotalSum(totalSum);
 
     // Check if the total sum matches the calculated employee payout
-    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.01);
+    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.001);
   };
 
   // Add this effect to update the calculated employee payout when the project data is fetched
