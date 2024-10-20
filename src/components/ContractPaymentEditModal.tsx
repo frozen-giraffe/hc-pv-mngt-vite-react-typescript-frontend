@@ -22,6 +22,8 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
   const [form] = Form.useForm();
   const [employees, setEmployees] = useState<{ id: number; name: string }[]>([]);
   const [formIsValid, setFormIsValid] = useState(false);
+  const [isCurrentYear, setIsCurrentYear] = useState(false);
+  const [isConfirmNotCurrentYearModalVisible, setIsConfirmNotCurrentYearModalVisible] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -61,15 +63,16 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
     [handleSearch]
   );
 
-  const handleOk = async () => {
+  const handleUpdateOrCreate = async () => {
     try {
       const values = await form.validateFields();
       const paymentData = {
         ...values,
         payment_date: values.payment_date.format('YYYY-MM-DD'),
-        processed_by_id: values.processed_by_id.value,
         project_payout_id: projectPayoutId,
       };
+      console.log('submit data');
+      console.log(paymentData);
 
       if (payment) {
         await ContractPaymentsService.updateContractPayment({
@@ -77,20 +80,48 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
           body: paymentData,
         });
       } else {
-        await ContractPaymentsService.createContractPayment({
+        const res = await ContractPaymentsService.createContractPayment({
           body: paymentData,
         });
-        message.success('项目回款创建成功');
+        if (res.error) {
+          message.error('项目回款创建失败：' + res.error.detail);
+          console.log(res.error);
+          console.log(paymentData);
+          return;
+        } else {
+          message.success('项目回款创建成功');
+        }
       }
       onCancel();
+      setEmployees([]);
     } catch (error) {
       console.error('Error saving contract payment:', error);
       message.error('项目回款保存失败：' + error);
     }
   };
 
-  const onFormValuesChange = () => {
-    form.validateFields().then(() => setFormIsValid(true)).catch(() => setFormIsValid(false));
+  const onFormValuesChange = useCallback(() => {
+    // Use a timeout to allow the form to update its internal state
+    console.log(form.getFieldsValue());
+    setTimeout(() => {
+      form.validateFields({ validateOnly: true })
+        .then(() => {
+          setFormIsValid(true);
+          console.log('form is valid');
+        })
+        .catch((errors) => {
+          setFormIsValid(false);
+          console.log('form is invalid', errors);
+        });
+    }, 0);
+  }, [form]);
+
+  const handleOk = () => {
+    if (!isCurrentYear) {
+      setIsConfirmNotCurrentYearModalVisible(true);
+    } else {
+      handleUpdateOrCreate();
+    }
   };
 
   return (
@@ -108,14 +139,14 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
             label="回款日期"
             rules={[{ required: true, message: '请填写回款日期' }]}
           >
-            <DatePicker style={{ width: '100%' }} placeholder="请选择回款日期" />
+            <DatePicker style={{ width: '100%' }} placeholder="请选择回款日期" onChange={(value) => setIsCurrentYear(value?.year() === dayjs().year())} />
           </Form.Item>
           <Form.Item
             name="amount"
             label="回款金额"
             rules={[{ required: true, message: '请填写回款金额' }]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder="请填写回款金额" />
+            <InputNumber style={{ width: '100%' }} placeholder="请填写回款金额"/>
           </Form.Item>
           <Form.Item
             name="processed_by_id"
@@ -127,7 +158,7 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
               placeholder="搜索员工"
               onSearch={debouncedHandleSearch}
               filterOption={false}
-              labelInValue
+              // labelInValue
             >
               {employees.map(employee => (
                 <Select.Option key={employee.id} value={employee.id}>
@@ -136,11 +167,22 @@ const ContractPaymentEditModal: React.FC<ContractPaymentEditModalProps> = ({
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="notes" label="备注">
-            <Input.TextArea placeholder="请填写备注" />
+          <Form.Item name="notes" label="备注" rules={[{ required: false }]}>
+            <Input.TextArea placeholder="选填" />
           </Form.Item>
         </Form>
       )}
+      <Modal 
+        open={isConfirmNotCurrentYearModalVisible} 
+        onCancel={() => setIsConfirmNotCurrentYearModalVisible(false)} 
+        onOk={handleUpdateOrCreate} 
+        title="确认提交？" 
+        okText="确认提交" 
+        cancelText="返回修改" 
+        closable={false}
+      >
+        <p>输入的回款日期不在本年，保存后将无法编辑或删除。是否提交？</p>
+      </Modal>
     </Modal>
   );
 };

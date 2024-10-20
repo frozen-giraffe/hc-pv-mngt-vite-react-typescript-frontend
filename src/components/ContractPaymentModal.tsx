@@ -290,13 +290,16 @@ const ContractPaymentModal: React.FC<ContractPaymentModalProps> = ({
       >
         <Space direction="vertical" style={{ width: "100%" }}>
           <Space>
-            <Button
-              onClick={handleCreateNew}
-              type="primary"
-              icon={<PlusOutlined />}
-            >
-              新增回款
-            </Button>
+            <Popover title={projectPayout?.update_required_project_updated ? "项目下发产值更新后未重新计算产值，无法新增回款" : ""}>
+              <Button
+                onClick={handleCreateNew}
+                type="primary"
+                icon={<PlusOutlined />}
+                disabled={projectPayout?.update_required_project_updated}
+              >
+                新增回款
+              </Button>
+            </Popover>
             <Divider type="vertical" />
             <Button
               onClick={() => handleProjectContractPaymentListReport()}
