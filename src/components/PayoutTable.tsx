@@ -315,8 +315,7 @@ export const PayoutTable: React.FC = () => {
     []
   );
   const [tableInit, setTableInit] = useState({})
-  const [designChiefOptions,setDesignChiefOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
-  const [designAssistantOptions,setdesignAssistantOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
+  const [PMOptions, setPMOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
   const [togglePayoutTable, setTogglePayoutTable] = useState(false)
   const [loading, setLoading] = useState<boolean>(true);
@@ -550,35 +549,33 @@ export const PayoutTable: React.FC = () => {
       message.error("未找到所选配置文件");
     }
   };
-  const onSelectDesignChief=(value:number,option:any)=>{
-    formPayout.setFieldValue('designChief', value)
-    
+  const onSelectPM = (value: number, option: any) => {
+    formPayout.setFieldValue('pm', value)
   }
-  const onSearchDesignChief=async(searchText:string)=>{
-    if(searchText===""){
-      setDesignChiefOptions([])
+  const onSearchPM = async (searchText: string) => {
+    if (searchText === "") {
+      setPMOptions([])
       return
     }
     try {
-      const repsonse = await EmployeeService.searchEmployee({
+      const response = await EmployeeService.searchEmployee({
         path: {
           query: searchText
         },
       })
-      if(repsonse.error){
-        message.error("自动查询失败: "+repsonse.error)
+      if (response.error) {
+        message.error("自动查询失败: " + response.error)
         return
       }
-      const formattedOptions = repsonse.data.data.map((employee: EmployeePublicOut) => ({
-        ...employee,                // Spread the existing EmployeePublicOut fields
-        label: employee.name,       // Label is set to employee's name
-        value: employee.id, // Value is set to employee's id as a string
+      const formattedOptions = response.data.data.map((employee: EmployeePublicOut) => ({
+        ...employee,
+        label: employee.name,
+        value: employee.id,
         key: employee.id,
       }));
-      setDesignChiefOptions(formattedOptions)
+      setPMOptions(formattedOptions)
     } catch (error) {
-      message.error("自动查询失败: "+error)
-      
+      message.error("自动查询失败: " + error)
     }
   }
   const handlePayoutFinish = async () => {
@@ -752,10 +749,10 @@ export const PayoutTable: React.FC = () => {
     setInaccuracy(inaccuracy)
 
     const fields={
-      designChief:'',
-      designChiefPayout: pm,
-      designAssistant:'',
-      designAssistantPayout: pmAssistant,
+      pm:'',
+      pmPayout: pm,
+      pmAssistant:'',
+      pmAssistantPayout: pmAssistant,
       '建筑设计人':{
         pm: '',
         pm_assistant: '',
@@ -1038,10 +1035,10 @@ export const PayoutTable: React.FC = () => {
       },
     ])
     const fieldsValue = {
-      designChief:'',
-      designChiefPayout: pm,
-      designAssistant:'',
-      designAssistantPayout: pmAssistant,
+      pm:'',
+      pmPayout: pm,
+      pmAssistant:'',
+      pmAssistantPayout: pmAssistant,
       '建筑设计人':{
         pm: '',
         pm_assistant: '',
@@ -1379,10 +1376,10 @@ export const PayoutTable: React.FC = () => {
       return sum + Number(calculateRowSum(category, formValues));
     }, 0);
 
-    const designChiefPayout = Number(formValues.designChiefPayout) || 0;
-    const designAssistantPayout = Number(formValues.designAssistantPayout) || 0;
+    const pmPayout = Number(formValues.pmPayout) || 0;
+    const pmAssistantPayout = Number(formValues.pmAssistantPayout) || 0;
 
-    return departmentSums + designChiefPayout + designAssistantPayout;
+    return departmentSums + pmPayout + pmAssistantPayout;
   };
 
   // Modify the handleFormValuesChange function
@@ -1404,15 +1401,15 @@ export const PayoutTable: React.FC = () => {
       }
     });
 
-    // Update designChief and designAssistant separately
-    const designChiefIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
-    if (designChiefIndex !== -1) {
-      newDataSource[designChiefIndex].pm = allValues.designChief ? parseInt(allValues.designChief, 10) : '';
+    // Update pm and pmAssistant separately
+    const pmIndex = newDataSource.findIndex(item => item.category === '项目负责' && item.text === '设计人');
+    if (pmIndex !== -1) {
+      newDataSource[pmIndex].pm = allValues.pm ? parseInt(allValues.pm, 10) : '';
     }
   
-    const designAssistantIndex = newDataSource.findIndex(item => item.category === '设计总负责' && item.text === '设计人');
-    if (designAssistantIndex !== -1) {
-      newDataSource[designAssistantIndex].pm_assistant = allValues.designAssistant ? parseInt(allValues.designAssistant, 10) : '';
+    const pmAssistantIndex = newDataSource.findIndex(item => item.category === '项目负责' && item.text === '设计人');
+    if (pmAssistantIndex !== -1) {
+      newDataSource[pmAssistantIndex].pm_assistant = allValues.pmAssistant ? parseInt(allValues.pmAssistant, 10) : '';
     }
   
     setDataSource(newDataSource);
@@ -1513,11 +1510,11 @@ export const PayoutTable: React.FC = () => {
             
               <Row gutter={16}>
                 <Col span={6}>
-                <Form.Item label="设计总负责人" name="designChief">
+                <Form.Item label="项目负责人" name="pm">
                   <AutoComplete 
-                    options={designChiefOptions} 
-                    onSearch={onSearchDesignChief} 
-                    onSelect={onSelectDesignChief} 
+                    options={PMOptions} 
+                    onSearch={onSearchPM} 
+                    onSelect={onSelectPM} 
                     placeholder="模糊搜索员工"
                   />
                 </Form.Item>
@@ -1526,27 +1523,27 @@ export const PayoutTable: React.FC = () => {
                 <Form.Item 
                   label={
                     <>
-                      设计总负责人产值
+                      项目负责人产值
                       {Math.abs(inaccuracy) > 0.01 && (
-                        <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入设计总负责人产值，如项目无设计总负责人，请手动更改`}>
+                        <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入项目负责人产值，如项目无项目负责人，请手动更改`}>
                           <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
                         </Tooltip>
                       )}
                     </>
                   } 
-                  name='designChiefPayout'>
+                  name='pmPayout'>
                   <Input></Input>
                 </Form.Item>
                 </Col>
                 <Col span={6}>
-                  <Form.Item label="设计总负责助理" name='designAssistant'>
+                  <Form.Item label="项目负责人助理" name='pmAssistant'>
                     
-                    <AutoComplete options={designChiefOptions} onSearch={onSearchDesignChief}/>
+                    <AutoComplete options={PMOptions} onSearch={onSearchPM}/>
                   </Form.Item>
                 </Col>
                 <Col span={6}>
 
-                  <Form.Item label="设计总负责助理产值" name='designAssistantPayout'>
+                  <Form.Item label="项目负责人助理产值" name='pmAssistantPayout'>
                     
                     <Input></Input>
                   </Form.Item>
