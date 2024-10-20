@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
-import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, notification, Popconfirm, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
-import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, ProjectsService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut } from "../client";
+import type { GetRef, InputRef, TableProps } from "antd";
+import { Button, Col, Divider, Form, Input, message, notification, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
+import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import { InfoCircleOutlined } from '@ant-design/icons';
 import './PayoutTable.css'
 import PayoutInput from "./PayoutInput";
-import { CloseCircleOutlined } from '@ant-design/icons';
-//import type { FormInstance } from 'antd/es/form';
+import cloneDeep from 'lodash.cloneDeep';
+
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -44,16 +43,6 @@ interface DataType {
 }
 
 type ColumnTypes = Exclude<TableProps<DataType>["columns"], undefined>;
-const EditableRow: React.FC<EditableRowProps> = ({ index, form, ...props }) => {
-  //const [form] = Form.useForm();
-  return (
-    //<Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    //</Form>
-  );
-};
 
 interface EditableCellProps {
   title: React.ReactNode;
@@ -243,7 +232,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
     pmPayout: project_payout?.pm_payout !== null ? project_payout?.pm_payout : '',
     pmAssistant: project_payout?.pm_assistant_id !== null ? project_payout?.pm_assistant_id : '',
     pmAssistantPayout: project_payout?.pm_assistant_payout !== null ? project_payout?.pm_assistant_payout : '',
-    '建筑设计人':{
+    建筑设计人:{
       pm: project_payout?.arch_pm_id !== null ? project_payout?.arch_pm_id : '',
       pm_assistant: project_payout?.arch_pm_assistant_id !== null ? project_payout?.arch_pm_assistant_id : '',
       designer: project_payout?.arch_designer_id !== null ? project_payout?.arch_designer_id : '',
@@ -253,7 +242,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.arch_reviewer_id !== null ? project_payout?.arch_reviewer_id : '',
       approver: project_payout?.arch_approver_id !== null ? project_payout?.arch_approver_id : '',
     },
-    '建筑产值':{
+    建筑产值:{
       pm: project_payout?.arch_pm_payout !== null ? project_payout?.arch_pm_payout : '',
       pm_assistant: project_payout?.arch_pm_assistant_payout !== null ? project_payout?.arch_pm_assistant_payout : '',
       designer: project_payout?.arch_designer_payout !== null ? project_payout?.arch_designer_payout : '',
@@ -263,7 +252,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.arch_reviewer_payout !== null ? project_payout?.arch_reviewer_payout : '',
       approver: project_payout?.arch_approver_payout !== null ? project_payout?.arch_approver_payout : '',
     },
-    '结构设计人':{
+    结构设计人:{
       pm: project_payout?.struct_pm_id !== null ? project_payout?.struct_pm_id : '',
       pm_assistant: project_payout?.struct_pm_assistant_id !== null ? project_payout?.struct_pm_assistant_id : '',
       designer: project_payout?.struct_designer_id !== null ? project_payout?.struct_designer_id : '',
@@ -273,7 +262,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.struct_reviewer_id !== null ? project_payout?.struct_reviewer_id : '',
       approver: project_payout?.struct_approver_id !== null ? project_payout?.struct_approver_id : '',
     },
-    '结构产值':{
+    结构产值:{
       pm: project_payout?.struct_pm_payout !== null ? project_payout?.struct_pm_payout : '',
       pm_assistant: project_payout?.struct_pm_assistant_payout !== null ? project_payout?.struct_pm_assistant_payout : '',
       designer: project_payout?.struct_designer_payout !== null ? project_payout?.struct_designer_payout : '',
@@ -283,7 +272,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.struct_reviewer_payout !== null ? project_payout?.struct_reviewer_payout : '',
       approver: project_payout?.struct_approver_payout !== null ? project_payout?.struct_approver_payout : '',
     },
-    '给排水设计人':{
+    给排水设计人:{
       pm: project_payout?.plumbing_pm_id !== null ? project_payout?.plumbing_pm_id : '',
       pm_assistant: project_payout?.plumbing_pm_assistant_id !== null ? project_payout?.plumbing_pm_assistant_id : '',
       designer: project_payout?.plumbing_designer_id !== null ? project_payout?.plumbing_designer_id : '',
@@ -293,7 +282,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.plumbing_reviewer_id !== null ? project_payout?.plumbing_reviewer_id : '',
       approver: project_payout?.plumbing_approver_id !== null ? project_payout?.plumbing_approver_id : '',
     },
-    '给排水产值':{
+    给排水产值:{
       pm: project_payout?.plumbing_pm_payout !== null ? project_payout?.plumbing_pm_payout : '',
       pm_assistant: project_payout?.plumbing_pm_assistant_payout !== null ? project_payout?.plumbing_pm_assistant_payout : '',
       designer: project_payout?.plumbing_designer_payout !== null ? project_payout?.plumbing_designer_payout : '',
@@ -303,7 +292,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.plumbing_reviewer_payout !== null ? project_payout?.plumbing_reviewer_payout : '',
       approver: project_payout?.plumbing_approver_payout !== null ? project_payout?.plumbing_approver_payout : '',
     },
-    '暖通设计人':{
+    暖通设计人:{
       pm: project_payout?.hvac_pm_id !== null ? project_payout?.hvac_pm_id : '',
       pm_assistant: project_payout?.hvac_pm_assistant_id !== null ? project_payout?.hvac_pm_assistant_id : '',
       designer: project_payout?.hvac_designer_id !== null ? project_payout?.hvac_designer_id : '',
@@ -313,7 +302,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.hvac_reviewer_id !== null ? project_payout?.hvac_reviewer_id : '',
       approver: project_payout?.hvac_approver_id !== null ? project_payout?.hvac_approver_id : '',
     },
-    '暖通产值':{
+    暖通产值:{
       pm: project_payout?.hvac_pm_payout !== null ? project_payout?.hvac_pm_payout : '',
       pm_assistant: project_payout?.hvac_pm_assistant_payout !== null ? project_payout?.hvac_pm_assistant_payout : '',
       designer: project_payout?.hvac_designer_payout !== null ? project_payout?.hvac_designer_payout : '',
@@ -323,7 +312,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.hvac_reviewer_payout !== null ? project_payout?.hvac_reviewer_payout : '',
       approver: project_payout?.hvac_approver_payout !== null ? project_payout?.hvac_approver_payout : '',
     },
-    '强电设计人':{
+    强电设计人:{
       pm: project_payout?.electrical_pm_id !== null ? project_payout?.electrical_pm_id : '',
       pm_assistant: project_payout?.electrical_pm_assistant_id !== null ? project_payout?.electrical_pm_assistant_id : '',
       designer: project_payout?.electrical_designer_id !== null ? project_payout?.electrical_designer_id : '',
@@ -333,7 +322,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.electrical_reviewer_id !== null ? project_payout?.electrical_reviewer_id : '',
       approver: project_payout?.electrical_approver_id !== null ? project_payout?.electrical_approver_id : '',
     },
-    '强电产值':{
+    强电产值:{
       pm: project_payout?.electrical_pm_payout !== null ? project_payout?.electrical_pm_payout : '',
       pm_assistant: project_payout?.electrical_pm_assistant_payout !== null ? project_payout?.electrical_pm_assistant_payout : '',
       designer: project_payout?.electrical_designer_payout !== null ? project_payout?.electrical_designer_payout : '',
@@ -343,7 +332,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.electrical_reviewer_payout !== null ? project_payout?.electrical_reviewer_payout : '',
       approver: project_payout?.electrical_approver_payout !== null ? project_payout?.electrical_approver_payout : '',
     },
-    '弱电设计人':{
+    弱电设计人:{
       pm: project_payout?.low_voltage_pm_id !== null ? project_payout?.low_voltage_pm_id : '',
       pm_assistant: project_payout?.low_voltage_pm_assistant_id !== null ? project_payout?.low_voltage_pm_assistant_id : '',
       designer: project_payout?.low_voltage_designer_id !== null ? project_payout?.low_voltage_designer_id : '',
@@ -353,7 +342,7 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       reviewer: project_payout?.low_voltage_reviewer_id !== null ? project_payout?.low_voltage_reviewer_id : '',
       approver: project_payout?.low_voltage_approver_id !== null ? project_payout?.low_voltage_approver_id : '',
     },
-    '弱电产值':{
+    弱电产值:{
       pm: project_payout?.low_voltage_pm_payout !== null ? project_payout?.low_voltage_pm_payout : '',
       pm_assistant: project_payout?.low_voltage_pm_assistant_payout !== null ? project_payout?.low_voltage_pm_assistant_payout : '',
       designer: project_payout?.low_voltage_designer_payout !== null ? project_payout?.low_voltage_designer_payout : '',
@@ -632,164 +621,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
   const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
-  const [dataSource, setDataSource] = useState<DataType[]>([
-    {
-      key:'1',
-      category: '建筑',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'2',
-      category: '建筑',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'3',
-      category: '结构',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'4',
-      category: '结构',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'5',
-      category: '给排水',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'6',
-      category: '给排水',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'7',
-      category: '暖通',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'8',
-      category: '暖通',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'9',
-      category: '强电',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'10',
-      category: '强电',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'11',
-      category: '弱电',
-      text: '设计人',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-    {
-      key:'12',
-      category: '弱电',
-      text: '产值',
-      pm: '',
-      pm_assistant: '',
-      designer: '',
-      drafter: '',
-      post_service: '',
-      proofreader: '',
-      reviewer: '',
-      approver: '',
-    },
-  ])
+  const [dataSource, setDataSource] = useState<DataType[]>(projectPayoutToDataSource(null))
 
   useEffect(() => {
     fetchData();
@@ -1080,420 +912,87 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
       pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
       setInaccuracy(inaccuracy)
     }
-    const fields={
-      pm:'',
-      pmPayout: pm,
-      pmAssistant:'',
-      pmAssistantPayout: pmAssistant,
-      '建筑设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '建筑产值':{
-        pm: archPM,
-        pm_assistant: archAssistant,
-        designer:archDesigner,
-        drafter:archDrafter,
-        post_service:archPostService,
-        proofreader:archProofreader,
-        reviewer:archReviewer,
-        approver:archApprover,
-      },
-      '结构设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '结构产值':{
-        pm: structPM,
-        pm_assistant: structAssistant,
-        designer:structDesigner,
-        drafter:structDrafter,
-        post_service:structPostService,
-        proofreader:structProofreader,
-        reviewer:structReviewer,
-        approver:structApprover,
-      },
-      '给排水设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '给排水产值':{
-        pm: plumbingPM,
-        pm_assistant:plumbingAssistant,
-        designer:plumbingDesigner,
-        drafter:plumbingDrafter,
-        post_service:plumbingPostService,
-        proofreader:plumbingProofreader,
-        reviewer:plumbingReviewer,
-        approver:plumbingApprover,
-      },
-      '暖通设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '暖通产值':{
-        pm:HVACPM,
-        pm_assistant:HVACAssistant,
-        designer:HVACDesigner,
-        drafter:HVACDrafter,
-        post_service:HVACPostService,
-        proofreader:HVACProofreader,
-        reviewer:HVACReviewer,
-        approver:HVACApprover,
-      },
-      '强电设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '强电产值':{
-        pm:electricPM,
-        pm_assistant:electricAssistant,
-        designer:electricDesigner,
-        drafter:electricDrafter,
-        post_service:electricPostService,
-        proofreader:electricProofreader,
-        reviewer:electricReviewer,
-        approver:electricApprover,
-      },
-      '弱电设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '弱电产值':{
-        pm:lowVoltagePM,
-        pm_assistant:lowVoltageAssistant,
-        designer:lowVoltageDesigner,
-        drafter:lowVoltageDrafter,
-        post_service:lowVoltagePostService,
-        proofreader:lowVoltageProofreader,
-        reviewer:lowVoltageReviewer,
-        approver:lowVoltageApprover,
-      }
-      
+
+    let new_project_payout: ProjectPayoutPublicOut = {
+      project_id: project.id,
+      id: existing_project_payout?.id || 0,
+      created_at: "",
+      calculation_updated_at: "",
+      people_updated_at: "",
+      contract_payment_payout_started: false,
+      update_required_project_updated: false,
+      department_payout_ratio_id: resDepartmentPayoutRatio.data.id,
+      department_payout_ratio_used_outdated: false,
+      job_payout_ratio_profile_id: selectedProfileData?.id || 0,
+      job_payout_ratio_profile_used_outdated: false
     }
+    new_project_payout.pm_payout = Number(pm)
+    new_project_payout.pm_assistant_payout = Number(pmAssistant)
+    new_project_payout.arch_pm_payout = Number(archPM)
+    new_project_payout.arch_pm_assistant_payout = Number(archAssistant)
+    new_project_payout.arch_designer_payout = Number(archDesigner)
+    new_project_payout.arch_drafter_payout = Number(archDrafter)
+    new_project_payout.arch_design_post_service_payout = Number(archPostService)
+    new_project_payout.arch_proofreader_payout = Number(archProofreader)
+    new_project_payout.arch_reviewer_payout = Number(archReviewer)
+    new_project_payout.arch_approver_payout = Number(archApprover)
+    new_project_payout.struct_pm_payout = Number(structPM)
+    new_project_payout.struct_pm_assistant_payout = Number(structAssistant)
+    new_project_payout.struct_designer_payout = Number(structDesigner)
+    new_project_payout.struct_drafter_payout = Number(structDrafter)
+    new_project_payout.struct_design_post_service_payout = Number(structPostService)
+    new_project_payout.struct_proofreader_payout = Number(structProofreader)
+    new_project_payout.struct_reviewer_payout = Number(structReviewer)
+    new_project_payout.struct_approver_payout = Number(structApprover)
+    new_project_payout.plumbing_pm_payout = Number(plumbingPM)
+    new_project_payout.plumbing_pm_assistant_payout = Number(plumbingAssistant)
+    new_project_payout.plumbing_designer_payout = Number(plumbingDesigner)
+    new_project_payout.plumbing_drafter_payout = Number(plumbingDrafter)
+    new_project_payout.plumbing_design_post_service_payout = Number(plumbingPostService)
+    new_project_payout.plumbing_proofreader_payout = Number(plumbingProofreader)
+    new_project_payout.plumbing_reviewer_payout = Number(plumbingReviewer)
+    new_project_payout.plumbing_approver_payout = Number(plumbingApprover)
+    new_project_payout.electrical_pm_payout = Number(electricPM)
+    new_project_payout.electrical_pm_assistant_payout = Number(electricAssistant)
+    new_project_payout.electrical_designer_payout = Number(electricDesigner)
+    new_project_payout.electrical_drafter_payout = Number(electricDrafter)
+    new_project_payout.electrical_design_post_service_payout = Number(electricPostService)
+    new_project_payout.electrical_proofreader_payout = Number(electricProofreader)
+    new_project_payout.electrical_reviewer_payout = Number(electricReviewer)
+    new_project_payout.electrical_approver_payout = Number(electricApprover)
+    new_project_payout.hvac_pm_payout = Number(HVACPM)
+    new_project_payout.hvac_pm_assistant_payout = Number(HVACAssistant)
+    new_project_payout.hvac_designer_payout = Number(HVACDesigner)
+    new_project_payout.hvac_drafter_payout = Number(HVACDrafter)
+    new_project_payout.hvac_design_post_service_payout = Number(HVACPostService)
+    new_project_payout.hvac_proofreader_payout = Number(HVACProofreader)
+    new_project_payout.hvac_reviewer_payout = Number(HVACReviewer)
+    new_project_payout.hvac_approver_payout = Number(HVACApprover)
+    new_project_payout.low_voltage_pm_payout = Number(lowVoltagePM)
+    new_project_payout.low_voltage_pm_assistant_payout = Number(lowVoltageAssistant)
+    new_project_payout.low_voltage_designer_payout = Number(lowVoltageDesigner)
+    new_project_payout.low_voltage_drafter_payout = Number(lowVoltageDrafter)
+    new_project_payout.low_voltage_design_post_service_payout = Number(lowVoltagePostService)
+    new_project_payout.low_voltage_proofreader_payout = Number(lowVoltageProofreader)
+    new_project_payout.low_voltage_reviewer_payout = Number(lowVoltageReviewer)
+    new_project_payout.low_voltage_approver_payout = Number(lowVoltageApprover)
+
+
+    if (existing_project_payout) {
+    Object.keys(existing_project_payout).forEach(key => {
+        if (key.endsWith('_id') && existing_project_payout[key] !== null) {
+            new_project_payout[key] = existing_project_payout[key];
+        }
+    });
+    } 
+
+
+
+    const fields= projectPayoutToFormData(new_project_payout)
     setTableInit(fields)
-    setDataSource([
-      {
-        key:'1',
-        category: '建筑',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'2',
-        category: '建筑',
-        text: '产值',
-        pm: archPM,
-        pm_assistant: archAssistant,
-        designer: archDesigner,
-        drafter: archDrafter,
-        post_service: archPostService,
-        proofreader: archProofreader,
-        reviewer: archReviewer,
-        approver: archApprover,
-      },
-      {
-        key:'3',
-        category: '结构',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'4',
-        category: '结构',
-        text: '产值',
-        pm: structPM,
-        pm_assistant: structAssistant,
-        designer: structDesigner,
-        drafter: structDrafter,
-        post_service: structPostService,
-        proofreader: structProofreader,
-        reviewer: structReviewer,
-        approver: structApprover,
-      },
-      {
-        key:'5',
-        category: '给排水',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'6',
-        category: '给排水',
-        text: '产值',
-        pm: plumbingPM,
-        pm_assistant: plumbingAssistant,
-        designer: plumbingDesigner,
-        drafter: plumbingDrafter,
-        post_service: plumbingPostService,
-        proofreader: plumbingProofreader,
-        reviewer: plumbingReviewer,
-        approver: plumbingApprover,
-      },
-      {
-        key:'7',
-        category: '暖通',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'8',
-        category: '暖通',
-        text: '产值',
-        pm: HVACPM,
-        pm_assistant: HVACAssistant,
-        designer: HVACDesigner,
-        drafter: HVACDrafter,
-        post_service: HVACPostService,
-        proofreader: HVACProofreader,
-        reviewer: HVACReviewer,
-        approver: HVACApprover,
-      },
-      {
-        key:'9',
-        category: '强电',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'10',
-        category: '强电',
-        text: '产值',
-        pm: electricPM,
-        pm_assistant: electricAssistant,
-        designer: electricDesigner,
-        drafter: electricDrafter,
-        post_service: electricPostService,
-        proofreader: electricProofreader,
-        reviewer: electricReviewer,
-        approver: electricApprover,
-      },
-      {
-        key:'11',
-        category: '弱电',
-        text: '设计人',
-        pm: '',
-        pm_assistant: '',
-        designer: '',
-        drafter: '',
-        post_service: '',
-        proofreader: '',
-        reviewer: '',
-        approver: '',
-      },
-      {
-        key:'12',
-        category: '弱电',
-        text: '产值',
-        pm: lowVoltagePM,
-        pm_assistant: lowVoltageAssistant,
-        designer: lowVoltageDesigner,
-        drafter: lowVoltageDrafter,
-        post_service: lowVoltagePostService,
-        proofreader: lowVoltageProofreader,
-        reviewer: lowVoltageReviewer,
-        approver: lowVoltageApprover,
-      },
-    ])
-    const fieldsValue = {
-      pm:'',
-      pmPayout: pm,
-      pmAssistant:'',
-      pmAssistantPayout: pmAssistant,
-      '建筑设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '建筑产值':{
-        pm: archPM,
-        pm_assistant: archAssistant,
-        designer:archDesigner,
-        drafter:archDrafter,
-        post_service:archPostService,
-        proofreader:archProofreader,
-        reviewer:archReviewer,
-        approver:archApprover,
-      },
-      '结构设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '结构产值':{
-        pm: structPM,
-        pm_assistant: structAssistant,
-        designer:structDesigner,
-        drafter:structDrafter,
-        post_service:structPostService,
-        proofreader:structProofreader,
-        reviewer:structReviewer,
-        approver:structApprover,
-      },
-      '给排水设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '给排水产值':{
-        pm: plumbingPM,
-        pm_assistant:plumbingAssistant,
-        designer:plumbingDesigner,
-        drafter:plumbingDrafter,
-        post_service:plumbingPostService,
-        proofreader:plumbingProofreader,
-        reviewer:plumbingReviewer,
-        approver:plumbingApprover,
-      },
-      '暖通设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '暖通产值':{
-        pm:HVACPM,
-        pm_assistant:HVACAssistant,
-        designer:HVACDesigner,
-        drafter:HVACDrafter,
-        post_service:HVACPostService,
-        proofreader:HVACProofreader,
-        reviewer:HVACReviewer,
-        approver:HVACApprover,
-      },
-      '强电设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '强电产值':{
-        pm:electricPM,
-        pm_assistant:electricAssistant,
-        designer:electricDesigner,
-        drafter:electricDrafter,
-        post_service:electricPostService,
-        proofreader:electricProofreader,
-        reviewer:electricReviewer,
-        approver:electricApprover,
-      },
-      '弱电设计人':{
-        pm: '',
-        pm_assistant: '',
-        designer:'',
-        drafter:'',
-        post_service:'',
-        proofreader:'',
-        reviewer:'',
-        approver:'',
-      },
-      '弱电产值':{
-        pm:lowVoltagePM,
-        pm_assistant:lowVoltageAssistant,
-        designer:lowVoltageDesigner,
-        drafter:lowVoltageDrafter,
-        post_service:lowVoltagePostService,
-        proofreader:lowVoltageProofreader,
-        reviewer:lowVoltageReviewer,
-        approver:lowVoltageApprover,
-      }
-    }
-    formPayout.setFieldsValue(fieldsValue)
-    handleFormValuesChange(fieldsValue,fieldsValue)
+    setDataSource(projectPayoutToDataSource(new_project_payout))
+    formPayout.setFieldsValue(fields)
+    handleFormValuesChange(fields,fields)
       
   }
   
@@ -1941,7 +1440,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                   label={
                     <>
                       项目负责人产值
-                      {Math.abs(inaccuracy) > 0.01 && (
+                      {Math.abs(inaccuracy) > 0.001 && (
                         <Tooltip title={`四舍五入后与下发产值的差（${inaccuracy.toFixed(2)}）已计入项目负责人产值，如项目无项目负责人，请手动更改`}>
                           <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
                         </Tooltip>
