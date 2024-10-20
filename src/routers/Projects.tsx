@@ -337,8 +337,8 @@ export const Projects = () => {
     navigate(`/projects?${queryParams.toString()}`, { replace: true });
   };
 
-  const handleOpenDetail = (data: any) => {
-    console.log(data);
+  const handleOpenDetail = (data: ProjectPublicOut) => {
+    navigate(`/projects-detail?id=${data.id}`, {state: {from: 'projects'}});
   };
   const getValueFromListByID = <T,>(
     id: number,

@@ -68,7 +68,8 @@ import {
 import MySelectComponent from "../components/Dropdown";
 import { PayoutTable } from "../components/PayoutTable";
 import { InfoCircleOutlined } from '@ant-design/icons';
-
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import dayjs from "dayjs";
 const { Text, Link } = Typography;
 
 const { TabPane } = Tabs;
@@ -105,7 +106,7 @@ const DecimalInput: React.FC<any> = ({
 
 export const ProjectDetail = () => {
   const [form] = Form.useForm();
-  const [data, setData] = useState<any>({});
+  const [data, setData] = useState<ProjectPublicOut>();
   const [loading, setLoading] = useState<boolean>(true);
   const [silderValue, setSilderValue] = useState(1);
   
@@ -138,7 +139,9 @@ export const ProjectDetail = () => {
     departmentPayoutRatioRelatedToProjectClassId,
     setDepartmentPayoutRatioRelatedToProjectClassId,
   ] = useState<DepartmentPayoutRatioPublicOut[]>([]); //this one is based on which projectClass picked and project-class is based on which projectType picked
-
+  const [pageTitle, setPageTitle] = useState("新建项目");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   
   useEffect(() => {
@@ -196,8 +199,35 @@ export const ProjectDetail = () => {
     } finally {
       setLoading(false);
     }
+    if (searchParams.get('id')){
+      fetchProjectDetail();
+    }
   };
-  
+
+  const fetchProjectDetail = async () => {
+    const res = await ProjectsService.readProject({path: {id: Number(searchParams.get('id'))}})
+    if (res.data){
+      setData(res.data)
+      setPageTitle("项目信息: "+res.data.name)
+      form.setFieldsValue({
+        projectName: res.data.name,
+        projectYear: dayjs(res.data.project_year+"-01-01"),
+        projectCode: res.data.project_code,
+        projectType: res.data.project_type_id,
+        buildingType: res.data.building_type_id,
+        projectTaskType: res.data.project_task_type_id,
+        projectClass: res.data.project_class_id,
+        buildingStructureType: res.data.building_structure_type_id,
+        qualityRatioClass: res.data.quality_ratio_class_id,
+        projectArea: res.data.project_area,
+        projectConstructionCost: res.data.project_construction_cost,
+        calculatedEmployeePayout: res.data.calculated_employee_payout,
+        projectContractValue: res.data.project_contract_value,
+        projectRateAdjustmentClass: res.data.project_rate_adjustment_class_id, 
+      })
+      console.log(res.data.project_rate_adjustment_class_id)
+    }
+  } 
 
   const handleProjectTypeSelectChange = async (value: number) => {
     const selected = projectTypes.find((option) => option.id === value) || null;
@@ -356,7 +386,7 @@ const errorMessage = (msg:string) => {
       id="my-drawer-container"
       style={{ overflow: "hidden", position: "relative" }}
     >
-      <h2 style={{ marginTop: 0 }}>新建工程</h2>
+      <h2 style={{ marginTop: 0 }}>{pageTitle}</h2>
       
       <Affix offsetTop={0}>
         <Drawer
@@ -404,7 +434,7 @@ const errorMessage = (msg:string) => {
 
         <Divider />
 
-        <Typography.Title level={5}>施工细节</Typography.Title>
+        <Typography.Title level={5}>工程信息</Typography.Title>
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item label="工程类型" name="projectType" rules={[{ required: true }]}>
@@ -647,7 +677,7 @@ const errorMessage = (msg:string) => {
         
         <Form.Item>
           <Button type="primary" htmlType="submit">
-              提交工程
+              提交项目
           </Button>
         </Form.Item>
       </Form>
