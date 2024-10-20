@@ -736,7 +736,9 @@ export type ProjectPayoutPublicOut = {
     people_updated_at: string;
     contract_payment_payout_started: boolean;
     update_required_project_updated: boolean;
+    department_payout_ratio_id: number;
     department_payout_ratio_used_outdated: boolean;
+    job_payout_ratio_profile_id: number;
     job_payout_ratio_profile_used_outdated: boolean;
 };
 
@@ -2155,6 +2157,10 @@ export type TestEmailData = {
 export type TestEmailResponse = (Message);
 
 export type TestEmailError = (HTTPValidationError);
+
+export type UpdateImportMessageResponse = (Message);
+
+export type UpdateImportMessageError = unknown;
 
 export type HealthCheckResponse = (boolean);
 

@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { AutoCompleteProps, GetRef, InputRef, TableProps } from "antd";
 import {EditOutlined } from '@ant-design/icons'
-import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, Popconfirm, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
+import { AutoComplete, Button, Col, Collapse, Divider, Form, Input, message, notification, Popconfirm, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, ProjectsService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import { InfoCircleOutlined } from '@ant-design/icons';
 import './PayoutTable.css'
 import PayoutInput from "./PayoutInput";
+import { CloseCircleOutlined } from '@ant-design/icons';
 //import type { FormInstance } from 'antd/es/form';
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -380,7 +381,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 }) => {
   const [editing, setEditing] = useState(false);
   const [department, setDepartment] = useState<DepartmentPublicOut | null | undefined>(null)
-  const [options, setOptions] = useState<(EmployeePublicOut & {value:number, label:string})[]>([])
+  const [options, setOptions] = useState<(EmployeePublicOut & {value:number, label:string, key:number})[]>([])
   const selectRef  = useRef<BaseSelectRef>(null);
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext)!;
@@ -397,6 +398,12 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       const employee = employeeCache[employeeId];
       if (employee) {
         setEmployeeName(employee.name);
+        setOptions([{
+          ...employee,
+          label: employee.name,
+          key: employee.id,
+          value: employee.id
+        }])
       }
     }
   }, [editing, record, dataIndex]);
@@ -452,7 +459,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       if (record.text === '设计人') {
         const employeeId = internalValue[dataIndex];
         if (employeeId && employeeCache[employeeId]) {
-          internalValue[dataIndex] = employeeCache[employeeId];
+          internalValue[dataIndex] = employeeId;
         }
       }
       
@@ -597,10 +604,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
 
 interface PayoutTableProps {
   project: ProjectPublicOut;
-  project_payout: ProjectPayoutPublicOut | null;
+  existing_project_payout: ProjectPayoutPublicOut | null;
 }
 
-export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout}) => {
+export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_project_payout}) => {
   
   const [formPayout] = Form.useForm();
   const [selectedProfileId, setSelectedProfileId] = useState<
@@ -787,10 +794,10 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
   useEffect(() => {
     fetchData();
     fetchProfiles();
-    if (project_payout) {
+    if (existing_project_payout) {
       initializeFormWithProjectPayout();
     }
-  }, [project_payout]);
+  }, [existing_project_payout]);
 
   const fetchData= async()=>{
     try {
@@ -808,6 +815,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
       }
       setWorkLocations(resWorkLocations.data.data)
       setDepartments(resDepartments.data.data)
+      setCalculatedEmployeePayout(project.calculated_employee_payout)
       
     } catch(error){
       message.error("工作地点或部门获取失败: "+ error);
@@ -834,47 +842,50 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
   };
 
   const initializeFormWithProjectPayout = async () => {
-    if (!project_payout) return;
+    if (!existing_project_payout) return;
 
     // load employee cache
-    for (const key of Object.keys(project_payout) as (keyof typeof project_payout)[]) {
+    for (const key of Object.keys(existing_project_payout) as (keyof typeof existing_project_payout)[]) {
         if (key.endsWith('_id')) {
           if (key === "project_id") continue;
-          if (project_payout[key] === null) continue;
-          if (employeeCache[project_payout[key] as number]) continue;
+          if (existing_project_payout[key] === null) continue;
+          if (employeeCache[existing_project_payout[key] as number]) continue;
           const {error, data} = await EmployeeService.getEmployeeById({
             path: {
-              id: project_payout[key] as number
+              id: existing_project_payout[key] as number
             }
           })
           if (error) {
-            message.error("获取员工ID " + project_payout[key] + " 信息失败(来自" + key + "): " + error)
+            message.error("获取员工ID " + existing_project_payout[key] + " 信息失败(来自" + key + "): " + error)
             return
           }
           employeeCache[data.id] = data
         }
     }
 
-    const fields = projectPayoutToFormData(project_payout)
+    const fields = projectPayoutToFormData(existing_project_payout)
 
     setTableInit(fields);
     formPayout.setFieldsValue(fields);
     // Update dataSource
-    const newDataSource = projectPayoutToDataSource(project_payout)
+    const newDataSource = projectPayoutToDataSource(existing_project_payout)
     setDataSource(newDataSource);
 
     // Set PM and PM Assistant names
-    if (project_payout.pm_id) {
-      setPmName(employeeCache[project_payout.pm_id]?.name || '');
+    if (existing_project_payout.pm_id) {
+      setPmName(employeeCache[existing_project_payout.pm_id]?.name || '');
     }
-    if (project_payout.pm_assistant_id) {
-      setPmAssistantName(employeeCache[project_payout.pm_assistant_id]?.name || '');
+    if (existing_project_payout.pm_assistant_id) {
+      setPmAssistantName(employeeCache[existing_project_payout.pm_assistant_id]?.name || '');
     }
+
+    setSelectedProfileId(existing_project_payout.job_payout_ratio_profile_id)
+    setSelectedProfileData(profiles.find(profile => profile.id === existing_project_payout.job_payout_ratio_profile_id) || null)
 
     // Calculate and set total sum
     const totalSum = calculateTotalSum(fields);
     setTotalSum(totalSum);
-    setIsSumValid(Math.abs(totalSum - project.calculated_employee_payout) < 0.001);
+    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.001);
     setTogglePayoutTable(true)
   };
 
@@ -885,6 +896,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
     );
     
     if (selectedProfile) {
+      setSelectedProfileId(selectedProfile.id)
       setSelectedProfileData(selectedProfile);
       console.log(selectedProfile);
       
@@ -897,8 +909,14 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
     try {
       const values = await formPayout.validateFields();
       if (!isSumValid) {
-        message.error("表单总计与项目下发产值不相等，请检查")
-        return
+        notification.error({
+          message: "提交失败",
+          description: "计算表总计与项目下发产值不相等。请检查",
+          duration: 5,
+          closable: false,
+          btn: <Button type="primary" onClick={() => notification.destroy()}>我知道了</Button>,
+        });
+        return;
       }
       console.log("表单提交时的值:", values);
       // Here you can proceed with submitting the form data
@@ -906,6 +924,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
       console.log('表单验证错误:', error);
     }
   };
+
   function calculatePayout(departmentValue: number, ratios: any) {
     return {
       pm: (departmentValue * ratios.pm_ratio / 100).toFixed(2),
@@ -918,6 +937,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
       approver: (departmentValue * ratios.approver_ratio / 100).toFixed(2),
     };
   }
+
   function getPayoutData(category: string, text: string, department: any) {
     if (text === '设计人') {
       return {
@@ -964,33 +984,25 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
   const generatePayout = async()=>{
     console.log("生成产值表...");
     setTogglePayoutTable(true)
-    const [resProject,resDepartmentPayoutRatio] = await Promise.all([
-      ProjectsService.readProject({
-        path: {
-          id: 1812
-        }
-      }),
-      DepartmentPayoutRatiosService.getDepartmentPayoutRatio({
-        path: {
-          project_class_id: 2,//hardcode
-          project_rate_adjustment_class_id: 2,
-        }
-      }),
 
-    ]) 
-    if(resProject.error){
-      message.error("获得工程失败: "+ resProject.error)
-      return
-    }
-    if(resDepartmentPayoutRatio.error){
-      message.error("获得部门间工比失败: "+ resDepartmentPayoutRatio.error)
-      return
-    }
-    console.log(resProject.data,"工程");
+    console.log(project,"工程");
     
+    const resDepartmentPayoutRatio = await DepartmentPayoutRatiosService.getDepartmentPayoutRatio({
+      path: {
+        project_class_id: project.project_class_id,
+        project_rate_adjustment_class_id: project.project_rate_adjustment_class_id
+      }
+    })
+    if (resDepartmentPayoutRatio.error){
+      notification.error({
+        message: "读取部门间产值配置失败，产值计算失败。",
+        description: resDepartmentPayoutRatio.error.detail,
+      });
+      return;
+    }
     //计算部门间payout
-    const valueForPMTeam = resProject.data?.calculated_employee_payout * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
-    const valueForRestOfPM = resProject.data?.calculated_employee_payout * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
+    const valueForPMTeam = project.calculated_employee_payout * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
+    const valueForRestOfPM = project.calculated_employee_payout * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
     const valueArch = valueForRestOfPM * resDepartmentPayoutRatio.data.arch_ratio / 100 //建筑专业产值
     const valueStruct = valueForRestOfPM * resDepartmentPayoutRatio.data.struct_ratio / 100 //结构专业产值
     const valuePlumbing = valueForRestOfPM * resDepartmentPayoutRatio.data.plumbing_ratio / 100 //给排水专业产值
@@ -1055,7 +1067,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
     const lowVoltageReviewer = (valueLowVoltage * selectedProfileData!.low_voltage_reviewer_ratio / 100).toFixed(2)
     const lowVoltageApprover = (valueLowVoltage * selectedProfileData!.low_voltage_approver_ratio / 100).toFixed(2)
 
-    const inaccuracy = (resProject.data?.calculated_employee_payout - (Number(pm)+Number(pmAssistant)+
+    const inaccuracy = (project?.calculated_employee_payout - (Number(pm)+Number(pmAssistant)+
     Number(archPM)+Number(archAssistant)+Number(archDesigner)+Number(archDrafter)+Number(archPostService)+Number(archProofreader)+Number(archReviewer)+Number(archApprover)+
     Number(structPM)+Number(structAssistant)+Number(structDesigner)+Number(structDrafter)+Number(structPostService)+Number(structProofreader)+Number(structReviewer)+Number(structApprover)+
     Number(plumbingPM)+Number(plumbingAssistant)+Number(plumbingDesigner)+Number(plumbingDrafter)+Number(plumbingPostService)+Number(plumbingProofreader)+Number(plumbingReviewer)+Number(plumbingApprover)+
@@ -1063,7 +1075,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
     Number(HVACPM)+Number(HVACAssistant)+Number(HVACDesigner)+Number(HVACDrafter)+Number(HVACPostService)+Number(HVACProofreader)+Number(HVACReviewer)+Number(HVACApprover)+
     Number(lowVoltagePM)+Number(lowVoltageAssistant)+Number(lowVoltageDesigner)+Number(lowVoltageDrafter)+Number(lowVoltagePostService)+Number(lowVoltageProofreader)+Number(lowVoltageReviewer)+Number(lowVoltageApprover)))
     
-    if (selectedProfileData?.id !== 99){
+    if (selectedProfileData?.id !== 99){ // 当选择的配置文件不是“不使用配置文件”时
       console.log("四舍五入后不准确度: "+inaccuracy);
       pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
       setInaccuracy(inaccuracy)
@@ -1730,28 +1742,10 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
     // Calculate and update the total sum
     const totalSum = calculateTotalSum(allValues);
     setTotalSum(totalSum);
-
     // Check if the total sum matches the calculated employee payout
     setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.001);
   };
 
-  // Add this effect to update the calculated employee payout when the project data is fetched
-  useEffect(() => {
-    const fetchProjectData = async () => {
-      try {
-        const response = await ProjectsService.readProject({
-          path: { id: 1812 } // Replace with the actual project ID
-        });
-        if (response.data) {
-          setCalculatedEmployeePayout(response.data.calculated_employee_payout);
-        }
-      } catch (error) {
-        console.error("Error fetching project data:", error);
-      }
-    };
-
-    fetchProjectData();
-  }, []);
 
   const onSelectPm = async (data: string) => {
     const person = pmOptions.find((value) => value.id === parseInt(data));
@@ -1845,7 +1839,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, project_payout
             value={selectedProfileId}
             onChange={handleProfileSelect}
             style={{ width: 300 }}
-            placeholder="选择配置文件"
+            placeholder="选择下发配置"
             options={
               profiles.length > 0
                 ? [

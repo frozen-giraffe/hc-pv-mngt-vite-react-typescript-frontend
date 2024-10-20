@@ -686,9 +686,13 @@ const errorMessage = (msg:string) => {
       </Form>
       {/* 下发产值表 */}
       <Divider/>
-      <h2 style={{ marginTop: 0 }}>下发产值表</h2>
-      <PayoutTable project={project} project_payout={projectPayout}></PayoutTable>
-      <Divider />
+      {project ? (
+        <>
+          <h2 style={{ marginTop: 0 }}>下发产值表</h2>
+          <PayoutTable project={project} existing_project_payout={projectPayout}></PayoutTable>
+          <Divider />
+        </>
+      ) : null}
 
       {/* 操作按钮 */}
       {/* <Row justify="end">

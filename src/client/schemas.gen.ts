@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-13T19:02:10.234012'
+            default: '2024-10-20T15:02:51.041619'
         }
     },
     type: 'object',
@@ -5002,9 +5002,17 @@ export const ProjectPayoutPublicOutSchema = {
             type: 'boolean',
             title: 'Update Required Project Updated'
         },
+        department_payout_ratio_id: {
+            type: 'integer',
+            title: 'Department Payout Ratio Id'
+        },
         department_payout_ratio_used_outdated: {
             type: 'boolean',
             title: 'Department Payout Ratio Used Outdated'
+        },
+        job_payout_ratio_profile_id: {
+            type: 'integer',
+            title: 'Job Payout Ratio Profile Id'
         },
         job_payout_ratio_profile_used_outdated: {
             type: 'boolean',
@@ -5012,7 +5020,7 @@ export const ProjectPayoutPublicOutSchema = {
         }
     },
     type: 'object',
-    required: ['project_id', 'id', 'created_at', 'calculation_updated_at', 'people_updated_at', 'contract_payment_payout_started', 'update_required_project_updated', 'department_payout_ratio_used_outdated', 'job_payout_ratio_profile_used_outdated'],
+    required: ['project_id', 'id', 'created_at', 'calculation_updated_at', 'people_updated_at', 'contract_payment_payout_started', 'update_required_project_updated', 'department_payout_ratio_id', 'department_payout_ratio_used_outdated', 'job_payout_ratio_profile_id', 'job_payout_ratio_profile_used_outdated'],
     title: 'ProjectPayoutPublicOut'
 } as const;
 
