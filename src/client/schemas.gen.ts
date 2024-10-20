@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-20T15:02:51.041619'
+            default: '2024-10-20T17:28:41.490678'
         }
     },
     type: 'object',
@@ -6680,7 +6680,14 @@ export const ProjectUpdateInSchema = {
             title: 'Calculated Employee Payout'
         },
         project_contract_value: {
-            type: 'number',
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Project Contract Value'
         },
         notes: {
@@ -6696,7 +6703,6 @@ export const ProjectUpdateInSchema = {
         }
     },
     type: 'object',
-    required: ['project_contract_value'],
     title: 'ProjectUpdateIn'
 } as const;
 

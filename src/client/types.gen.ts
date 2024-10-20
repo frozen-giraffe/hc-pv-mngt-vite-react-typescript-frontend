@@ -950,7 +950,7 @@ export type ProjectUpdateIn = {
     project_area?: (number | null);
     project_construction_cost?: (number | null);
     calculated_employee_payout?: (number | null);
-    project_contract_value: number;
+    project_contract_value?: (number | null);
     notes?: (string | null);
 };
 

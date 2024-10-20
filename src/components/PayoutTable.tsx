@@ -1383,10 +1383,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           </Button>
         </Space>
           
-        {/* <Collapse activeKey={togglePayoutTable ? ["1"] : []} onChange={(key) => setTogglePayoutTable(!togglePayoutTable)} ghost items={[{key:'1',label:<span style={togglePayoutTable? {fontWeight: 'bold' }:{fontWeight:'normal'}}>
-            产值表
-          </span>, children:<PayoutTable></PayoutTable>}]} /> */}
-        {/* {togglePayoutTable && <PayoutTable></PayoutTable>} */}
         {togglePayoutTable &&
           
           <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit} onValuesChange={handleFormValuesChange}>
@@ -1498,18 +1494,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                   </Form.Item>
                 </Col>
               </Row>
-              {/* <Form.List name=''>
-                {(fields, operation) =>
-                  <Table<DataType>
-                  components={components}
-                  rowClassName={() => "editable-row"}
-                  bordered
-                  dataSource={dataSource}
-                  columns={columns as ColumnTypes}
-                  pagination={false}
-                />
-                }
-              </Form.List> */}
+
               <EditableContext.Provider value={formPayout}>
               
                 <Table<DataType>
@@ -1523,7 +1508,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                 />
               </EditableContext.Provider>
               
-              {/* Add the 总计 field */}
               <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                 <Text strong style={{ marginRight: '10px' }}>总计:</Text>
                 <Text 

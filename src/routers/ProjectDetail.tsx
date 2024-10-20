@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Descriptions,
-  Statistic,
-  Card,
   Row,
   Col,
-  Table,
   Tabs,
   Button,
   Divider,
@@ -22,59 +18,40 @@ import {
   Affix,
   DatePicker,
   DatePickerProps,
-  FormInstance,
   message,
-  TableProps,
   Tooltip,
-  Space,
-  Tag,
-  Popconfirm,
+  notification,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
-  ProjectsPublicOut,
   ProjectsService,
-  ProjectTaskTypesPublicOut,
   BuildingStructureTypePublicOut,
   BuildingStructureTypesService,
-  BuildingStructureTypesPublicOut,
   QualityRatioClassPublicOut,
-  QualityRatioClassesPublicOut,
   QualityRatioClassesService,
   ProjectTypePublicOut,
   ProjectClassesService,
-  ProjectClassesPublicOut,
   ProjectClassPublicOut,
   ProjectTaskTypesService,
-  ProjectTypesPublicOut,
   ProjectTypesService,
-  BuildingTypesPublicOut,
   BuildingTypesService,
   BuildingTypePublicOut,
-  ProjectRateAdjustmentClassesPublicOut,
   ProjectRateAdjustmentClassesService,
   DepartmentPayoutRatiosService,
   DepartmentPayoutRatioPublicOut,
   ProjectRateAdjustmentClassPublicOut,
-  ProdValueCalcRatiosPublicOut,
   ProdValueCalcRatiosService,
   ProdValueCalcRatioPublicOut,
-  JobPayoutRatioProfilePublicOut,
-  JobPayoutRatioProfilesService,
-  WorkLocationPublicOut,
   WorkLocationsService,
   ProjectPayoutPublicOut,
+  ProjectUpdateIn,
 } from "../client";
-import MySelectComponent from "../components/Dropdown";
 import { PayoutTable } from "../components/PayoutTable";
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
-const { Text, Link } = Typography;
-
-const { TabPane } = Tabs;
-const { Panel } = Collapse;
+const { Text } = Typography;
 
 const DecimalInput: React.FC<any> = ({
   value = "",
@@ -228,6 +205,15 @@ export const ProjectDetail = () => {
         projectRateAdjustmentClass: res.data.project_rate_adjustment_class_id, 
       })
       setProjectPayout(res.data.project_payout || null)
+      const resDepartmentPayoutRatios =
+      await DepartmentPayoutRatiosService.readDepartmentPayoutRatiosByProjectClassId(
+        { path: { project_class_id: res.data.project_class_id } }
+      );
+      if(resDepartmentPayoutRatios.data){
+        setDepartmentPayoutRatioRelatedToProjectClassId(resDepartmentPayoutRatios.data.data);
+      } else {
+        setDepartmentPayoutRatioRelatedToProjectClassId([]);
+      }
       console.log(res.data.project_rate_adjustment_class_id)
     }
   } 
@@ -284,24 +270,61 @@ export const ProjectDetail = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [segmentedValue, setSegmentedValue] = useState("");
-  const [messageApi, contextHolder] = message.useMessage();
+  const [notificationApi, contextHolder] = notification.useNotification();
   const successMessage = (msg:string) => {
-    messageApi.open({
+    notificationApi.success({
     type: 'success',
-    content: msg,
+    message: msg,
+    duration: 5,
     });
 };
 const errorMessage = (msg:string) => {
-    messageApi.open({
+    notificationApi.error({
       type: 'error',
-      content: msg,
+      message: msg,
+      duration: 10,
     });
 };
   const handleFormFinish = async(fieldsValue: any) => {
     console.log("表单提交时的值:", fieldsValue);
     console.log(fieldsValue['projectYear'].format('YYYY'));
-    
-    try{
+
+    if (project){
+      try {
+        const newProject: ProjectUpdateIn = {
+          project_code: fieldsValue['projectCode'],
+          name: fieldsValue['projectName'],
+          project_year: Number(fieldsValue['projectYear'].format('YYYY')),
+          project_type_id: Number(fieldsValue['projectType']),
+          building_type_id: Number(fieldsValue['buildingType']),
+          project_task_type_id: Number(fieldsValue['projectTaskType']),
+          project_class_id: Number(fieldsValue['projectClass']),
+          building_structure_type_id: Number(fieldsValue['buildingStructureType']),
+          project_rate_adjustment_class_id: Number(fieldsValue['projectRateAdjustmentClass']),
+          quality_ratio_class_id: Number(fieldsValue['qualityRatioClass']),
+          project_area: Number(fieldsValue['projectArea']),
+          project_construction_cost: Number(fieldsValue['projectConstructionCost']),
+          calculated_employee_payout: Number(fieldsValue['calculatedEmployeePayout']),
+          project_contract_value: Number(fieldsValue['projectContractValue']),
+        }
+        const changedFields: ProjectUpdateIn = {}
+        Object.keys(newProject).forEach((key) => {
+          const typedKey = key as keyof ProjectUpdateIn;
+          if (project[typedKey] !== newProject[typedKey]) {
+            changedFields[typedKey] = newProject[typedKey];
+          }
+        });
+        const res = await ProjectsService.updateProject({path: {id: project.id}, body: changedFields});
+        if (res.data) {
+          successMessage('更新成功')
+        } else {
+          errorMessage('更新失败: '+res.error.detail)
+        }
+      } catch (e) {
+        errorMessage('更新失败，未知错误：'+e)
+      }
+    } else {
+      try{
         const res = await ProjectsService.createProject({body:{
             project_code: fieldsValue['projectCode'],
             name: fieldsValue['projectName'],
@@ -320,13 +343,17 @@ const errorMessage = (msg:string) => {
         }})
         if(res.data){
             successMessage('创建成功')
+            setProject(res.data)
+            setPageTitle("项目信息: "+res.data.name)
+            navigate('/projects-detail?id='+res.data.id, {replace: true})
         }else{
             errorMessage('创建失败: '+res.error.detail)
         }
-    }catch(e){
-        errorMessage('创建失败')
-
+      }catch(e){
+          errorMessage('创建失败，未知错误：'+e)
+      }
     }
+
     
   };
   // 展开面板时更新状态
@@ -346,6 +373,14 @@ const errorMessage = (msg:string) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
+    const ratio = parseFloat(e.target.value)/parseFloat(form.getFieldValue("projectContractValue") || "0")
+    if (ratio>0){
+      setSilderValue(ratio*100)
+      setSegmentedValue(ratio.toFixed(2))
+    } else {
+      setSilderValue(0)
+      setSegmentedValue('')
+    }
   };
 
   const handleSegmentedChange = (value: string) => {
@@ -389,6 +424,7 @@ const errorMessage = (msg:string) => {
       id="my-drawer-container"
       style={{ overflow: "hidden", position: "relative" }}
     >
+      {contextHolder}
       <h2 style={{ marginTop: 0 }}>{pageTitle}</h2>
       
       <Affix offsetTop={0}>
@@ -489,20 +525,18 @@ const errorMessage = (msg:string) => {
           </Col>
           <Col span={8}>
             <Form.Item label="系数调整类别" name="projectRateAdjustmentClass" rules={[{ required: true }]}>
-              <Select>
-                {departmentPayoutRatioRelatedToProjectClassId.map((option) => {
-                  const pra: ProjectRateAdjustmentClassPublicOut | undefined =
-                    projectRateAdjustmentClasses.find(
-                      (value) =>
-                        value.id === option.project_rate_adjustment_class_id
-                    );
-                  return (
-                    <Select.Option key={pra?.id} value={pra?.id}>
-                      {pra?.name}
-                    </Select.Option>
+              <Select
+                options={departmentPayoutRatioRelatedToProjectClassId.map((option) => {
+                  const pra = projectRateAdjustmentClasses.find(
+                    (value) => value.id === option.project_rate_adjustment_class_id
                   );
+                  return {
+                    key: pra?.id,
+                    value: pra?.id,
+                    label: pra?.name
+                  };
                 })}
-              </Select>
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -593,9 +627,9 @@ const errorMessage = (msg:string) => {
                   <Row>
                     <Col span={12}>
                       <Slider
-                        min={1}
-                        max={100}
-                        step={1}
+                        min={10}
+                        max={50}
+                        step={0.1}
                         onChange={handleSlideronChange}
                         value={typeof silderValue === "number" ? silderValue : 0}
                         tooltip={{
@@ -608,7 +642,7 @@ const errorMessage = (msg:string) => {
                         style={{ margin: "0 16px" }}
                         value={silderValue}
                         onChange={handleSlideronChange}
-                        formatter={(value) => `${value}%`}
+                        formatter={(value) => `${Number(value).toFixed(2)}%`}
                       />
                     </Col>
                   </Row>
@@ -680,7 +714,7 @@ const errorMessage = (msg:string) => {
         
         <Form.Item>
           <Button type="primary" htmlType="submit">
-              提交项目
+              {project ? "更新项目" : "提交项目"}
           </Button>
         </Form.Item>
       </Form>
