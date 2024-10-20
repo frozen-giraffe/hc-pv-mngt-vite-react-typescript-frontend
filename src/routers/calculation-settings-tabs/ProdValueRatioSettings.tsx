@@ -224,13 +224,14 @@ const ProdValueRatioSettings: React.FC = () => {
             </Typography.Link>
 
             <Tooltip title={record.default ? "默认系数不可删除" : ""}>
-              <Typography.Link
-                onClick={() => handleDelete(record)}
-                style={{ marginRight: 8 }}
-                disabled={editingKey !== "" || record.default}
-              >
-                删除
-              </Typography.Link>
+              <Popconfirm title="确认删除此系数？" onConfirm={() => handleDelete(record)}>
+                <Typography.Link
+                  style={{ marginRight: 8 }}
+                  disabled={editingKey !== "" || record.default}
+                >
+                  删除
+                </Typography.Link>
+              </Popconfirm>
             </Tooltip>
             {!record.default && (
               <Typography.Link
