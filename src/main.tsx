@@ -39,7 +39,10 @@ client.interceptors.response.use((response) => {
     localStorage.removeItem(LOCALSTORAGE_ACCESS_TOKEN_NAME);
     localStorage.setItem(REDIRECT_LOGIN_REASON_KEY, 'token_expired');
     const currentPath = window.location.pathname;
-    window.location.href = "/login?redirect=" + currentPath;
+    const currentParams = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams();
+    params.set('redirect', currentPath + '?' + currentParams.toString());
+    window.location.href = "/login?" + params.toString();
   }
   return response;
 })
