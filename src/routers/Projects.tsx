@@ -102,24 +102,6 @@ export const Projects = () => {
 
   const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
 
-  const [isAffixed, setIsAffixed] = useState(false);
-  const affixContentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (affixContentRef.current) {
-      if (isAffixed) {
-        affixContentRef.current.style.borderRadius = "10px";
-        affixContentRef.current.style.padding = "8px 15px";
-        affixContentRef.current.style.boxShadow =
-          "0 1px 10px rgba(0, 0, 0, 0.5)";
-      } else {
-        affixContentRef.current.style.borderRadius = "0px";
-        affixContentRef.current.style.padding = "3px 5px";
-        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
-      }
-    }
-  }, [isAffixed]);
-
   useEffect(() => {
     fetchStaticData();
   }, []);
@@ -859,87 +841,73 @@ export const Projects = () => {
       <Space direction="vertical" style={{ width: "100%" }}>
         <h1>项目管理</h1>
         {user?.is_superuser && (
-          <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
-            <div
-              ref={affixContentRef}
-              style={{
-                background: "white",
-                padding: "3px 5px",
-                transition: "all 0.3s ease",
-                maxWidth: "max-content",
-                overflow: "scroll",
-                scrollbarWidth: "none",
-              }}
+          <Space wrap>
+            <Button
+              onClick={showProjectDetail}
+              type="primary"
+              icon={<PlusOutlined />}
             >
-              <Space wrap>
-                <Button
-                  onClick={showProjectDetail}
-                  type="primary"
-                  icon={<PlusOutlined />}
-                >
-                  添加
-                </Button>
-                <Divider type="vertical" />
-                <Button
-                  onClick={showProjectListDownloadModal}
-                  icon={<FilePdfOutlined />}
-                >
-                  导出项目列表
-                </Button>
-                <Button
-                  onClick={showCompanyReportModal}
-                  icon={<FilePdfOutlined />}
-                >
-                  公司年度报告
-                </Button>
-                <Divider type="vertical" />
-                <Typography.Text>显示列：</Typography.Text>
-                <Select
-                  mode="multiple"
-                  style={{ width: "300px" }}
-                  placeholder="选择显示的列"
-                  value={selectedColumns}
-                  onChange={handleColumnChange}
-                  options={columns.map((col) => ({
-                    label: col.title,
-                    value: col.key as string,
-                    disabled: col.key === "id" || col.key === "action",
-                  }))}
-                  allowClear={true}
-                  onClear={() => handleColumnChange([])}
-                  maxTagCount="responsive"
-                  dropdownRender={(menu) => {
-                    return (
-                      <>
-                        {menu}
-                        <Divider style={{ margin: "8px 0" }} />
-                        <Space style={{ padding: "0 8px 4px", width: "100%" }}>
-                          <Button
-                            type="text"
-                            icon={<PlusOutlined />}
-                            onClick={() =>
-                              handleColumnChange(
-                                columns.map((col) => col.key as string)
-                              )
-                            }
-                          >
-                            全选
-                          </Button>
-                          <Button
-                            type="text"
-                            icon={<MinusOutlined />}
-                            onClick={() => handleColumnChange([])}
-                          >
-                            全不选
-                          </Button>
-                        </Space>
-                      </>
-                    );
-                  }}
-                />
-              </Space>
-            </div>
-          </Affix>
+              添加
+            </Button>
+            <Divider type="vertical" />
+            <Button
+              onClick={showProjectListDownloadModal}
+              icon={<FilePdfOutlined />}
+            >
+              导出项目列表
+            </Button>
+            <Button
+              onClick={showCompanyReportModal}
+              icon={<FilePdfOutlined />}
+            >
+              公司年度报告
+            </Button>
+            <Divider type="vertical" />
+            <Typography.Text>显示列：</Typography.Text>
+            <Select
+              mode="multiple"
+              style={{ width: "300px" }}
+              placeholder="选择显示的列"
+              value={selectedColumns}
+              onChange={handleColumnChange}
+              options={columns.map((col) => ({
+                label: col.title,
+                value: col.key as string,
+                disabled: col.key === "id" || col.key === "action",
+              }))}
+              allowClear={true}
+              onClear={() => handleColumnChange([])}
+              maxTagCount="responsive"
+              dropdownRender={(menu) => {
+                return (
+                  <>
+                    {menu}
+                    <Divider style={{ margin: "8px 0" }} />
+                    <Space style={{ padding: "0 8px 4px", width: "100%" }}>
+                      <Button
+                        type="text"
+                        icon={<PlusOutlined />}
+                        onClick={() =>
+                          handleColumnChange(
+                            columns.map((col) => col.key as string)
+                          )
+                        }
+                      >
+                        全选
+                      </Button>
+                      <Button
+                        type="text"
+                        icon={<MinusOutlined />}
+                        onClick={() => handleColumnChange([])}
+                      >
+                        全不选
+                      </Button>
+                    </Space>
+                  </>
+                );
+              }}
+            />
+          </Space>
         )}
         <Table
           bordered
@@ -981,6 +949,7 @@ export const Projects = () => {
           scroll={{ x: "max-content" }}
           style={{ height: "100%" }}
           size="small"
+          sticky={{ offsetHeader: -1, offsetScroll: 10 }}
         />
       </Space>
       <ProjectListDownloadModal

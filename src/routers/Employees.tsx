@@ -107,26 +107,7 @@ export const Employees: React.FC = () => {
 
   const getEmployeePublicOutColumn = GetColumnNames<EmployeePublicOut>();
 
-  const [isAffixed, setIsAffixed] = useState(false);
-  const affixContentRef = useRef<HTMLDivElement>(null);
-
   const notificationApi = useNotificationApi();
-
-  useEffect(() => {
-    if (affixContentRef.current) {
-      if (isAffixed) {
-        affixContentRef.current.style.borderRadius = "10px";
-        affixContentRef.current.style.padding = "8px 15px";
-        affixContentRef.current.style.boxShadow =
-          "0 1px 10px rgba(0, 0, 0, 0.5)";
-      } else {
-        affixContentRef.current.style.borderRadius = "0px";
-        affixContentRef.current.style.padding = "3px 5px";
-        affixContentRef.current.style.boxShadow = "0 0px 1px rgba(0, 0, 0, 0)";
-      }
-    }
-  }, [isAffixed]);
-
   useEffect(() => {
     fetchStaticData();
   }, []);
@@ -692,33 +673,19 @@ export const Employees: React.FC = () => {
       <Space direction="vertical" style={{ width: "100%" }}>
         <h1>人员管理</h1>
         {user?.is_superuser && (
-          <Affix offsetTop={10} onChange={(affixed) => setIsAffixed(!!affixed)}>
-            <div
-              ref={affixContentRef}
-              style={{ 
-                background: "white",
-                padding: "3px 5px",
-                transition: "all 0.3s ease",
-                maxWidth: "max-content",
-                overflow: "scroll",
-                scrollbarWidth: "none",
-              }}
+          <Space wrap>
+            <Button
+              onClick={() => showModal()}
+              type="primary"
+              icon={<PlusOutlined />}
             >
-              <Space wrap>
-                <Button
-                  onClick={() => showModal()}
-                  type="primary"
-                  icon={<PlusOutlined />}
-                >
-                  添加
-                </Button>
-                <Divider type="vertical" />
-                <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
-                  导出人员列表
-                </Button>
-              </Space>
-            </div>
-          </Affix>
+              添加
+            </Button>
+            <Divider type="vertical" />
+            <Button onClick={downloadEmployeeList} icon={<FilePdfOutlined />}>
+              导出人员列表
+            </Button>
+          </Space>
         )}
         <Table
           rowKey="id"
@@ -751,6 +718,7 @@ export const Employees: React.FC = () => {
             )
           }}
           scroll={{ x: 500 }}
+          sticky={{ offsetHeader: -1, offsetScroll: 10 }}
         />
       </Space>
       <Modal

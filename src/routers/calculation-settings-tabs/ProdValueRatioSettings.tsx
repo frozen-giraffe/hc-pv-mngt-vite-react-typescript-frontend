@@ -333,6 +333,7 @@ const ProdValueRatioSettings: React.FC = () => {
             },
           }}
           bordered
+          virtual
           dataSource={ratios}
           columns={mergedColumns}
           rowClassName="editable-row"
