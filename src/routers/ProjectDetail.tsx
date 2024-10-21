@@ -435,23 +435,31 @@ const errorMessage = (msg:string) => {
       {contextHolder}
       <h2 style={{ marginTop: 0 }}>{pageTitle}</h2>
       
-      <Affix offsetTop={20}>
+      <Affix offsetTop={0}>
         <Drawer
           title="项目信息摘要"
           onClose={() => setIsDrawerOpen(false)}
           open={isDrawerOpen}
-          // mask={false}
+          mask={false}
           maskClosable={false}
           autoFocus={false}
           placement="top"
           getContainer={false}
           height={'max-content'}
         >
-          <Descriptions>
-            <Descriptions.Item label="项目名称">{form.getFieldValue('projectName')}</Descriptions.Item>
+          <Descriptions size="small">
+            <Descriptions.Item label="项目名称">
+              <Typography.Text ellipsis={{ tooltip: true }}>
+                {form.getFieldValue('projectName')}
+              </Typography.Text>
+            </Descriptions.Item>
             <Descriptions.Item label="项目年度">{form.getFieldValue('projectYear')?.format('YYYY')}</Descriptions.Item>
             <Descriptions.Item label="项目工号">{form.getFieldValue('projectCode')}</Descriptions.Item>
-            <Descriptions.Item label="工程类型">{projectTypes.find((option)=>option.id===form.getFieldValue('projectType'))?.name}</Descriptions.Item>
+            <Descriptions.Item label="工程类型">
+              <Typography.Text ellipsis={{ tooltip: true }}>
+                {projectTypes.find((option)=>option.id===form.getFieldValue('projectType'))?.name}
+              </Typography.Text>
+            </Descriptions.Item>
             <Descriptions.Item label="工程等级">{projectClasses.find((option)=>option.id===form.getFieldValue('projectClass'))?.name}</Descriptions.Item>
             {/* <Descriptions.Item label="民用建筑类别">{buildingTypes.find((option)=>option.id===form.getFieldValue('buildingType'))?.name}</Descriptions.Item>
             <Descriptions.Item label="工程项目类别">{projectTaskTypes.find((option)=>option.id===form.getFieldValue('projectTaskType'))?.name}</Descriptions.Item>
@@ -461,7 +469,11 @@ const errorMessage = (msg:string) => {
             <Descriptions.Item label="工程面积">{form.getFieldValue('projectArea')}</Descriptions.Item>
             <Descriptions.Item label="工程总造价">{form.getFieldValue('projectConstructionCost')}</Descriptions.Item>
             <Descriptions.Item label="施工图合同额">{form.getFieldValue('projectContractValue')}</Descriptions.Item>
-            <Descriptions.Item label="下发产值">{form.getFieldValue('calculatedEmployeePayout')}</Descriptions.Item>
+            <Descriptions.Item label="下发产值">
+              <Typography.Text strong style={{fontSize: '1.2em'}}>
+                {form.getFieldValue('calculatedEmployeePayout')}
+              </Typography.Text>
+            </Descriptions.Item>
           </Descriptions>
         </Drawer>
       </Affix>
@@ -693,3 +705,4 @@ const errorMessage = (msg:string) => {
     </div>
   );
 };
+
