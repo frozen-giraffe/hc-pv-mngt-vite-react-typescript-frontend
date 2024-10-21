@@ -258,7 +258,6 @@ export const ProjectDetail = () => {
   };
   
   const calculateIssuedValue = () => {
-    console.log("计算下发产值...");
     const value = form.getFieldValue("projectContractValue") || 0;
     const issuedValue = value * ratio;
     form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
@@ -356,7 +355,6 @@ const errorMessage = (msg:string) => {
   // 展开面板时更新状态
   const handleFocus = () => {
     setIsPanelOpen(true);
-    console.log(inputValue);
   };
   // Collapse panel after all children lose focus
   const handleBlur = () => {
@@ -507,14 +505,20 @@ const errorMessage = (msg:string) => {
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item label="工程类型" name="projectType" rules={[{ required: true }]}>
-                {/* {renderDropdown(projectTypes)} */}
-                {/* <MySelectComponent options={projectTypes} handleChange={handleProjectTypeSelectChange}/> */}
-                <Select onChange={handleProjectTypeSelectChange}>
-                  {projectTypes.map((option) => (
-                    <Select.Option key={option.id} value={option.id}>
-                      {option.name}
-                    </Select.Option>
+                <Select 
+                  onChange={handleProjectTypeSelectChange} 
+                  showSearch={projectTypes.length > 10}
+                  optionFilterProp="label"
+                  options = {projectTypes.map((option) => (
+                    {
+                      key: option.id,
+                      value: option.id,
+                      label: option.name
+                    }
                   ))}
+                  virtual={false}
+                  popupMatchSelectWidth={false}
+                >
                 </Select>
               </Form.Item>
             </Col>
@@ -584,12 +588,19 @@ const errorMessage = (msg:string) => {
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item label="结构形式" name="buildingStructureType" rules={[{ required: true }]}>
-                <Select>
-                  {buildingStructureTypes.map((option) => (
-                    <Select.Option key={option.id} value={option.id}>
-                      {option.name}
-                    </Select.Option>
+                <Select
+                  showSearch
+                  virtual={false}
+                  popupMatchSelectWidth={false}
+                  optionFilterProp="label"
+                  options={buildingStructureTypes.map((option) => (
+                    {
+                      key: option.id,
+                      value: option.id,
+                      label: option.name
+                    }
                   ))}
+                  >
                 </Select>
               </Form.Item>
             </Col>
