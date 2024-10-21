@@ -22,6 +22,7 @@ import {
   Tooltip,
   notification,
   Descriptions,
+  Skeleton,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
@@ -313,6 +314,7 @@ const errorMessage = (msg:string) => {
         const res = await ProjectsService.updateProject({path: {id: project.id}, body: changedFields});
         if (res.data) {
           successMessage('更新成功')
+          setProject(res.data)
         } else {
           errorMessage('更新失败: '+res.error.detail)
         }
@@ -418,6 +420,10 @@ const errorMessage = (msg:string) => {
   useEffect(() => {
     setIsDrawerOpen(!isFormInView);
   }, [isFormInView]);
+
+  if (loading) {
+    return <Skeleton active />;
+  }
 
   return (
     <div

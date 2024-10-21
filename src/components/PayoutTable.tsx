@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { GetRef, InputRef, TableProps } from "antd";
-import { Button, Col, Divider, Form, Input, message, Row, Select, Space, Table, Tag, Tooltip, Typography, notification } from "antd";
+import { Button, Col, Divider, Form, Input, message, Row, Select, Space, Table, Tag, Tooltip, Typography, notification, Skeleton } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut, ProjectPayoutCreateIn, ProjectPayoutsService, ProjectPayoutUpdateIn, ProjectPayoutUpdateInSchema } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -739,6 +739,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   useEffect(() => {
+    setLoading(true)
     fetchData();
     fetchProfiles();
     if (existing_project_payout) {
@@ -746,7 +747,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     }
   }, [existing_project_payout]);
 
-  const fetchData= async()=>{
+  const fetchData = async()=>{
     try {
       const [resWorkLocations, resDepartments] = await Promise.all([
         WorkLocationsService.readWorkLocations(),
@@ -779,7 +780,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           message.error("获取工比失败: " + error.detail);
         } else {
           setProfiles(data.data);
-        setLoading(false);
+          if (!existing_project_payout) setLoading(false);
       }
     } catch (error) {
       message.error("获取工比失败: 未知错误: " + error);
@@ -838,6 +839,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     setTotalSum(totalSum);
     setIsSumValid(Math.abs(totalSum - project.calculated_employee_payout) < 0.001);
     setTogglePayoutTable(true)
+    setLoading(false)
   };
 
   const handleProfileSelect = (profileId: number) => {
@@ -1527,6 +1529,8 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     }
   }
 
+  if (loading) return <Skeleton active />
+
   return (
     <div>
       {contextHolder}
@@ -1578,7 +1582,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
             计算产值
           </Button>
           {usedDepartmentPayoutRatioId === 99 && (
-            <Tooltip title={`当前工程为非正规工程，或项目工程等级和系数调整级别没有指定的部门工比，无法自动计算产值，请手动填入。`}>
+            <Tooltip title={`当前工程为非正规工程，或项目工程等级和系数调整级别没有对应的部门工比，无法自动计算产值，请手动填入。`}>
               <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
             </Tooltip>
           )}
