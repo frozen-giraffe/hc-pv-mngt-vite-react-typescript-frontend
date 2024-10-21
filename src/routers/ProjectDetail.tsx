@@ -124,7 +124,8 @@ export const ProjectDetail = () => {
   const [searchParams] = useSearchParams();
   const [projectPayout, setProjectPayout] = useState<ProjectPayoutPublicOut | null>(null);
 
-  
+  const [ratio, setRatio] = useState<number>(1);
+
   useEffect(() => {
     fetchData();
 
@@ -171,8 +172,9 @@ export const ProjectDetail = () => {
         setDefaultProdValCalcRatio(resDefaultProdValCalcRatios.data);
         //set default option highlighted
         setSegmentedValue(resDefaultProdValCalcRatios.data.ratio.toString())
-        //set default silder position
+        //set default slider position and ratio
         setSilderValue(resDefaultProdValCalcRatios.data.ratio*100)
+        setRatio(resDefaultProdValCalcRatios.data.ratio);
       }
     } catch (error) {
       message.error("项目基本信息类获取失败: "+ error);
@@ -257,20 +259,9 @@ export const ProjectDetail = () => {
   
   const calculateIssuedValue = () => {
     console.log("计算下发产值...");
-    const preValue=form.getFieldValue('calculatedEmployeePayout')
     const value = form.getFieldValue("projectContractValue") || 0;
-    const ratio = defaultProdValCalcRatio?.ratio || 1;
-    const issuedValue = value * ratio; // 例如：下发产值为项目值的 80%
-    if(preValue!==issuedValue.toFixed(2)){
-        form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
-    }
-    if(segmentedValue || silderValue){
-
-    }else{
-        
-        form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
-    }
-    
+    const issuedValue = value * ratio;
+    form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
   };
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -378,34 +369,38 @@ const errorMessage = (msg:string) => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-    const ratio = parseFloat(e.target.value)/parseFloat(form.getFieldValue("projectContractValue") || "0")
-    if (ratio>0){
-      setSilderValue(ratio*100)
-      setSegmentedValue(ratio.toFixed(2))
+    const inputValue = e.target.value;
+    setInputValue(inputValue);
+    const newRatio = parseFloat(inputValue) / parseFloat(form.getFieldValue("projectContractValue") || "1");
+    if (!isNaN(newRatio) && newRatio > 0) {
+      setRatio(newRatio);
+      setSilderValue(newRatio * 100);
+      setSegmentedValue(newRatio.toFixed(2));
     } else {
-      setSilderValue(0)
-      setSegmentedValue('')
+      setRatio(0);
+      setSilderValue(0);
+      setSegmentedValue('');
     }
   };
 
   const handleSegmentedChange = (value: string) => {
-    console.log(value);
-    setSilderValue(parseFloat(value)*100);
-    
+    const newRatio = parseFloat(value);
+    setRatio(newRatio);
+    setSilderValue(newRatio * 100);
     setSegmentedValue(value);
     const projectContractValue = form.getFieldValue("projectContractValue") || 0;
-    form.setFieldsValue({ calculatedEmployeePayout: (projectContractValue*parseFloat(value)).toFixed(2) });
+    form.setFieldsValue({ calculatedEmployeePayout: (projectContractValue * newRatio).toFixed(2) });
   };
+
   const handleSlideronChange: InputNumberProps["onChange"] = (newValue) => {
     const value = newValue as number;
     setSilderValue(value);
-    setSegmentedValue('')//unselect options in Segmented
+    const newRatio = value / 100;
+    setRatio(newRatio);
+    setSegmentedValue(''); //unselect options in Segmented
     const projectContractValue = form.getFieldValue("projectContractValue") || 0;
     form.setFieldsValue({
-      calculatedEmployeePayout: (projectContractValue * (value / 100)).toFixed(
-        2
-      ),
+      calculatedEmployeePayout: (projectContractValue * newRatio).toFixed(2),
     });
   };
   const onChange: DatePickerProps["onChange"] = (date, dateString) => {
@@ -614,7 +609,7 @@ const errorMessage = (msg:string) => {
           <Typography.Title level={5}>产值详情</Typography.Title>
 
           <Form.Item label="施工图合同额(元)" name="projectContractValue" rules={[{ required: true }]}>
-            <DecimalInput onBlur={calculateIssuedValue} />
+            <DecimalInput onChange={calculateIssuedValue} />
           </Form.Item>
 
           <Form.Item label="下发产值(元)" required>
@@ -636,8 +631,8 @@ const errorMessage = (msg:string) => {
                 children:(
                   <div
                     className="panel-content"
-                    onFocus={handleFocus} // Expand when any child gets focus
-                    onBlur={handleBlur}   // Collapse when all children lose focus
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                   >
                     <Row align="middle" justify="start">
                       <Col>
@@ -665,7 +660,7 @@ const errorMessage = (msg:string) => {
                           onChange={handleSlideronChange}
                           value={typeof silderValue === "number" ? silderValue : 0}
                           tooltip={{
-                            formatter: (value) => `${value}%`, // Append % after value
+                            formatter: (value) => `${value}%`,
                           }}
                         />
                       </Col>
