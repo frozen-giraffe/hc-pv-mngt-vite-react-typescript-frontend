@@ -51,7 +51,7 @@ import {
 } from "../client";
 import { PayoutTable } from "../components/PayoutTable";
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import { useInView } from 'react-intersection-observer';
 const { Text } = Typography;
@@ -86,6 +86,7 @@ const DecimalInput: React.FC<any> = ({
 
 
 export const ProjectDetail = () => {
+  const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [project, setProject] = useState<ProjectPublicOut>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -122,7 +123,6 @@ export const ProjectDetail = () => {
   ] = useState<DepartmentPayoutRatioPublicOut[]>([]); //this one is based on which projectClass picked and project-class is based on which projectType picked
   const [pageTitle, setPageTitle] = useState("新建项目");
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [projectPayout, setProjectPayout] = useState<ProjectPayoutPublicOut | null>(null);
 
   const [ratio, setRatio] = useState<number>(1);
@@ -180,16 +180,17 @@ export const ProjectDetail = () => {
     } catch (error) {
       message.error("项目基本信息类获取失败: "+ error);
       //console.error("Error fetching data:", error);
-    } finally {
+    } 
+    if (id === 'new') {
       setLoading(false);
     }
-    if (searchParams.get('id')){
+    if (id && id !== 'new') {
       await fetchProjectDetail();
-    }
+    } 
   };
 
   const fetchProjectDetail = async () => {
-    const res = await ProjectsService.readProject({path: {id: Number(searchParams.get('id'))}})
+    const res = await ProjectsService.readProject({path: {id: Number(id)}})
     if (res.data){
       setProject(res.data)
       setPageTitle("项目信息: "+res.data.name)
@@ -221,6 +222,7 @@ export const ProjectDetail = () => {
       }
       console.log(res.data.project_rate_adjustment_class_id)
     }
+    setLoading(false);
   } 
 
   const handleProjectTypeSelectChange = async (value: number) => {

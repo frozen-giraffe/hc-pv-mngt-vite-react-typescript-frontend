@@ -25,14 +25,22 @@ type MenuItem = Required<MenuProps>['items'][number] & {
 const items: MenuItem[] = [
   {
     key: '/dashboard',
-    label: '主页',
+    label: (
+      <a href="/dashboard">
+        主页
+      </a>
+    ),
     icon: <HomeOutlined />,
     path: '/dashboard',
 
   },
   {
     key: '/projects',
-    label: '项目',
+    label: (
+      <a href="/projects">
+        项目
+      </a>
+    ),
     icon: <ProjectOutlined />,
     path: '/projects'
   },
@@ -41,19 +49,31 @@ const items: MenuItem[] = [
   },
   {
     key: '/employees',
-    label: '人员管理',
+    label: (
+      <a href="/employees">
+        人员管理
+      </a>
+    ),
     icon: <UserOutlined />,
     path: '/employees'
   },
   {
     key: '/calculation-settings',
-    label: '计算配置',
+    label: (
+      <a href="/calculation-settings">
+        计算配置
+      </a>
+    ),
     icon: <CalculatorOutlined />,
     path: '/calculation-settings',
   },
   {
     key: '/system-management',
-    label: '系统管理',
+    label: (
+      <a href="/system-management">
+        系统管理
+      </a>
+    ),
     icon: <SettingOutlined />,
     path: '/system-management',
   },
@@ -75,7 +95,7 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
 
   useEffect(() => {
     const currentPath = location.pathname;
-    const matchingItem = items.find(item => item.path === currentPath);
+    const matchingItem = items.find(item => item.path && currentPath.startsWith(item.path));
     if (matchingItem) {
       setSelectedKeys([matchingItem.key as string]);
     }
@@ -128,8 +148,11 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
     {
       key: '2',
       icon: <UserOutlined />,
-      label: auth.user?.full_name || '个人信息',
-      onClick: () => navigate('/system-management?tab=personalInfo', {state:{from:"settings_dropdown"}})
+      label: (<a href="/system-management?tab=personalInfo">{auth.user?.full_name || '个人信息'}</a>),
+      onClick: (e) => {
+        e.domEvent.preventDefault();
+        navigate('/system-management?tab=personalInfo', {state:{from:"settings_dropdown"}})
+      }
     },
     {
       type: 'divider',
@@ -185,7 +208,10 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
           mode="vertical"
           selectedKeys={selectedKeys}
           items={items}
-          onClick={onClickMenuItem}
+          onClick={(e) => {
+            e.domEvent.preventDefault();
+            onClickMenuItem(e);
+          }}
           
         />
       </Sider>

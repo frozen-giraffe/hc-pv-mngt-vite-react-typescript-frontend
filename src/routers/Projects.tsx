@@ -20,7 +20,7 @@ import {
   FilePdfOutlined,
   MinusOutlined,
 } from "@ant-design/icons";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import {
   ProjectTaskTypePublicOut,
   ProjectPublicOut,
@@ -320,7 +320,7 @@ export const Projects = () => {
   };
 
   const handleOpenDetail = (data: ProjectPublicOut) => {
-    navigate(`/project/detail?id=${data.id}`, {state: {from: 'projects'}});
+    navigate(`/projects/${data.id}`);
   };
   const getValueFromListByID = <T,>(
     id: number,
@@ -344,7 +344,7 @@ export const Projects = () => {
   };
 
   const showProjectDetail = () => {
-    navigate("/project/detail");
+    navigate("/projects/new");
   };
   const convertDateToYYYYMMDDHM = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -767,8 +767,12 @@ export const Projects = () => {
         return user?.is_superuser ? (
           <Space>
             <Typography.Link
-              onClick={() => handleOpenDetail(row)}
+              onClick={(e) => {
+                e.preventDefault();
+                handleOpenDetail(row);
+              }}
               style={{ marginInlineEnd: 8 }}
+              href={`/projects/${row.id}`}
             >
               详情
             </Typography.Link>
