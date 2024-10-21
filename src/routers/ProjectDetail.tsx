@@ -23,6 +23,7 @@ import {
   notification,
   Descriptions,
   Skeleton,
+  Result,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
@@ -90,6 +91,7 @@ export const ProjectDetail = () => {
   const [form] = Form.useForm();
   const [project, setProject] = useState<ProjectPublicOut>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [projectNotFound, setProjectNotFound] = useState<boolean>(false);
   const [silderValue, setSilderValue] = useState(1);
   
 
@@ -221,6 +223,9 @@ export const ProjectDetail = () => {
         setDepartmentPayoutRatioRelatedToProjectClassId([]);
       }
       console.log(res.data.project_rate_adjustment_class_id)
+    } else {
+      console.log(res.error)
+      setProjectNotFound(true)
     }
     setLoading(false);
   } 
@@ -277,10 +282,10 @@ export const ProjectDetail = () => {
     duration: 5,
     });
 };
-const errorMessage = (msg:string) => {
+const errorMessage = (msg:string | undefined) => {
     notificationApi.error({
       type: 'error',
-      message: msg,
+      message: msg || '未知错误',
       duration: 10,
     });
 };
@@ -424,6 +429,9 @@ const errorMessage = (msg:string) => {
 
   if (loading) {
     return <Skeleton active />;
+  }
+  if (projectNotFound) {
+    return <Result status="404" title={"项目ID "+ id +" 不存在"} subTitle="请返回上一页并重试。如果问题依旧存在，请联系管理员。" />;
   }
 
   return (
