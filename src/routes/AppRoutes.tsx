@@ -53,7 +53,7 @@ export const AppRoutes = [
     )
   },
   { 
-    path: "/projects-detail", 
+    path: "/project/detail", 
     element: (
       <AuthenticatedRoute>
         <MenuComponent>

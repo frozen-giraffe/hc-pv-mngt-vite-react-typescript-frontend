@@ -83,7 +83,7 @@ createRoot(document.getElementById('root')!).render(
                   </MenuComponent>
                 </AuthenticatedRoute>
               } />
-              <Route path="/projects-detail" element={
+              <Route path="/project/detail" element={
                 <AuthenticatedRoute>
                   <MenuComponent>
                     <ProjectDetail/>

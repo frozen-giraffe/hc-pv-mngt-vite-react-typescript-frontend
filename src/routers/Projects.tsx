@@ -320,7 +320,7 @@ export const Projects = () => {
   };
 
   const handleOpenDetail = (data: ProjectPublicOut) => {
-    navigate(`/projects-detail?id=${data.id}`, {state: {from: 'projects'}});
+    navigate(`/project/detail?id=${data.id}`, {state: {from: 'projects'}});
   };
   const getValueFromListByID = <T,>(
     id: number,
@@ -344,7 +344,7 @@ export const Projects = () => {
   };
 
   const showProjectDetail = () => {
-    navigate("/projects-detail");
+    navigate("/project/detail");
   };
   const convertDateToYYYYMMDDHM = (dateStr: string) => {
     const date = new Date(dateStr);

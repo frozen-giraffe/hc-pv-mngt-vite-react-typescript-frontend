@@ -343,7 +343,7 @@ const errorMessage = (msg:string) => {
             successMessage('创建成功')
             setProject(res.data)
             setPageTitle("项目信息: "+res.data.name)
-            navigate('/projects-detail?id='+res.data.id, {replace: true})
+            navigate('/project/detail?id='+res.data.id, {replace: true})
         }else{
             errorMessage('创建失败: '+res.error.detail)
         }
@@ -411,7 +411,6 @@ const errorMessage = (msg:string) => {
   };
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const { ref: formWrapperRef, inView: isFormInView } = useInView({
     threshold: 0.1,
     rootMargin: '-10% 0px 0px 0px',
@@ -427,7 +426,6 @@ const errorMessage = (msg:string) => {
 
   return (
     <div
-      ref={containerRef}
       id="my-drawer-container"
       style={{ overflow: "hidden", position: "relative" }}
     >
