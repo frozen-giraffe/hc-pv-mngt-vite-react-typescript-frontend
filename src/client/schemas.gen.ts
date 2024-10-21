@@ -530,7 +530,7 @@ export const DepartmentPayoutRatioUpdateInSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Modified At',
-            default: '2024-10-20T17:28:41.490678'
+            default: '2024-10-20T23:16:11.721671'
         }
     },
     type: 'object',
@@ -6132,7 +6132,6 @@ export const ProjectPayoutUpdateInSchema = {
         }
     },
     type: 'object',
-    required: ['project_id'],
     title: 'ProjectPayoutUpdateIn'
 } as const;
 

@@ -234,10 +234,14 @@ export const ProjectDetail = () => {
     //get departmentPayoutRatio related to projectClassId, and projectClassId based on which projectType picked
     const res =
       await DepartmentPayoutRatiosService.readDepartmentPayoutRatiosByProjectClassId(
-        { path: { project_class_id: relatedProjectClassName!!.id } }
+        { path: { project_class_id: relatedProjectClassName!.id } }
       );
     if(res.data){
       setDepartmentPayoutRatioRelatedToProjectClassId(res.data.data);
+      const currentProjectRateAdjustmentClassId = form.getFieldValue('projectRateAdjustmentClass')
+      if (!res.data.data.find((value)=>value.project_rate_adjustment_class_id===currentProjectRateAdjustmentClassId)){
+        form.setFieldValue('projectRateAdjustmentClass', undefined)
+      }
     } else {
       setDepartmentPayoutRatioRelatedToProjectClassId([]);
     }
@@ -409,14 +413,14 @@ const errorMessage = (msg:string) => {
     
   };
 
-  const [open, setOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const showDrawer = () => {
-    setOpen(true);
+    setIsDrawerOpen(true);
   };
 
-  const onClose = () => {
-    setOpen(false);
+  const onDrawerClose = () => {
+    setIsDrawerOpen(false);
   };
   return (
     <div
@@ -430,8 +434,8 @@ const errorMessage = (msg:string) => {
       <Affix offsetTop={0}>
         <Drawer
           title="Basic Drawer"
-          onClose={onClose}
-          open={open}
+          onClose={onDrawerClose}
+          open={isDrawerOpen}
           mask={false}
           maskClosable={false}
           autoFocus={false}

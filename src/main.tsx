@@ -22,7 +22,8 @@ import SystemManagement from './routers/SystemManagement';
 import NotFound from './routers/NotFound';
 
 client.setConfig({
-  baseUrl: "http://api.aaronyou.photos",
+  // baseUrl: "http://api.aaronyou.photos",
+  baseUrl: "http://localhost:8001",
   headers: {
     'Content-Type': 'application/json',
   },

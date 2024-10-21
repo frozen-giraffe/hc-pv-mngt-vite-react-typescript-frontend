@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import type { GetRef, InputRef, TableProps } from "antd";
-import { Button, Col, Divider, Form, Input, message, notification, Row, Select, Space, Table, Tag, Tooltip, Typography } from "antd";
-import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut } from "../client";
+import { Button, Col, Divider, Form, Input, message, Row, Select, Space, Table, Tag, Tooltip, Typography, notification } from "antd";
+import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut, ProjectPayoutCreateIn, ProjectPayoutsService, ProjectPayoutUpdateIn, ProjectPayoutUpdateInSchema } from "../client";
 import type { BaseSelectRef } from 'rc-select'; // Import the correct type
 import { InfoCircleOutlined } from '@ant-design/icons';
 import './PayoutTable.css'
 import PayoutInput from "./PayoutInput";
-import cloneDeep from 'lodash.cloneDeep';
 
 type FormInstance<T> = GetRef<typeof Form<T>>;
 
@@ -355,6 +354,120 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
   }
 }
 
+const formDataToProjectPayout = (formData: any): ProjectPayoutCreateIn => {
+    const project_payout: ProjectPayoutCreateIn = {
+      project_id: formData.project_id !== '' ? formData.project_id : null,
+      job_payout_ratio_profile_id: formData.project_class_id !== '' ? formData.project_class_id : null,
+      pm_id: formData.pm !== '' ? formData.pm : null,
+      pm_payout: formData.pmPayout !== '' ? formData.pmPayout : null,
+      pm_assistant_id: formData.pmAssistant !== '' ? formData.pmAssistant : null,
+      pm_assistant_payout: formData.pmAssistantPayout !== '' ? formData.pmAssistantPayout : null,
+
+      arch_pm_id: formData.建筑设计人.pm !== '' ? formData.建筑设计人.pm : null,
+      arch_pm_payout: formData.建筑产值.pm !== '' ? formData.建筑产值.pm : null,
+      arch_pm_assistant_id: formData.建筑设计人.pm_assistant !== '' ? formData.建筑设计人.pm_assistant : null,
+      arch_pm_assistant_payout: formData.建筑产值.pm_assistant !== '' ? formData.建筑产值.pm_assistant : null,
+      arch_designer_id: formData.建筑设计人.designer !== '' ? formData.建筑设计人.designer : null,
+      arch_designer_payout: formData.建筑产值.designer !== '' ? formData.建筑产值.designer : null,
+      arch_drafter_id: formData.建筑设计人.drafter !== '' ? formData.建筑设计人.drafter : null,
+      arch_drafter_payout: formData.建筑产值.drafter !== '' ? formData.建筑产值.drafter : null,
+      arch_design_post_service_id: formData.建筑设计人.post_service !== '' ? formData.建筑设计人.post_service : null,
+      arch_design_post_service_payout: formData.建筑产值.post_service !== '' ? formData.建筑产值.post_service : null,
+      arch_proofreader_id: formData.建筑设计人.proofreader !== '' ? formData.建筑设计人.proofreader : null,
+      arch_proofreader_payout: formData.建筑产值.proofreader !== '' ? formData.建筑产值.proofreader : null,
+      arch_reviewer_id: formData.建筑设计人.reviewer !== '' ? formData.建筑设计人.reviewer : null,
+      arch_reviewer_payout: formData.建筑产值.reviewer !== '' ? formData.建筑产值.reviewer : null,
+      arch_approver_id: formData.建筑设计人.approver !== '' ? formData.建筑设计人.approver : null,
+      arch_approver_payout: formData.建筑产值.approver !== '' ? formData.建筑产值.approver : null,
+
+      struct_pm_id: formData.结构设计人.pm !== '' ? formData.结构设计人.pm : null,
+      struct_pm_payout: formData.结构产值.pm !== '' ? formData.结构产值.pm : null,
+      struct_pm_assistant_id: formData.结构设计人.pm_assistant !== '' ? formData.结构设计人.pm_assistant : null,
+      struct_pm_assistant_payout: formData.结构产值.pm_assistant !== '' ? formData.结构产值.pm_assistant : null,
+      struct_designer_id: formData.结构设计人.designer !== '' ? formData.结构设计人.designer : null,
+      struct_designer_payout: formData.结构产值.designer !== '' ? formData.结构产值.designer : null,
+      struct_drafter_id: formData.结构设计人.drafter !== '' ? formData.结构设计人.drafter : null,
+      struct_drafter_payout: formData.结构产值.drafter !== '' ? formData.结构产值.drafter : null,
+      struct_design_post_service_id: formData.结构设计人.post_service !== '' ? formData.结构设计人.post_service : null,
+      struct_design_post_service_payout: formData.结构产值.post_service !== '' ? formData.结构产值.post_service : null,
+      struct_proofreader_id: formData.结构设计人.proofreader !== '' ? formData.结构设计人.proofreader : null,
+      struct_proofreader_payout: formData.结构产值.proofreader !== '' ? formData.结构产值.proofreader : null,
+      struct_reviewer_id: formData.结构设计人.reviewer !== '' ? formData.结构设计人.reviewer : null,
+      struct_reviewer_payout: formData.结构产值.reviewer !== '' ? formData.结构产值.reviewer : null,
+      struct_approver_id: formData.结构设计人.approver !== '' ? formData.结构设计人.approver : null,
+      struct_approver_payout: formData.结构产值.approver !== '' ? formData.结构产值.approver : null,
+
+      plumbing_pm_id: formData.给排水设计人.pm !== '' ? formData.给排水设计人.pm : null,
+      plumbing_pm_payout: formData.给排水产值.pm !== '' ? formData.给排水产值.pm : null,
+      plumbing_pm_assistant_id: formData.给排水设计人.pm_assistant !== '' ? formData.给排水设计人.pm_assistant : null,
+      plumbing_pm_assistant_payout: formData.给排水产值.pm_assistant !== '' ? formData.给排水产值.pm_assistant : null,
+      plumbing_designer_id: formData.给排水设计人.designer !== '' ? formData.给排水设计人.designer : null,
+      plumbing_designer_payout: formData.给排水产值.designer !== '' ? formData.给排水产值.designer : null,
+      plumbing_drafter_id: formData.给排水设计人.drafter !== '' ? formData.给排水设计人.drafter : null,
+      plumbing_drafter_payout: formData.给排水产值.drafter !== '' ? formData.给排水产值.drafter : null,
+      plumbing_design_post_service_id: formData.给排水设计人.post_service !== '' ? formData.给排水设计人.post_service : null,
+      plumbing_design_post_service_payout: formData.给排水产值.post_service !== '' ? formData.给排水产值.post_service : null,
+      plumbing_proofreader_id: formData.给排水设计人.proofreader !== '' ? formData.给排水设计人.proofreader : null,
+      plumbing_proofreader_payout: formData.给排水产值.proofreader !== '' ? formData.给排水产值.proofreader : null,
+      plumbing_reviewer_id: formData.给排水设计人.reviewer !== '' ? formData.给排水设计人.reviewer : null,
+      plumbing_reviewer_payout: formData.给排水产值.reviewer !== '' ? formData.给排水产值.reviewer : null,
+      plumbing_approver_id: formData.给排水设计人.approver !== '' ? formData.给排水设计人.approver : null,
+      plumbing_approver_payout: formData.给排水产值.approver !== '' ? formData.给排水产值.approver : null,
+
+      electrical_pm_id: formData.强电设计人.pm !== '' ? formData.强电设计人.pm : null,
+      electrical_pm_payout: formData.强电产值.pm !== '' ? formData.强电产值.pm : null,
+      electrical_pm_assistant_id: formData.强电设计人.pm_assistant !== '' ? formData.强电设计人.pm_assistant : null,
+      electrical_pm_assistant_payout: formData.强电产值.pm_assistant !== '' ? formData.强电产值.pm_assistant : null,
+      electrical_designer_id: formData.强电设计人.designer !== '' ? formData.强电设计人.designer : null,
+      electrical_designer_payout: formData.强电产值.designer !== '' ? formData.强电产值.designer : null,
+      electrical_drafter_id: formData.强电设计人.drafter !== '' ? formData.强电设计人.drafter : null,
+      electrical_drafter_payout: formData.强电产值.drafter !== '' ? formData.强电产值.drafter : null,
+      electrical_design_post_service_id: formData.强电设计人.post_service !== '' ? formData.强电设计人.post_service : null,
+      electrical_design_post_service_payout: formData.强电产值.post_service !== '' ? formData.强电产值.post_service : null,
+      electrical_proofreader_id: formData.强电设计人.proofreader !== '' ? formData.强电设计人.proofreader : null,
+      electrical_proofreader_payout: formData.强电产值.proofreader !== '' ? formData.强电产值.proofreader : null,
+      electrical_reviewer_id: formData.强电设计人.reviewer !== '' ? formData.强电设计人.reviewer : null,
+      electrical_reviewer_payout: formData.强电产值.reviewer !== '' ? formData.强电产值.reviewer : null,
+      electrical_approver_id: formData.强电设计人.approver !== '' ? formData.强电设计人.approver : null,
+      electrical_approver_payout: formData.强电产值.approver !== '' ? formData.强电产值.approver : null,
+
+      hvac_pm_id: formData.暖通设计人.pm !== '' ? formData.暖通设计人.pm : null,
+      hvac_pm_payout: formData.暖通产值.pm !== '' ? formData.暖通产值.pm : null,
+      hvac_pm_assistant_id: formData.暖通设计人.pm_assistant !== '' ? formData.暖通设计人.pm_assistant : null,
+      hvac_pm_assistant_payout: formData.暖通产值.pm_assistant !== '' ? formData.暖通产值.pm_assistant : null,
+      hvac_designer_id: formData.暖通设计人.designer !== '' ? formData.暖通设计人.designer : null,
+      hvac_designer_payout: formData.暖通产值.designer !== '' ? formData.暖通产值.designer : null,
+      hvac_drafter_id: formData.暖通设计人.drafter !== '' ? formData.暖通设计人.drafter : null,
+      hvac_drafter_payout: formData.暖通产值.drafter !== '' ? formData.暖通产值.drafter : null,
+      hvac_design_post_service_id: formData.暖通设计人.post_service !== '' ? formData.暖通设计人.post_service : null,
+      hvac_design_post_service_payout: formData.暖通产值.post_service !== '' ? formData.暖通产值.post_service : null,
+      hvac_proofreader_id: formData.暖通设计人.proofreader !== '' ? formData.暖通设计人.proofreader : null,
+      hvac_proofreader_payout: formData.暖通产值.proofreader !== '' ? formData.暖通产值.proofreader : null,
+      hvac_reviewer_id: formData.暖通设计人.reviewer !== '' ? formData.暖通设计人.reviewer : null,
+      hvac_reviewer_payout: formData.暖通产值.reviewer !== '' ? formData.暖通产值.reviewer : null,
+      hvac_approver_id: formData.暖通设计人.approver !== '' ? formData.暖通设计人.approver : null,
+      hvac_approver_payout: formData.暖通产值.approver !== '' ? formData.暖通产值.approver : null,
+
+      low_voltage_pm_id: formData.弱电设计人.pm !== '' ? formData.弱电设计人.pm : null,
+      low_voltage_pm_payout: formData.弱电产值.pm !== '' ? formData.弱电产值.pm : null,
+      low_voltage_pm_assistant_id: formData.弱电设计人.pm_assistant !== '' ? formData.弱电设计人.pm_assistant : null,
+      low_voltage_pm_assistant_payout: formData.弱电产值.pm_assistant !== '' ? formData.弱电产值.pm_assistant : null,
+      low_voltage_designer_id: formData.弱电设计人.designer !== '' ? formData.弱电设计人.designer : null,
+      low_voltage_designer_payout: formData.弱电产值.designer !== '' ? formData.弱电产值.designer : null,
+      low_voltage_drafter_id: formData.弱电设计人.drafter !== '' ? formData.弱电设计人.drafter : null,
+      low_voltage_drafter_payout: formData.弱电产值.drafter !== '' ? formData.弱电产值.drafter : null,
+      low_voltage_design_post_service_id: formData.弱电设计人.post_service !== '' ? formData.弱电设计人.post_service : null,
+      low_voltage_design_post_service_payout: formData.弱电产值.post_service !== '' ? formData.弱电产值.post_service : null,
+      low_voltage_proofreader_id: formData.弱电设计人.proofreader !== '' ? formData.弱电设计人.proofreader : null,
+      low_voltage_proofreader_payout: formData.弱电产值.proofreader !== '' ? formData.弱电产值.proofreader : null,
+      low_voltage_reviewer_id: formData.弱电设计人.reviewer !== '' ? formData.弱电设计人.reviewer : null,
+      low_voltage_reviewer_payout: formData.弱电产值.reviewer !== '' ? formData.弱电产值.reviewer : null,
+      low_voltage_approver_id: formData.弱电设计人.approver !== '' ? formData.弱电设计人.approver : null,
+      low_voltage_approver_payout: formData.弱电产值.approver !== '' ? formData.弱电产值.approver : null,
+    } 
+    return project_payout
+}
+
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   title,
   editable,
@@ -618,10 +731,12 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   const [pmAssistantOptions, setPmAssistantOptions] = useState<(EmployeePublicOut & {value: number, label: string})[]>([])
   const [pmName, setPmName] = useState<string>('');
   const [pmAssistantName, setPmAssistantName] = useState<string>('');
-  
+  const [usedDepartmentPayoutRatioId, setUsedDepartmentPayoutRatioId] = useState<number | null>(null)
   const [workLocations, setWorkLocations] = useState<WorkLocationPublicOut[]>([])//use for dropdown while editing
   const [departments, setDepartments] = useState<DepartmentPublicOut[]>([])//use for dropdown while editing
   const [dataSource, setDataSource] = useState<DataType[]>(projectPayoutToDataSource(null))
+  const [notificationApi, contextHolder] = notification.useNotification();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   useEffect(() => {
     fetchData();
@@ -647,7 +762,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
       }
       setWorkLocations(resWorkLocations.data.data)
       setDepartments(resDepartments.data.data)
-      setCalculatedEmployeePayout(project.calculated_employee_payout)
       
     } catch(error){
       message.error("工作地点或部门获取失败: "+ error);
@@ -681,6 +795,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
         if (key.endsWith('_id')) {
           if (key === "project_id") continue;
           if (existing_project_payout[key] === null) continue;
+          if (existing_project_payout[key] === undefined) continue;
           if (employeeCache[existing_project_payout[key] as number]) continue;
           const {error, data} = await EmployeeService.getEmployeeById({
             path: {
@@ -694,6 +809,8 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           employeeCache[data.id] = data
         }
     }
+
+    setUsedDepartmentPayoutRatioId(existing_project_payout.department_payout_ratio_id)
 
     const fields = projectPayoutToFormData(existing_project_payout)
 
@@ -719,7 +836,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     // Calculate and set total sum
     const totalSum = calculateTotalSum(fields);
     setTotalSum(totalSum);
-    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.001);
+    setIsSumValid(Math.abs(totalSum - project.calculated_employee_payout) < 0.001);
     setTogglePayoutTable(true)
   };
 
@@ -740,23 +857,102 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   };
 
   const handlePayoutFinish = async () => {
-    try {
-      const values = await formPayout.validateFields();
       if (!isSumValid) {
-        notification.error({
+        notificationApi.error({
           message: "提交失败",
           description: "计算表总计与项目下发产值不相等。请检查",
           duration: 5,
           closable: false,
-          btn: <Button type="primary" onClick={() => notification.destroy()}>我知道了</Button>,
+          btn: <Button type="primary" onClick={() => notificationApi.destroy()}>我知道了</Button>,
         });
         return;
       }
-      console.log("表单提交时的值:", values);
-      // Here you can proceed with submitting the form data
-    } catch (error) {
-      console.log('表单验证错误:', error);
-    }
+      setIsSubmitting(true)
+      const submitted_project_payout = formDataToProjectPayout(formPayout.getFieldsValue())
+      submitted_project_payout.project_id = project.id
+      submitted_project_payout.job_payout_ratio_profile_id = selectedProfileId!
+      submitted_project_payout.department_payout_ratio_id = usedDepartmentPayoutRatioId!
+      console.log("表单提交时的值:", formPayout.getFieldsValue());
+      console.log("表单提交时的ProjectPayout:", submitted_project_payout);
+      if (!existing_project_payout){ // 第一次计算
+        try{
+          const {error, data} = await ProjectPayoutsService.createProjectPayout(
+            {
+              body: submitted_project_payout
+            }
+          )
+          if (error) {
+            notificationApi.error({
+              message: "提交失败",
+              description: "错误: " + error.detail,
+            });
+            console.log("ProjectPayout提交错误: ");
+            console.log(error);
+          } else {
+            notificationApi.success({
+              message: "提交成功",
+            });
+            existing_project_payout = data
+          }
+        } catch (error) {
+          notificationApi.error({
+            message: "提交失败",
+            description: "未知错误: " + error,
+          });
+          console.log("ProjectPayout提交Fetch错误: ");
+          console.log(error);
+        }
+      } else { // 更新
+        const changed_project_payout: ProjectPayoutUpdateIn = {}
+        for (const key of Object.keys(submitted_project_payout) as (keyof typeof submitted_project_payout)[]) {
+          if (existing_project_payout[key] !== submitted_project_payout[key]) {
+            changed_project_payout[key] = submitted_project_payout[key]
+          }
+        }
+        console.log("需要更新的ProjectPayout:", changed_project_payout);
+        if (Object.keys(changed_project_payout).length > 0) {
+          try{
+            const {error, data} = await ProjectPayoutsService.updateProjectPayout(
+              {
+                body: changed_project_payout,
+                path: {
+                  id: existing_project_payout.id
+                },
+              }
+            )
+            if (error) {
+              notificationApi.error({
+                message: "修改失败",
+                description: "错误: " + error.detail,
+              });
+              console.log("ProjectPayout修改错误: ");
+              console.log(error);
+            } else {
+              notificationApi.success({
+                message: "修改成功",
+                description: data.message,
+                duration: 5 * data.message.split('\n').length,
+              });
+              for (const key of Object.keys(changed_project_payout) as (keyof typeof changed_project_payout)[]) {
+                existing_project_payout[key] = changed_project_payout[key]
+              }
+              initializeFormWithProjectPayout()
+            }
+          } catch (error) {
+            notificationApi.error({
+              message: "修改失败",
+              description: "未知错误: " + error,
+            });
+            console.log("ProjectPayout修改Fetch错误: ");
+            console.log(error);
+          }
+        } else {
+          notificationApi.success({
+            message: "未检测到修改",
+          });
+        }
+      }
+      setIsSubmitting(false)
   };
 
   function calculatePayout(departmentValue: number, ratios: any) {
@@ -834,6 +1030,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
       });
       return;
     }
+    setUsedDepartmentPayoutRatioId(resDepartmentPayoutRatio.data.id)
     //计算部门间payout
     const valueForPMTeam = project.calculated_employee_payout * resDepartmentPayoutRatio.data.pm_ratio / 100//项目总负责及助理产值
     const valueForRestOfPM = project.calculated_employee_payout * (100-resDepartmentPayoutRatio.data.pm_ratio) /100 //除项目总负责及助理剩余专业产值
@@ -979,13 +1176,12 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     new_project_payout.low_voltage_reviewer_payout = Number(lowVoltageReviewer)
     new_project_payout.low_voltage_approver_payout = Number(lowVoltageApprover)
 
-
     if (existing_project_payout) {
-    Object.keys(existing_project_payout).forEach(key => {
-        if (key.endsWith('_id') && existing_project_payout[key] !== null) {
-            new_project_payout[key] = existing_project_payout[key];
-        }
-    });
+      Object.keys(existing_project_payout).forEach(key => {
+          if (key.endsWith('_id') && existing_project_payout[key] !== null) {
+              new_project_payout[key] = existing_project_payout[key];
+          }
+      });
     } 
 
 
@@ -1194,7 +1390,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     };
   });
 
-  const [calculatedEmployeePayout, setCalculatedEmployeePayout] = useState<number>(0);
 
   // Add this function to calculate the total sum
   const calculateTotalSum = (formValues: any): number => {
@@ -1244,7 +1439,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     const totalSum = calculateTotalSum(allValues);
     setTotalSum(totalSum);
     // Check if the total sum matches the calculated employee payout
-    setIsSumValid(Math.abs(totalSum - calculatedEmployeePayout) < 0.001);
+    setIsSumValid(Math.abs(totalSum - project.calculated_employee_payout) < 0.001);
   };
 
 
@@ -1334,6 +1529,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
 
   return (
     <div>
+      {contextHolder}
       <Space direction="vertical" size="large" style={{ display: 'flex' }}> 
         <Space size="middle">
           <Select
@@ -1379,20 +1575,20 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
             }
           />
           <Button type="primary" disabled={selectedProfileId===undefined ? true : false} onClick={generatePayout}>
-            生成产值表
+            计算产值
           </Button>
         </Space>
           
         {togglePayoutTable &&
           
           <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit} onValuesChange={handleFormValuesChange}>
-          <Form.Item noStyle shouldUpdate>
+          {/* <Form.Item noStyle shouldUpdate>
             {() => (
               <Typography>
                 <pre>{JSON.stringify(formPayout.getFieldsValue(), null, 2)}</pre>
               </Typography>
             )}
-          </Form.Item>
+          </Form.Item> */}
             <Space direction="vertical" size="large" style={{ display: 'flex' }}>
             
               <Row gutter={16}>
@@ -1530,6 +1726,8 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                 <Button 
                   type="primary" 
                   htmlType="submit"
+                  loading={isSubmitting}
+                  disabled={isSubmitting}
                 >
                   提交产值表
                 </Button>

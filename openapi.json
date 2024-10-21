@@ -6459,7 +6459,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProjectPayoutPublicOut"
+                  "$ref": "#/components/schemas/Message"
                 }
               }
             }
@@ -9001,7 +9001,7 @@
             "type": "string",
             "format": "date-time",
             "title": "Modified At",
-            "default": "2024-10-20T17:28:41.490678"
+            "default": "2024-10-20T23:16:11.721671"
           }
         },
         "type": "object",
@@ -14782,9 +14782,6 @@
           }
         },
         "type": "object",
-        "required": [
-          "project_id"
-        ],
         "title": "ProjectPayoutUpdateIn"
       },
       "ProjectPayoutsPublicOut": {

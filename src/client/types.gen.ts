@@ -743,7 +743,7 @@ export type ProjectPayoutPublicOut = {
 };
 
 export type ProjectPayoutUpdateIn = {
-    project_id: null;
+    project_id?: null;
     pm_id?: (number | null);
     pm_payout?: (number | null);
     pm_assistant_id?: (number | null);
@@ -1941,7 +1941,7 @@ export type UpdateProjectPayoutData = {
     };
 };
 
-export type UpdateProjectPayoutResponse = (ProjectPayoutPublicOut);
+export type UpdateProjectPayoutResponse = (Message);
 
 export type UpdateProjectPayoutError = (ErrorResponse | HTTPValidationError);
 
