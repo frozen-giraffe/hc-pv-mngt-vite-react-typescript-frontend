@@ -20,6 +20,7 @@ import {
 } from "../../client";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import InputDirectPercent from "../../components/InputDirectPercent";
+import { useForm } from "antd/es/form/Form";
 
 interface ProjectClass {
   id: number;
@@ -43,9 +44,10 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
   const [, setProjectRateAdjustmentClasses] = useState<
     ProjectRateAdjustmentClass[]
   >([]);
-  const [editForm] = Form.useForm();
+  const [editForm] = useForm();
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [currentSum, setCurrentSum] = useState<number>(0);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -136,6 +138,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
       editForm.setFieldsValue({ ...record });
       setEditingKey(record.id);
       calculateSum(recordAsRecord);
+      setIsFormDirty(false); // Reset form dirty state when entering edit mode
     },
     [calculateSum, editForm]
   );
@@ -143,6 +146,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
   const cancel = useCallback(() => {
     setEditingKey(null);
     setCurrentSum(0);
+    setIsFormDirty(false); // Reset form dirty state when canceling
   }, []);
 
   const handleUpdate = useCallback(
@@ -291,7 +295,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
                     ? `部门间工比总和不为100%，当前总和为${currentSum.toFixed(
                         2
                       )}%`
-                    : ""
+                    : !isFormDirty ? "未修改数据" : ""
                 }
               >
                 <Popconfirm
@@ -299,24 +303,28 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
                   onConfirm={() => save(record.id)}
                   okText="确定"
                   cancelText="取消"
-                  disabled={Math.abs(currentSum - 100) > 0.01}
+                  disabled={Math.abs(currentSum - 100) > 0.01 || !isFormDirty}
                 >
                   <Typography.Link
                     style={{ marginRight: 8 }}
-                    disabled={Math.abs(currentSum - 100) > 0.01}
+                    disabled={Math.abs(currentSum - 100) > 0.01 || !isFormDirty}
                   >
                     保存
                   </Typography.Link>
                 </Popconfirm>
               </Tooltip>
-              <Popconfirm
-                title="当前编辑的数据将会丢失，确定？"
-                onConfirm={cancel}
-                okText="确定"
-                cancelText="取消"
-              >
-                <Typography.Link>取消</Typography.Link>
-              </Popconfirm>
+              {isFormDirty ? (
+                <Popconfirm
+                  title="当前编辑的数据将会丢失，确定？"
+                  onConfirm={cancel}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Typography.Link>取消</Typography.Link>
+                </Popconfirm>
+              ) : (
+                <Typography.Link onClick={cancel}>取消</Typography.Link>
+              )}
             </span>
           ) : (
             <span>
@@ -337,7 +345,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
         },
       },
     ],
-    [isEditing, currentSum, save, cancel, handleNew, edit, editingKey]
+    [isEditing, currentSum, save, cancel, handleNew, edit, editingKey, isFormDirty]
   );
 
   const mergedColumns = useMemo(
@@ -373,6 +381,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
         const currentValues = editForm.getFieldsValue();
         currentValues[dataIndex] = value;
         calculateSum(currentValues);
+        setIsFormDirty(true); // Set form as dirty when a change is made
       };
 
       return (
