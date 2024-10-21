@@ -840,29 +840,32 @@ export const Projects = () => {
       {contextHolder}
       <Space direction="vertical" style={{ width: "100%" }}>
         <h1>项目管理</h1>
-        {user?.is_superuser && (
           <Space wrap>
-            <Button
-              onClick={showProjectDetail}
-              type="primary"
-              icon={<PlusOutlined />}
-            >
-              添加
-            </Button>
-            <Divider type="vertical" />
-            <Button
-              onClick={showProjectListDownloadModal}
-              icon={<FilePdfOutlined />}
-            >
-              导出项目列表
-            </Button>
-            <Button
-              onClick={showCompanyReportModal}
-              icon={<FilePdfOutlined />}
-            >
-              公司年度报告
-            </Button>
-            <Divider type="vertical" />
+            {user?.is_superuser && (
+              <>
+                <Button
+                  onClick={showProjectDetail}
+                type="primary"
+                icon={<PlusOutlined />}
+                >
+                  添加
+                </Button>
+                <Divider type="vertical" />
+                <Button
+                  onClick={showProjectListDownloadModal}
+                  icon={<FilePdfOutlined />}
+                >
+                  导出项目列表
+                </Button>
+                <Button
+                  onClick={showCompanyReportModal}
+                  icon={<FilePdfOutlined />}
+                >
+                  公司年度报告
+                </Button>
+                <Divider type="vertical" />
+              </>
+            )}
             <Typography.Text>显示列：</Typography.Text>
             <Select
               mode="multiple"
@@ -908,7 +911,6 @@ export const Projects = () => {
               }}
             />
           </Space>
-        )}
         <Table
           bordered
           key={tableRefreshKey}
