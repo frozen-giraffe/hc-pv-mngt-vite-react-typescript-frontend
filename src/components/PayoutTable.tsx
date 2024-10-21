@@ -1106,7 +1106,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     Number(HVACPM)+Number(HVACAssistant)+Number(HVACDesigner)+Number(HVACDrafter)+Number(HVACPostService)+Number(HVACProofreader)+Number(HVACReviewer)+Number(HVACApprover)+
     Number(lowVoltagePM)+Number(lowVoltageAssistant)+Number(lowVoltageDesigner)+Number(lowVoltageDrafter)+Number(lowVoltagePostService)+Number(lowVoltageProofreader)+Number(lowVoltageReviewer)+Number(lowVoltageApprover)))
     
-    if (selectedProfileData?.id !== 99){ // 当选择的配置文件不是“不使用配置文件”时
+    if (selectedProfileData?.id !== 99 && resDepartmentPayoutRatio.data.id !== 99){ // 当选择的配置文件不是“不使用配置文件”时
       console.log("四舍五入后不准确度: "+inaccuracy);
       pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
       setInaccuracy(inaccuracy)
@@ -1577,6 +1577,11 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           <Button type="primary" disabled={selectedProfileId===undefined ? true : false} onClick={generatePayout}>
             计算产值
           </Button>
+          {usedDepartmentPayoutRatioId === 99 && (
+            <Tooltip title={`当前工程为非正规工程，或项目工程等级和系数调整级别没有指定的部门工比，无法自动计算产值，请手动填入。`}>
+              <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
+            </Tooltip>
+          )}
         </Space>
           
         {togglePayoutTable &&
