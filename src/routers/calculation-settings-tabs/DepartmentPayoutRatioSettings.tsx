@@ -480,7 +480,7 @@ const DepartmentPayoutRatioSettings: React.FC = () => {
             `${record.project_class_id}-${record.project_rate_adjustment_class_id}`
           }
           scroll={{ x: "max-content", y: "max(calc(100vh - 570px), 300px)" }}
-          size="middle"
+          size="small"
         />
       </Form>
     </div>
