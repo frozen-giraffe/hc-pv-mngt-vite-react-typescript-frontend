@@ -14,6 +14,7 @@ import {
   Table,
   Tooltip,
   Typography,
+  Drawer,
 } from "antd";
 import { PlusOutlined, FilePdfOutlined, LoadingOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
@@ -45,6 +46,7 @@ import FilterDropdown from "../components/FilterDropdown";
 import dayjs from "dayjs";
 import { InfoCircleOutlined, FilterFilled, SortAscendingOutlined } from "@ant-design/icons";
 import { useNotificationApi } from '../hooks/useNotificationApi';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 
 type EmployeeQueryParams = NonNullable<
   Parameters<typeof EmployeeService.readEmployees>[0]
@@ -69,7 +71,7 @@ type EmployeeFullDetails = Omit<
 export const Employees: React.FC = () => {
   const { user } = useAuth();
   const [form] = Form.useForm();
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [employees, setEmployees] = useState<EmployeeFullDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -104,6 +106,7 @@ export const Employees: React.FC = () => {
   const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
   const [editingEmployee, setEditingEmployee] =
     useState<EmployeeFullDetails | null>(null);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const getEmployeePublicOutColumn = GetColumnNames<EmployeePublicOut>();
 
@@ -241,7 +244,7 @@ export const Employees: React.FC = () => {
       : undefined;
   };
 
-  const showModal = (employee?: EmployeeFullDetails) => {
+  const showDrawer = (employee?: EmployeeFullDetails) => {
     if (employee) {
       setEditingEmployee(employee);
       form.setFieldsValue({
@@ -251,19 +254,40 @@ export const Employees: React.FC = () => {
         employeeTitle: employee.employeeTitle.name,
         professionalTitle: employee.professionalTitle.name,
         employmentStatus: employee.employmentStatus.name,
-        birth_date: employee.birth_date ? new dayjs(employee.birth_date) : null,
+        birth_date: employee.birth_date ? dayjs(employee.birth_date) : null,
       });
     } else {
       setEditingEmployee(null);
       form.resetFields();
     }
-    setIsModalVisible(true);
+    setIsDrawerVisible(true);
+    setIsFormDirty(false); // Reset the form dirty state when opening the drawer
   };
 
-  const handleModalCancel = () => {
-    setIsModalVisible(false);
-    setEditingEmployee(null);
-    form.resetFields();
+  const handleDrawerClose = () => {
+    if (isFormDirty) {
+      Modal.confirm({
+        title: '确认关闭',
+        icon: <ExclamationCircleOutlined />,
+        content: '您有未保存的更改，确定要关闭吗？',
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => {
+          setIsDrawerVisible(false);
+          setEditingEmployee(null);
+          form.resetFields();
+          setIsFormDirty(false);
+        },
+      });
+    } else {
+      setIsDrawerVisible(false);
+      setEditingEmployee(null);
+      form.resetFields();
+    }
+  };
+
+  const handleFormValuesChange = () => {
+    setIsFormDirty(true);
   };
 
   const handleAddOrUpdateEmployee = async (values: any) => {
@@ -318,7 +342,7 @@ export const Employees: React.FC = () => {
         });
         if (response.data) {
           message.success("更新成功");
-          handleModalCancel();
+          handleDrawerClose();
         } else {
           message.error("更新失败: " + response.error?.detail);
         }
@@ -328,7 +352,7 @@ export const Employees: React.FC = () => {
         });
         if (response.data) {
           message.success("创建成功");
-          handleModalCancel();
+          handleDrawerClose();
         } else {
           message.error("创建失败: " + response.error?.detail);
         }
@@ -505,7 +529,7 @@ export const Employees: React.FC = () => {
       width: 100,
       render: (_, record: EmployeeFullDetails) => (
         <Space>
-          <Typography.Link onClick={() => showModal(record)}>
+          <Typography.Link onClick={() => showDrawer(record)}>
             编辑
           </Typography.Link>
           <Typography.Link
@@ -675,7 +699,7 @@ export const Employees: React.FC = () => {
         {user?.is_superuser && (
           <Space wrap>
             <Button
-              onClick={() => showModal()}
+              onClick={() => showDrawer()}
               type="primary"
               icon={<PlusOutlined />}
             >
@@ -721,20 +745,27 @@ export const Employees: React.FC = () => {
           sticky={{ offsetHeader: -1, offsetScroll: 10 }}
         />
       </Space>
-      <Modal
-        title={
-          editingEmployee ? "编辑员工：" + editingEmployee.name : "添加新员工"
+      <Drawer
+        title={(editingEmployee ? "编辑员工：" + editingEmployee.name : "添加新员工") + (isFormDirty ? " (已修改)" : "")}
+        placement="right"
+        width={520}
+        onClose={handleDrawerClose}
+        open={isDrawerVisible}
+        closable={false}
+        extra={
+          <Space>
+            <Button onClick={handleDrawerClose}>取消</Button>
+            <Button onClick={() => form.submit()} type="primary">
+              {editingEmployee ? "保存修改" : "添加"}
+            </Button>
+          </Space>
         }
-        open={isModalVisible}
-        onCancel={handleModalCancel}
-        onOk={() => form.submit()}
-        okText={editingEmployee ? "更新" : "添加"}
-        cancelText="取消"
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleAddOrUpdateEmployee}
+          onValuesChange={handleFormValuesChange}
         >
           <Form.Item
             name="name"
@@ -857,7 +888,7 @@ export const Employees: React.FC = () => {
             bordered={false}
           />
         </Form>
-      </Modal>
+      </Drawer>
       <EmployeeReportModal
         visible={isEmployeeReportModalVisible}
         onCancel={() => setIsEmployeeReportModalVisible(false)}
