@@ -17,16 +17,15 @@ export const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const from = (location.state as { from?: string })?.from || '/dashboard';
   const redirectUrl = searchParams.get('redirect');
 
   const navigateAfterLogin = useCallback(() => {
     if (redirectUrl) {
       navigate(redirectUrl);
     } else {
-      navigate(from);
+      navigate('/dashboard');
     }
-  }, [navigate, redirectUrl, from]);
+  }, [navigate, redirectUrl]);
 
   useEffect(() => {
     const loginReason = localStorage.getItem(REDIRECT_LOGIN_REASON_KEY);
@@ -53,7 +52,7 @@ export const Login = () => {
     <div className='login-page-wrap'>
       <div className='login-page-left'>
         <div></div>
-        <div className='text'>新疆昊辰产值管理系统</div>
+        <div className='text'>新疆昊辰建筑设计规划研究院 - 产值管理系统</div>
       </div>
       
       <div className='login-page-right'>
@@ -61,19 +60,19 @@ export const Login = () => {
         <Alert
           className='alert'
           style={errorMsgVisible ? {display: 'block'} : {display:'none'}}
-          message="Error"
+          message="登录失败"
           description={errorMsg}
           type="error"
           showIcon
         />
         <Input 
-          placeholder="Username" 
+          placeholder="邮箱" 
           value={username}
           size='large'
           onChange={(e) => setUsername(e.target.value)}/>
         <Input.Password
           size='large'
-          placeholder="Password"
+          placeholder="密码"
           value={password}
           visibilityToggle={{
             visible: passwordVisible,
@@ -83,9 +82,9 @@ export const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         
-        <Button className='loginButton' type="primary" onClick={handleLogin} >Login</Button>
+        <Button className='loginButton' type="primary" onClick={handleLogin} >登录</Button>
 
-        <div className='copyright'>© 2024 Hao Cheng Architecture Planning and Design Research Institute Co., Ltd. All Rights Reserved</div>
+        <div className='copyright'>©2024 昊辰建筑设计研究院有限公司 版权所有</div>
       </div>
       
     </div>
