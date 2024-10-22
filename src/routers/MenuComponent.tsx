@@ -15,7 +15,8 @@ import {
 } from '@ant-design/icons';
 import Sider from "antd/es/layout/Sider";
 import { Content, Header } from "antd/es/layout/layout";
-import Logo from '/favicon.png'
+import Logo from '../assets/Logo.png'
+import LogoWithText from '../assets/LogoWithText.png'
 import { useAuth } from "../hooks/useAuth";
 
 
@@ -113,9 +114,6 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
     };
   }, []);
 
-  const toggle = () => {
-    setCollapsed(!collapsed);
-  };
   const onClickImage:React.DOMAttributes<HTMLImageElement>['onClick']=()=>{
     navigate('/');
   }
@@ -210,8 +208,12 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
         breakpoint="lg"
         >
         <div className='logo-div'> 
-          <img src={Logo} className='logo-inner-img' onClick={onClickImage}></img>
-
+          <img 
+              src={collapsed ? Logo : LogoWithText} 
+              className={`logo-inner-img ${collapsed ? 'collapsed' : 'expanded'}`} 
+              onClick={onClickImage}
+              alt="Logo"
+          />
         </div>
         <Menu
           theme="dark"

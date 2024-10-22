@@ -12,14 +12,28 @@
     margin-left: 256px;
     background-color: aliceblue;
 }
-.logo-div{
-    display: flex;
-    justify-content: center;
+.logo-div {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 64px; /* Fixed height for the logo container */
+padding: 16px;
 }
-.logo-inner-img{
-    width: 50px;
-    margin: 20px 0px 20px 0px;
+  
+.logo-inner-img {
+max-height: 32px; /* Fixed max height for both logos */
+width: auto; /* Allow width to adjust automatically */
+transition: all 0.2s ease; /* Smooth transition when switching logos */
 }
+
+.logo-inner-img.collapsed {
+max-width: 32px; /* Max width for the collapsed state logo */
+}
+
+.logo-inner-img.expanded {
+max-width: 168px; /* Max width for the expanded state logo */
+}
+
 .logo-inner-img:hover{
     cursor: pointer;
     caret-color: black;
