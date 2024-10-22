@@ -781,6 +781,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
         } else {
           setProfiles(data.data);
           if (!existing_project_payout) setLoading(false);
+
       }
     } catch (error) {
       message.error("获取工比失败: 未知错误: " + error);
@@ -823,12 +824,12 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
 
     // Set PM and PM Assistant names
     if (existing_project_payout.pm_id) {
-      setPmName(employeeCache[existing_project_payout.pm_id]?.name || '');
-      setPmOptions(employeeCache[existing_project_payout.pm_id] ? [employeeCache[existing_project_payout.pm_id]] : [])
+      setPmName(employeeCache[existing_project_payout!.pm_id]?.name || '');
+      setPmOptions(employeeCache[existing_project_payout!.pm_id] ? [employeeCache[existing_project_payout!.pm_id]] : [])
     }
-    if (existing_project_payout.pm_assistant_id) {
-      setPmName(employeeCache[existing_project_payout.pm_id]?.name || '');
-      setPmAssistantOptions(employeeCache[existing_project_payout.pm_assistant_id] ? [employeeCache[existing_project_payout.pm_assistant_id]] : [])
+    if (existing_project_payout!.pm_assistant_id) {
+      setPmAssistantName(employeeCache[existing_project_payout!.pm_assistant_id]?.name || '');
+      setPmAssistantOptions(employeeCache[existing_project_payout!.pm_assistant_id] ? [employeeCache[existing_project_payout!.pm_assistant_id]] : [])
     }
 
     setSelectedProfileId(existing_project_payout.job_payout_ratio_profile_id)
@@ -938,6 +939,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
               for (const key of Object.keys(changed_project_payout) as (keyof typeof changed_project_payout)[]) {
                 existing_project_payout[key] = changed_project_payout[key]
               }
+              existing_project_payout.update_required_project_updated = false
               initializeFormWithProjectPayout()
             }
           } catch (error) {
@@ -1535,6 +1537,16 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     <div>
       {contextHolder}
       <Space direction="vertical" size="large" style={{ display: 'flex' }}> 
+          <h2 style={{ marginTop: 0 }}>
+            <Space>
+              下发产值表
+              {existing_project_payout?.update_required_project_updated && (
+                <Tooltip title="项目下发产值在上次产值计算后修改过。请重新计算产值并保存。重新计算之前将无法进行回款登记。">
+                <InfoCircleOutlined style={{color:'orange'}}/>
+                    </Tooltip>
+              )}
+            </Space>
+          </h2>
         <Space size="middle">
           <Select
             value={selectedProfileId}
