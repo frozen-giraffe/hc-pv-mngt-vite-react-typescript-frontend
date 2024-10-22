@@ -130,10 +130,12 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
+      setCollapsed(true)
       document.documentElement.requestFullscreen();
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
+        setCollapsed(false)
       }
     }
   };
@@ -191,14 +193,22 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sider for Drawer Menu */}
-      <Sider  trigger={null} collapsible collapsed={collapsed} width={collapsed ? 80 : 200}  style={{
+      <Sider  trigger={null} collapsible collapsed={collapsed} width={collapsed ? 70 : 200}  style={{
           position: "fixed",
           height: "100vh",
           left: 0,
           top: 0,
           bottom: 0,
           zIndex: 10,
-        }}>
+        }}
+        collapsedWidth={70}
+        onCollapse={(going_collapsed) => {
+          if (going_collapsed !== collapsed) {
+            setCollapsed(going_collapsed)
+          }
+        }}
+        breakpoint="lg"
+        >
         <div className='logo-div'> 
           <img src={Logo} className='logo-inner-img' onClick={onClickImage}></img>
 
@@ -218,7 +228,7 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
 
       {/* Layout for Top Nav and Content */}
       <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s ease' }}>
-        <Header style={{ padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Header style={{ position: 'sticky', top: 0, zIndex: 99, padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Tooltip title={collapsed ? '展开菜单' : '折叠菜单'} placement="right">
             <Button
               type="text"
@@ -231,6 +241,7 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
               }}
             />
           </Tooltip>
+          <div style={{display:'flex', alignItems:'center'}}>昊辰产值管理系统 - {auth.user?.full_name}</div>
           <div>
             {isEmployeesOrProjectsPage && <FullScreenButton />}
             <Dropdown menu={{items:dropDownMenu}} placement="bottomRight">

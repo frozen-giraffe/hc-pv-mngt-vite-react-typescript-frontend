@@ -955,7 +955,7 @@ export const Projects = () => {
           scroll={{ x: "max-content" }}
           style={{ height: "100%" }}
           size="small"
-          sticky={{ offsetHeader: -1, offsetScroll: 10 }}
+          sticky={{ offsetHeader: 63, offsetScroll: 10 }}
         />
       </Space>
       <ProjectListDownloadModal

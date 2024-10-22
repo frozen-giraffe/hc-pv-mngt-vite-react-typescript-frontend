@@ -742,7 +742,7 @@ export const Employees: React.FC = () => {
             )
           }}
           scroll={{ x: 500 }}
-          sticky={{ offsetHeader: -1, offsetScroll: 10 }}
+          sticky={{ offsetHeader: 63, offsetScroll: 10 }}
         />
       </Space>
       <Drawer
