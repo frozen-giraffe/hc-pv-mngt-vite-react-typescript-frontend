@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { GetRef, InputRef, TableProps } from "antd";
 import { Button, Col, Divider, Form, Input, message, Row, Select, Space, Table, Tag, Tooltip, Typography, notification, Skeleton } from "antd";
 import { DepartmentPayoutRatiosService, DepartmentPublicOut, DepartmentsService, EmployeePublicOut, EmployeeService, JobPayoutRatioProfilePublicOut, JobPayoutRatioProfilesService, WorkLocationPublicOut, WorkLocationsService, ProjectPayoutPublicOut, ProjectPublicOut, ProjectPayoutCreateIn, ProjectPayoutsService, ProjectPayoutUpdateIn, ProjectPayoutUpdateInSchema } from "../client";
@@ -350,9 +350,20 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       proofreader: project_payout?.low_voltage_proofreader_payout !== null ? project_payout?.low_voltage_proofreader_payout : '',
       reviewer: project_payout?.low_voltage_reviewer_payout !== null ? project_payout?.low_voltage_reviewer_payout : '',
       approver: project_payout?.low_voltage_approver_payout !== null ? project_payout?.low_voltage_approver_payout : '',
+    },
+    弱电产值:{
+      pm: project_payout?.low_voltage_pm_payout !== null ? project_payout?.low_voltage_pm_payout : '',
+      pm_assistant: project_payout?.low_voltage_pm_assistant_payout !== null ? project_payout?.low_voltage_pm_assistant_payout : '',
+      designer: project_payout?.low_voltage_designer_payout !== null ? project_payout?.low_voltage_designer_payout : '',
+      drafter: project_payout?.low_voltage_drafter_payout !== null ? project_payout?.low_voltage_drafter_payout : '',
+      post_service: project_payout?.low_voltage_design_post_service_payout !== null ? project_payout?.low_voltage_design_post_service_payout : '',
+      proofreader: project_payout?.low_voltage_proofreader_payout !== null ? project_payout?.low_voltage_proofreader_payout : '',
+      reviewer: project_payout?.low_voltage_reviewer_payout !== null ? project_payout?.low_voltage_reviewer_payout : '',
+      approver: project_payout?.low_voltage_approver_payout !== null ? project_payout?.low_voltage_approver_payout : '',
     }
   }
 }
+
 
 const formDataToProjectPayout = (formData: any): ProjectPayoutCreateIn => {
     const project_payout: ProjectPayoutCreateIn = {
@@ -737,59 +748,97 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   const [dataSource, setDataSource] = useState<DataType[]>(projectPayoutToDataSource(null))
   const [notificationApi, contextHolder] = notification.useNotification();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [isStaticDataLoaded, setIsStaticDataLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     fetchData();
-    fetchProfiles();
-    if (existing_project_payout) {
-      initializeFormWithProjectPayout();
-    }
-  }, [existing_project_payout]);
+  }, []);
 
-  const fetchData = async()=>{
+  const fetchData = async () => {
     try {
-      const [resWorkLocations, resDepartments] = await Promise.all([
+      const [resWorkLocations, resDepartments, resProfiles] = await Promise.all([
         WorkLocationsService.readWorkLocations(),
         DepartmentsService.readDepartments(),
-      ])
-      if(resWorkLocations.error){
-        message.error("工作地点获取失败: "+ resWorkLocations.error?.detail)
-        return
-      }
-      if(resDepartments.error){
-        message.error("部门获取失败: "+ resDepartments.error?.detail)
-        return
-      }
-      setWorkLocations(resWorkLocations.data.data)
-      setDepartments(resDepartments.data.data)
-      
-    } catch(error){
-      message.error("工作地点或部门获取失败: "+ error);
-    }
-  }
-  const fetchProfiles = async () => {
-    try {
-      const {error, data} =
-        await JobPayoutRatioProfilesService.readJobPayoutRatioProfiles({
+        JobPayoutRatioProfilesService.readJobPayoutRatioProfiles({
           query: {
             hidden: false,
           },
-        });
-        if (error) {
-          message.error("获取工比失败: " + error.detail);
-        } else {
-          setProfiles(data.data);
-          if (!existing_project_payout) setLoading(false);
+        }),
+      ]);
 
+      if (resWorkLocations.error) {
+        message.error("工作地点获取失败: " + resWorkLocations.error?.detail);
+        return;
       }
+      if (resDepartments.error) {
+        message.error("部门获取失败: " + resDepartments.error?.detail);
+        return;
+      }
+      if (resProfiles.error) {
+        message.error("工比获取失败: " + resProfiles.error?.detail);
+        return;
+      }
+
+      setWorkLocations(resWorkLocations.data.data);
+      setDepartments(resDepartments.data.data);
+      setProfiles(resProfiles.data.data);
+      
+      setIsStaticDataLoaded(true);
+      if (!existing_project_payout) setLoading(false);
     } catch (error) {
-      message.error("获取工比失败: 未知错误: " + error);
-      console.log(error);
+      message.error("数据获取失败: " + error);
+      console.error(error);
     }
   };
 
-  const initializeFormWithProjectPayout = async () => {
+  // Modify the calculateRowSum function to accept a category
+  const calculateRowSum = useCallback((category: string, formValues: any) => {
+    const rowData = formValues[`${category}产值`] || {};
+    const values = [
+      rowData.pm,
+      rowData.pm_assistant,
+      rowData.designer,
+      rowData.drafter,
+      rowData.post_service,
+      rowData.proofreader,
+      rowData.reviewer,
+      rowData.approver
+    ];
+    return values.reduce((sum, value) => sum + (Number(value) || 0), 0).toFixed(2);
+  }, []);
+
+
+  // Add this function to calculate the total sum
+  const calculateTotalSum = useCallback((formValues: any): number => {
+    const departmentSums = ['建筑', '结构', '给排水', '暖通', '强电', '弱电'].reduce((sum, category) => {
+      return sum + Number(calculateRowSum(category, formValues));
+    }, 0);
+
+    const pmPayout = Number(formValues.pmPayout) || 0;
+    const pmAssistantPayout = Number(formValues.pmAssistantPayout) || 0;
+
+    return departmentSums + pmPayout + pmAssistantPayout;
+  }, [calculateRowSum]);
+
+  const handleProfileSelect = useCallback((profileId: number) => {
+    setSelectedProfileId(profileId);
+    const selectedProfile = profiles.find(
+      (profile) => profile.id === profileId
+    );
+    
+    if (selectedProfile) {
+      setSelectedProfileId(selectedProfile.id)
+      setSelectedProfileData(selectedProfile);
+      console.log(selectedProfile);
+      
+    } else {
+      message.error("未找到所选配置文件");
+    }
+  }, [profiles]);
+
+
+  const initializeFormWithProjectPayout = useCallback(async () => {
     if (!existing_project_payout) return;
 
     // load employee cache
@@ -832,8 +881,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
       setPmAssistantOptions(employeeCache[existing_project_payout!.pm_assistant_id] ? [employeeCache[existing_project_payout!.pm_assistant_id]] : [])
     }
 
-    setSelectedProfileId(existing_project_payout.job_payout_ratio_profile_id)
-    setSelectedProfileData(profiles.find(profile => profile.id === existing_project_payout.job_payout_ratio_profile_id) || null)
+    handleProfileSelect(existing_project_payout.job_payout_ratio_profile_id)
 
     // Calculate and set total sum
     const totalSum = calculateTotalSum(fields);
@@ -841,23 +889,13 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     setIsSumValid(Math.abs(totalSum - project.calculated_employee_payout) < 0.001);
     setTogglePayoutTable(true)
     setLoading(false)
-  };
+  }, [calculateTotalSum, existing_project_payout, formPayout, handleProfileSelect, project.calculated_employee_payout]);
 
-  const handleProfileSelect = (profileId: number) => {
-    setSelectedProfileId(profileId);
-    const selectedProfile = profiles.find(
-      (profile) => profile.id === profileId
-    );
-    
-    if (selectedProfile) {
-      setSelectedProfileId(selectedProfile.id)
-      setSelectedProfileData(selectedProfile);
-      console.log(selectedProfile);
-      
-    } else {
-      message.error("未找到所选配置文件");
+  useEffect(() => {
+    if (isStaticDataLoaded && existing_project_payout) {
+      initializeFormWithProjectPayout();
     }
-  };
+  }, [isStaticDataLoaded, existing_project_payout, initializeFormWithProjectPayout]);
 
   const handlePayoutFinish = async () => {
       if (!isSumValid) {
@@ -1110,7 +1148,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     Number(HVACPM)+Number(HVACAssistant)+Number(HVACDesigner)+Number(HVACDrafter)+Number(HVACPostService)+Number(HVACProofreader)+Number(HVACReviewer)+Number(HVACApprover)+
     Number(lowVoltagePM)+Number(lowVoltageAssistant)+Number(lowVoltageDesigner)+Number(lowVoltageDrafter)+Number(lowVoltagePostService)+Number(lowVoltageProofreader)+Number(lowVoltageReviewer)+Number(lowVoltageApprover)))
     
-    if (selectedProfileData?.id !== 99 && resDepartmentPayoutRatio.data.id !== 99){ // 当选择的配置文件不是“不使用配置文件”时
+    if (selectedProfileData?.id !== 99 && resDepartmentPayoutRatio.data.id !== 99){ // 当选择的配置文件不是"不使用配置文件"时
       console.log("四舍五入后不准确度: "+inaccuracy);
       pm = (Number(pm)+Number(inaccuracy)).toFixed(2)
       setInaccuracy(inaccuracy)
@@ -1198,22 +1236,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
       
   }
   
-
-  // Modify the calculateRowSum function to accept a category
-  const calculateRowSum = (category: string, formValues: any) => {
-    const rowData = formValues[`${category}产值`] || {};
-    const values = [
-      rowData.pm,
-      rowData.pm_assistant,
-      rowData.designer,
-      rowData.drafter,
-      rowData.post_service,
-      rowData.proofreader,
-      rowData.reviewer,
-      rowData.approver
-    ];
-    return values.reduce((sum, value) => sum + (Number(value) || 0), 0).toFixed(2);
-  };
 
   // Modify the defaultColumns array
   const defaultColumns = [
@@ -1394,18 +1416,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     };
   });
 
-
-  // Add this function to calculate the total sum
-  const calculateTotalSum = (formValues: any): number => {
-    const departmentSums = ['建筑', '结构', '给排水', '暖通', '强电', '弱电'].reduce((sum, category) => {
-      return sum + Number(calculateRowSum(category, formValues));
-    }, 0);
-
-    const pmPayout = Number(formValues.pmPayout) || 0;
-    const pmAssistantPayout = Number(formValues.pmAssistantPayout) || 0;
-
-    return departmentSums + pmPayout + pmAssistantPayout;
-  };
 
   // Modify the handleFormValuesChange function
   const handleFormValuesChange = (changedValues: any, allValues: any) => {
