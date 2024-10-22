@@ -24,6 +24,7 @@ import {
   Descriptions,
   Skeleton,
   Result,
+  Space,
 } from "antd";
 import {
   ProjectTaskTypePublicOut,
@@ -128,6 +129,8 @@ export const ProjectDetail = () => {
   const [projectPayout, setProjectPayout] = useState<ProjectPayoutPublicOut | null>(null);
 
   const [ratio, setRatio] = useState<number>(1);
+
+  const [projectKey, setProjectKey] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -322,6 +325,7 @@ const errorMessage = (msg:string | undefined) => {
         if (res.data) {
           successMessage('更新成功')
           setProject(res.data)
+          setProjectKey(prevKey => prevKey + 1); // Increment the key to force re-render
         } else {
           errorMessage('更新失败: '+res.error.detail)
         }
@@ -350,6 +354,7 @@ const errorMessage = (msg:string | undefined) => {
             successMessage('创建成功')
             setProject(res.data)
             setPageTitle("项目信息: "+res.data.name)
+            setProjectKey(prevKey => prevKey + 1); // Increment the key to force re-render
             navigate('/project/detail?id='+res.data.id, {replace: true})
         }else{
             errorMessage('创建失败: '+res.error.detail)
@@ -716,8 +721,20 @@ const errorMessage = (msg:string | undefined) => {
       <Divider/>
       {project ? (
         <>
-          <h2 style={{ marginTop: 0 }}>下发产值表</h2>
-          <PayoutTable project={project} existing_project_payout={projectPayout}></PayoutTable>
+          <h2 style={{ marginTop: 0 }}>
+            <Space>
+              下发产值表
+              <Tooltip title="项目下发产值在上次产值计算后修改过。请重新计算产值并保存。重新计算之前将无法进行回款登记。">
+                <InfoCircleOutlined style={{color:'orange'}}/>
+              </Tooltip>
+            </Space>
+          </h2>
+            
+          <PayoutTable 
+            key={projectKey} 
+            project={project} 
+            existing_project_payout={projectPayout}
+          />
           <Divider />
         </>
       ) : null}

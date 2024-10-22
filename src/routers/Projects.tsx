@@ -771,7 +771,6 @@ export const Projects = () => {
                 e.preventDefault();
                 handleOpenDetail(row);
               }}
-              style={{ marginInlineEnd: 8 }}
               href={`/projects/${row.id}`}
             >
               详情
