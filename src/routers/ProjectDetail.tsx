@@ -449,7 +449,7 @@ const errorMessage = (msg:string | undefined) => {
       {contextHolder}
       <h2 style={{ marginTop: 0 }}>{pageTitle}</h2>
       
-      <Affix offsetTop={0}>
+      <Affix offsetTop={64}>
         <Drawer
           title="项目信息摘要"
           onClose={() => setIsDrawerOpen(false)}

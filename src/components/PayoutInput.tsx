@@ -1,13 +1,13 @@
 import React from 'react';
-import { Input, Tooltip } from 'antd';
+import { Input, InputRef,Tooltip } from 'antd';
 
 interface PayoutInputProps {
   style?: React.CSSProperties;
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   onBlur?: () => void;
   onPressEnter?: React.KeyboardEventHandler<HTMLInputElement>;
-  ref?: React.RefObject<HTMLInputElement>;
+  ref?: React.LegacyRef<InputRef>;
 }
 
 const formatNumber = (value: number) => new Intl.NumberFormat().format(value);
@@ -37,9 +37,10 @@ const PayoutInput: React.FC<PayoutInputProps> = (props) => {
         onChange={handleChange}
         onBlur={onBlur}
         onPressEnter={onPressEnter}
-        placeholder="Input a number"
+        placeholder="输入产值"
         maxLength={16}
         ref={ref}
+        autoFocus
       />
     </Tooltip>
   );

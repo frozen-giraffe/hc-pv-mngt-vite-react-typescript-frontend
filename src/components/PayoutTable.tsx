@@ -502,7 +502,11 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   
   useEffect(() => {
     if (editing) {
-      record?.text === '设计人' ? selectRef.current?.focus() : inputRef.current?.focus();
+      if (record?.text === '设计人') {
+        selectRef.current?.focus()
+      } else {
+        inputRef.current?.focus()
+      }
     }
     
     // Set initial employee name when editing starts
@@ -1673,7 +1677,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                     </>
                   } 
                   name='pmPayout'>
-                  <Input></Input>
+                  <Input placeholder="输入产值" />
                 </Form.Item>
                 </Col>
                 <Col span={6}>
@@ -1717,7 +1721,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
 
                   <Form.Item label="项目负责人助理产值" name='pmAssistantPayout'>
                     
-                    <Input></Input>
+                    <Input placeholder="输入产值" />
                   </Form.Item>
                 </Col>
               </Row>
