@@ -264,8 +264,8 @@ export const Employees: React.FC = () => {
     setIsFormDirty(false); // Reset the form dirty state when opening the drawer
   };
 
-  const handleDrawerClose = () => {
-    if (isFormDirty) {
+  const handleDrawerClose = (noConfirm: boolean = false) => {
+    if (isFormDirty && !noConfirm) {
       Modal.confirm({
         title: '确认关闭',
         icon: <ExclamationCircleOutlined />,
@@ -342,7 +342,7 @@ export const Employees: React.FC = () => {
         });
         if (response.data) {
           message.success("更新成功");
-          handleDrawerClose();
+          handleDrawerClose(true);
         } else {
           message.error("更新失败: " + response.error?.detail);
         }
@@ -352,7 +352,7 @@ export const Employees: React.FC = () => {
         });
         if (response.data) {
           message.success("创建成功");
-          handleDrawerClose();
+          handleDrawerClose(true);
         } else {
           message.error("创建失败: " + response.error?.detail);
         }
@@ -751,7 +751,6 @@ export const Employees: React.FC = () => {
         width={520}
         onClose={handleDrawerClose}
         open={isDrawerVisible}
-        closable={false}
         extra={
           <Space>
             <Button onClick={handleDrawerClose}>取消</Button>
