@@ -269,6 +269,9 @@ export const ProjectDetail = () => {
   };
   
   const calculateIssuedValue = () => {
+    if(projectPayout?.contract_payment_payout_started){
+      return true
+    }
     const value = form.getFieldValue("projectContractValue") || 0;
     const issuedValue = value * ratio;
     form.setFieldsValue({ calculatedEmployeePayout: issuedValue.toFixed(2) });
@@ -357,7 +360,7 @@ const errorMessage = (msg:string | undefined) => {
             setPageTitle("项目信息: "+res.data.name)
             setProjectPayout(res.data.project_payout || null)
             setProjectKey(prevKey => prevKey + 1); // Increment the key to force re-render
-            navigate('/project/detail?id='+res.data.id, {replace: true})
+            navigate('/projects/'+res.data.id, {replace: true})
         }else{
             errorMessage('创建失败: '+res.error.detail)
         }
@@ -527,6 +530,7 @@ const errorMessage = (msg:string | undefined) => {
             <Col span={8}>
               <Form.Item label="工程类型" name="projectType" rules={[{ required: true }]}>
                 <Select 
+                  disabled={projectPayout?.contract_payment_payout_started ? true : false}
                   onChange={handleProjectTypeSelectChange} 
                   showSearch={projectTypes.length > 10}
                   optionFilterProp="label"
@@ -569,7 +573,7 @@ const errorMessage = (msg:string | undefined) => {
           <Row gutter={16}>
             <Col span={8}>
               <Form.Item label="工程项目类别" name="projectTaskType" rules={[{ required: true }]}>
-                <Select>
+                <Select disabled={projectPayout?.contract_payment_payout_started ? true : false}>
                   {projectTaskTypes.map((option) => (
                     <Select.Option key={option.id} value={option.id}>
                       {option.name}
@@ -581,6 +585,7 @@ const errorMessage = (msg:string | undefined) => {
             <Col span={8}>
               <Form.Item label="系数调整类别" name="projectRateAdjustmentClass" rules={[{ required: true }]}>
                 <Select
+                  disabled={projectPayout?.contract_payment_payout_started ? true : false}
                   options={departmentPayoutRatioRelatedToProjectClassId.map((option) => {
                     const pra = projectRateAdjustmentClasses.find(
                       (value) => value.id === option.project_rate_adjustment_class_id
@@ -596,7 +601,7 @@ const errorMessage = (msg:string | undefined) => {
             </Col>
             <Col span={8}>
               <Form.Item label="设计质量系数" name="qualityRatioClass" rules={[{ required: true }]}>
-                <Select>
+                <Select disabled={projectPayout?.contract_payment_payout_started ? true : false}>
                   {qualityRatioClasses.map((option) => (
                     <Select.Option key={option.id} value={option.id}>
                       {option.name}
@@ -610,6 +615,7 @@ const errorMessage = (msg:string | undefined) => {
             <Col span={8}>
               <Form.Item label="结构形式" name="buildingStructureType" rules={[{ required: true }]}>
                 <Select
+                  disabled={projectPayout?.contract_payment_payout_started ? true : false}
                   showSearch
                   virtual={false}
                   popupMatchSelectWidth={false}
@@ -652,6 +658,7 @@ const errorMessage = (msg:string | undefined) => {
                 label: (
                   <Form.Item label="下发产值(元)" name="calculatedEmployeePayout" noStyle rules={[{ required: true }]}>
                     <Input
+                      disabled={projectPayout?.contract_payment_payout_started ? true : false}
                       className="panel-header-input"
                       value={inputValue}
                       onChange={handleInputChange}

@@ -54,6 +54,7 @@ interface EditableCellProps {
   workLocations: WorkLocationPublicOut[];
   form:any
   handleSave: (record: Item) => void;
+  existing_project_payout: ProjectPayoutPublicOut | null;
 }
 
 // Add this custom validator function
@@ -490,6 +491,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   departments,
   workLocations,
   handleSave,
+  existing_project_payout,
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
@@ -541,9 +543,9 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   // }, [form, record, dataIndex]);
   const toggleEdit = () => {
     console.log("click");
-
+    
     setEditing(!editing);
-    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex] || "");
+    form.setFieldValue([record?.category + record?.text, dataIndex], record[dataIndex]!==null && record[dataIndex]!==undefined ?  record[dataIndex] : "");
     
     // Set employee name when toggling edit mode
     if (record?.text === '设计人' && record[dataIndex]) {
@@ -635,13 +637,13 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         setOptions(formattedOptions)
       }
     } catch (error) {
-      console.log(error);
+      console.log(error); 
     }
   }
    
   let childNode = children;
   let formName=[record?.category+record?.text, dataIndex]
-   if (editable) {
+  if (editable) {
     childNode = editing ? (
       <Form.Item
         style={{ margin: 0 }}
@@ -705,6 +707,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       >
         <div
           className="editable-cell-value-wrap"
+          style={{ pointerEvents: existing_project_payout?.contract_payment_payout_started && record?.text==='产值' ? 'none' : 'auto' }}
           onClick={toggleEdit}
         >
       {record.text === '设计人' && typeof children[1] === 'number'
@@ -733,7 +736,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
   const [profiles, setProfiles] = useState<JobPayoutRatioProfilePublicOut[]>(
     []
   );
-  const [tableInit, setTableInit] = useState({})
   const [PMOptions, setPMOptions] = useState<(EmployeePublicOut & {value:String, label:string})[]>([])
   const [selectedProfileData, setSelectedProfileData] = useState<JobPayoutRatioProfilePublicOut | null>(null);
   const [togglePayoutTable, setTogglePayoutTable] = useState(false)
@@ -869,7 +871,6 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
 
     const fields = projectPayoutToFormData(existing_project_payout)
 
-    setTableInit(fields);
     formPayout.setFieldsValue(fields);
     // Update dataSource
     const newDataSource = projectPayoutToDataSource(existing_project_payout)
@@ -955,7 +956,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           }
         }
         console.log("需要更新的ProjectPayout:", changed_project_payout);
-        if (Object.keys(changed_project_payout).length > 0) {
+        //if (Object.keys(changed_project_payout).length > 0) {
           try{
             const {error, data} = await ProjectPayoutsService.updateProjectPayout(
               {
@@ -992,11 +993,11 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
             console.log("ProjectPayout修改Fetch错误: ");
             console.log(error);
           }
-        } else {
-          notificationApi.success({
-            message: "未检测到修改",
-          });
-        }
+        //} else {
+        //   notificationApi.success({
+        //     message: "未检测到修改",
+        //   });
+        // }
       }
       setIsSubmitting(false)
   };
@@ -1229,11 +1230,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           }
       });
     } 
-
-
-
     const fields= projectPayoutToFormData(new_project_payout)
-    setTableInit(fields)
     setDataSource(projectPayoutToDataSource(new_project_payout))
     formPayout.setFieldsValue(fields)
     handleFormValuesChange(fields,fields)
@@ -1401,6 +1398,7 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
               workLocations: workLocations,
               form: formPayout,
               handleSave,
+              existing_project_payout,
             }),
           })),
         };
@@ -1616,14 +1614,24 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
           
         {togglePayoutTable &&
           
-          <Form form={formPayout} onFinish={handlePayoutFinish} initialValues={tableInit} onValuesChange={handleFormValuesChange}>
-          {/* <Form.Item noStyle shouldUpdate>
+          <Form form={formPayout} onFinish={handlePayoutFinish} onValuesChange={handleFormValuesChange}>
+            {/* <Space style={{display:'flex', width: '100%', justifyContent:'start', alignContent:'center'}}>
+              <Form.Item noStyle shouldUpdate>
             {() => (
               <Typography>
                 <pre>{JSON.stringify(formPayout.getFieldsValue(), null, 2)}</pre>
               </Typography>
             )}
-          </Form.Item> */}
+          </Form.Item>
+          <Form.Item noStyle shouldUpdate>
+            {() => (
+              <Typography>
+                <pre>{JSON.stringify(dataSource, null, 2)}</pre>
+              </Typography>
+            )}
+          </Form.Item>
+            </Space> */}
+         
             <Space direction="vertical" size="large" style={{ display: 'flex' }}>
             
               <Row gutter={16}>
