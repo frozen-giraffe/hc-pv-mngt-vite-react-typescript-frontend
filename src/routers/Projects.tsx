@@ -49,7 +49,8 @@ import {
   PROJECT_PAGE_DEFAULT_PAGE_SIZE,
 } from "../client/const";
 import FilterDropdown from "../components/FilterDropdown";
-import { FilterFilled, SortAscendingOutlined } from "@ant-design/icons";
+import { FilterFilled, SortAscendingOutlined, LoadingOutlined } from "@ant-design/icons";
+import { useNotificationApi } from "../hooks/useNotificationApi";
 
 // Add this type alias using the correct type from ProjectsService
 type ProjectQueryParams = NonNullable<
@@ -101,6 +102,8 @@ export const Projects = () => {
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
   const [isStaticDataLoaded, setIsStaticDataLoaded] = useState(false);
+
+  const notificationApi = useNotificationApi();
 
   useEffect(() => {
     fetchStaticData();
@@ -370,17 +373,19 @@ export const Projects = () => {
 
   const downloadProjectList = (project_year: number | null) => {
     try {
-      messageApi.open({
+      notificationApi.open({
         key: "downloadProjectList",
-        type: "loading",
-        content: "正在导出项目列表...",
+        message: "正在导出项目列表...",
+        description: "请稍候...",
+        icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
         duration: 5,
         onClose: () => {
-          messageApi.open({
+          notificationApi.open({
             key: "downloadProjectList",
-            type: "loading",
-            content:
-              "正在导出项目列表...数据较多，请耐心等待，且不要离开此页面",
+            message:
+              "正在导出项目列表...",
+            description: "数据较多，请耐心等待...",
+            icon: <LoadingOutlined style={{ color: '#1890ff' }} />,
             duration: 0,
           });
         },
@@ -389,27 +394,27 @@ export const Projects = () => {
         query: { project_year: project_year },
       }).then((res) => {
         if (res.data) {
-          messageApi.open({
+          notificationApi.success({
             key: "downloadProjectList",
-            type: "success",
-            content: "项目列表导出成功，正在下载...",
+            message: "项目列表导出成功",
+            description: "正在下载...",
             duration: 2,
           });
           downloadReport(res.data, res.response);
         } else {
-          messageApi.open({
+          notificationApi.error({
             key: "downloadProjectList",
-            type: "error",
-            content: "获取项目列表失败：" + res.error?.detail,
+            message: "获取项目列表失败",
+            description: "错误信息：" + res.error?.detail,
             duration: 10,
           });
         }
       });
     } catch (e) {
-      messageApi.open({
+      notificationApi.error({
         key: "downloadProjectList",
-        type: "error",
-        content: "获取项目列表失败，未知错误：" + e,
+        message: "获取项目列表失败",
+        description: "未知错误：" + e,
         duration: 10,
       });
     }
