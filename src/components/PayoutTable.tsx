@@ -351,16 +351,6 @@ const projectPayoutToFormData = (project_payout: ProjectPayoutPublicOut | null) 
       proofreader: project_payout?.low_voltage_proofreader_payout !== null ? project_payout?.low_voltage_proofreader_payout : '',
       reviewer: project_payout?.low_voltage_reviewer_payout !== null ? project_payout?.low_voltage_reviewer_payout : '',
       approver: project_payout?.low_voltage_approver_payout !== null ? project_payout?.low_voltage_approver_payout : '',
-    },
-    弱电产值:{
-      pm: project_payout?.low_voltage_pm_payout !== null ? project_payout?.low_voltage_pm_payout : '',
-      pm_assistant: project_payout?.low_voltage_pm_assistant_payout !== null ? project_payout?.low_voltage_pm_assistant_payout : '',
-      designer: project_payout?.low_voltage_designer_payout !== null ? project_payout?.low_voltage_designer_payout : '',
-      drafter: project_payout?.low_voltage_drafter_payout !== null ? project_payout?.low_voltage_drafter_payout : '',
-      post_service: project_payout?.low_voltage_design_post_service_payout !== null ? project_payout?.low_voltage_design_post_service_payout : '',
-      proofreader: project_payout?.low_voltage_proofreader_payout !== null ? project_payout?.low_voltage_proofreader_payout : '',
-      reviewer: project_payout?.low_voltage_reviewer_payout !== null ? project_payout?.low_voltage_reviewer_payout : '',
-      approver: project_payout?.low_voltage_approver_payout !== null ? project_payout?.low_voltage_approver_payout : '',
     }
   }
 }
@@ -1234,6 +1224,12 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
     setDataSource(projectPayoutToDataSource(new_project_payout))
     formPayout.setFieldsValue(fields)
     handleFormValuesChange(fields,fields)
+    notificationApi.success({
+      message: "产值计算完成",
+      description: "员工产值已重新计算。请检查产值表是否正确，补全未填写的员工名称，并提交。",
+      duration: 5,
+      showProgress: true,
+    });
       
   }
   
@@ -1602,9 +1598,11 @@ export const PayoutTable: React.FC<PayoutTableProps> = ({project, existing_proje
                   ]
             }
           />
-          <Button type="primary" disabled={selectedProfileId===undefined ? true : false} onClick={generatePayout}>
-            计算产值
-          </Button>
+          <Tooltip title={`${existing_project_payout?.contract_payment_payout_started ? '项目已有回款，无法重新计算产值' : ''}`}>
+            <Button type="primary" disabled={selectedProfileId===undefined || existing_project_payout?.contract_payment_payout_started} onClick={generatePayout}>
+              计算产值
+            </Button>
+          </Tooltip>
           {usedDepartmentPayoutRatioId === 99 && (
             <Tooltip title={`当前工程为非正规工程，或项目工程等级和系数调整级别没有对应的部门工比，无法自动计算产值，请手动填入。`}>
               <InfoCircleOutlined style={{ marginLeft: '4px', color: 'orange' }}/>
