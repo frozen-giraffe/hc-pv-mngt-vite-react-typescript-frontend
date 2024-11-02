@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import Logo from './../assets/LogoWithText.png'
+import LogoWithText from './../assets/LogoWithText.png'
 import { Button, Input, Alert, message } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './Login.css';
@@ -21,9 +21,9 @@ export const Login = () => {
 
   const navigateAfterLogin = useCallback(() => {
     if (redirectUrl) {
-      navigate(redirectUrl);
+      navigate(redirectUrl, {replace: true});
     } else {
-      navigate('/dashboard');
+      navigate('/dashboard', {replace: true});
     }
   }, [navigate, redirectUrl]);
 
@@ -56,7 +56,7 @@ export const Login = () => {
       </div>
       
       <div className='login-page-right'>
-        <img className='logo' src={Logo}></img>
+        <img className='logo' src={LogoWithText}></img>
         <Alert
           className='alert'
           style={errorMsgVisible ? {display: 'block'} : {display:'none'}}
@@ -84,7 +84,7 @@ export const Login = () => {
         
         <Button className='loginButton' type="primary" onClick={handleLogin} >登录</Button>
 
-        <div className='copyright'>©2024 昊辰建筑设计研究院有限公司 版权所有</div>
+        <div className='copyright'>©2024 新疆昊辰建筑规划设计研究院有限公司 版权所有</div>
       </div>
       
     </div>
