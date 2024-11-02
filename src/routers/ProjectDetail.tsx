@@ -431,6 +431,7 @@ const errorMessage = (msg:string | undefined) => {
   const { ref: formWrapperRef, inView: isFormInView } = useInView({
     threshold: 0.1,
     rootMargin: '-10% 0px 0px 0px',
+    initialInView: true,
   });
 
   useEffect(() => {
