@@ -230,7 +230,7 @@ export const MenuComponent: React.FC<{ children: React.ReactNode }>  = ({childre
 
       {/* Layout for Top Nav and Content */}
       <Layout style={{ marginLeft: collapsed ? 70 : 200, transition: 'all 0.2s ease' }}>
-        <Header style={{ position: 'sticky', top: 0, zIndex: 99, padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Header style={{ position: 'sticky', top: 0, zIndex: 99, padding: 0, background: colorBgContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)' }}>
           <Tooltip title={collapsed ? '展开菜单' : '折叠菜单'} placement="right">
             <Button
               type="text"
