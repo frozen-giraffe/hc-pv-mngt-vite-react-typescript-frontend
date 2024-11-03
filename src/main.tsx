@@ -22,8 +22,7 @@ import SystemManagement from './routers/SystemManagement';
 import NotFound from './routers/NotFound';
 
 client.setConfig({
-  baseUrl: "http://api.aaronyou.photos",
-  //baseUrl: "http://localhost:8001",
+  baseUrl: import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
