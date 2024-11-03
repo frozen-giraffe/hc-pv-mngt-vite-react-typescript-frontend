@@ -7,6 +7,8 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
+We are using `@vitejs/plugin-react-swc`.
+
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
@@ -18,7 +20,7 @@ export default tseslint.config({
   languageOptions: {
     // other options...
     parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      project: ['./tsconfig.node.json'],
       tsconfigRootDir: import.meta.dirname,
     },
   },
@@ -48,6 +50,77 @@ export default tseslint.config({
   },
 })
 ```
+
+## Frontend development
+
+Before you begin, ensure that you have either the Node Version Manager (nvm) or Fast Node Manager (fnm) installed on your system.
+
+* To install fnm follow the [official fnm guide](https://github.com/Schniz/fnm#installation). If you prefer nvm, you can install it using the [official nvm guide](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+* After installing either nvm or fnm, proceed to the `frontend` directory:
+
+```bash
+cd frontend
+```
+* If the Node.js version specified in the `.nvmrc` file isn't installed on your system, you can install it using the appropriate command:
+
+```bash
+# If using fnm
+fnm install
+
+# If using nvm
+nvm install
+```
+
+* Once the installation is complete, switch to the installed version:
+
+```bash
+# If using fnm
+fnm use
+
+# If using nvm
+nvm use
+```
+
+* Within the `frontend` directory, install the necessary NPM packages:
+
+```bash
+npm install
+```
+
+* And start the live server with the following `npm` script:
+
+```bash
+npm run dev
+```
+
+* Then open your browser at http://localhost:5173/.
+
+Notice that this live server is not running inside Docker, it's for local development, and that is the recommended workflow. Once you are happy with your frontend, you can build the frontend Docker image and start it, to test it in a production-like environment. But building the image at every change will not be as productive as running the local development server with live reload.
+
+Check the file `package.json` to see other available options.
+
+### Removing the frontend
+
+If you are developing an API-only app and want to remove the frontend, you can do it easily:
+
+* Remove the `./frontend` directory.
+
+* In the `docker-compose.yml` file, remove the whole service / section `frontend`.
+
+* In the `docker-compose.override.yml` file, remove the whole service / section `frontend`.
+
+Done, you have a frontend-less (api-only) app. 🤓
+
+---
+
+If you want, you can also remove the `FRONTEND` environment variables from:
+
+* `.env`
+* `./scripts/*.sh`
+
+But it would be only to clean them up, leaving them won't really have any effect either way.
+
 
 ## Generate Client
 
